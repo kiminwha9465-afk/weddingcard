@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모바일 청첩장 제작기</title>
+    <!-- Dependencies -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@200;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Song+Myung&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <style>
+        :root{--sidebar-width:450px;--preview-bg:#f0f2f5;--border-color:#e1e4e8;--primary-color:#f8bbd0;--accent-color:#e91e63;}
+        *{box-sizing:border-box;}
+        body{margin:0;font-family:'Pretendard',sans-serif;display:flex;height:100vh;overflow:hidden;background:#fff;-webkit-font-smoothing:antialiased;}
+        
+        /* Sidebar */
+        .sidebar{width:var(--sidebar-width);border-right:1px solid var(--border-color);display:flex;flex-shrink:0;}
+        .sidebar-nav{width:80px;background:#f8f9fa;border-right:1px solid var(--border-color);overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:10px 0;scrollbar-width:none;}
+        .nav-item{width:60px;height:60px;margin-bottom:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;border-radius:8px;color:#888;font-size:9px;text-align:center;transition:0.2s;}
+        .nav-item i{font-size:18px;margin-bottom:4px;}
+        .nav-item.active{background:var(--primary-color);color:white;}
+
+        .editor-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+        .sidebar-header{padding:15px 20px;border-bottom:1px solid var(--border-color);font-weight:bold;font-size:14px;}
+        .editor-content{padding:20px;flex:1;overflow-y:auto;}
+        .edit-section{display:none;}
+        .edit-section.active{display:block;}
+        .form-group{margin-bottom:15px;}
+        .section-title{font-size:16px;font-weight:bold;margin-bottom:15px;color:var(--accent-color);border-bottom:1px solid #eee;padding-bottom:8px;}
+        label{display:block;margin-bottom:5px;font-weight:600;font-size:12px;color:#444;}
+        input,select,textarea{width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;box-sizing:border-box;font-size:13px;}
+        #greet-editor{height:220px;margin-bottom:15px;background:white;}
+
+        /* Preview Area */
+        .preview-area{flex:1;background:var(--preview-bg);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:40px 20px;}
+        .mobile-frame{width:375px;min-height:812px;background:white;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;border:10px solid #1a1a1a;position:relative;}
+        .preview-scroll-container{flex:1;overflow-y:auto;scrollbar-width:none;}
+        .p-section{padding:60px 20px;text-align:center;border-bottom:1px solid #f5f5f5;position:relative;}
+        .p-title-small{font-size:11px;color:var(--accent-color);letter-spacing:3px;margin-bottom:25px;text-transform:uppercase;font-weight:700;}
+
+        /* Classic Cover Layout (Rollback) */
+        .p-cover-container { position: relative; width: 100%; height: 600px; background: #fff9fa; overflow: hidden; }
+        .p-cover-media { width: 100%; height: 100%; object-fit: cover; }
+        .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 2; }
+        .p-cover-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none; }
+        .p-cover-title { font-size: 16px; letter-spacing: 6px; margin-bottom: 25px; font-weight: 600; text-transform: uppercase; }
+        .p-cover-names { font-size: 34px; font-family: serif; margin-bottom: 12px; font-weight: bold; }
+        .p-cover-date { font-size: 17px; letter-spacing: 2px; }
+
+        /* Other Styles */
+        .p-contact-btn{margin-top:20px;padding:10px 24px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
+        .p-contact-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+        .p-contact-row:last-child{border-bottom:none;}
+        .p-contact-row-name{font-size:14px;color:#333;}
+        .p-contact-row-icons{display:flex;gap:8px;}
+        .p-contact-row-icons a{width:32px;height:32px;border-radius:50%;background:#fff9fa;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--accent-color);border:1px solid var(--primary-color);text-decoration:none;}
+        .p-contact-divider{height:1px;background:var(--primary-color);margin:6px 0;opacity:0.5;}
+        .p-gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+        .p-gallery-item{aspect-ratio:1;background:#eee;border-radius:2px;cursor:pointer;background-size:cover;background-position:center;}
+        .p-gallery-hidden{display:none;}
+        .p-gallery-more-btn{display:none;margin-top:15px;padding:10px 24px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
+        .p-img-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5001;}
+        .p-img-nav:hover{background:rgba(255,255,255,0.3);}
+        .p-img-nav-prev{left:15px;}
+        .p-img-nav-next{right:15px;}
+        .p-acc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+        .p-acc-row:last-child{margin-bottom:0;}
+        .p-acc-copy-btn{padding:6px 14px;font-size:11px;border:none;background:var(--accent-color);color:#fff;border-radius:8px;font-weight:bold;cursor:pointer;}
+        .p-calendar-table{width:100%;max-width:280px;margin:0 auto;border-collapse:collapse;font-size:13px;}
+        .p-calendar-table td{padding:8px;text-align:center;}
+        .p-calendar-table .selected{background:var(--accent-color);color:white;border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+        .p-calendar-card{background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,0.07);padding:25px 18px;}
+        .p-calendar-date-heading{font-size:16px;font-weight:700;color:#333;margin-bottom:18px;}
+        .p-dday-card{margin-top:22px;border:1px solid #f4c2cc;border-radius:12px;padding:14px;text-align:center;}
+        .p-dday-card-label{font-size:14px;font-weight:700;color:var(--accent-color);margin-bottom:6px;}
+        .p-dday-card-count{font-size:13px;color:var(--accent-color);}
+        
+        /* Guestbook */
+        .p-guestbook-form { background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 30px; text-align: left; }
+        .p-gb-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; }
+        .p-gb-btn { width: 100%; padding: 10px; background: var(--accent-color); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .p-gb-list { text-align: left; display: flex; flex-direction: column; gap: 15px; }
+        .p-gb-item { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #f0f0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .p-gb-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .p-gb-name { font-weight: bold; color: #333; }
+        .p-gb-date { color: #999; font-size: 11px; }
+        .p-gb-content { font-size: 13px; color: #555; line-height: 1.5; white-space: pre-wrap; }
+
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;}
+        .modal-content{background:white;width:90%;max-width:340px;border-radius:20px;padding:25px;box-sizing:border-box;}
+
+        #cropper-modal{background:rgba(0,0,0,0.8);z-index:3000;display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;}
+        .cropper-box{width:90%;max-width:500px;background:#fff;padding:10px;border-radius:10px;}
+
+        .actions{padding:15px 20px;border-top:1px solid var(--border-color);background:#fff;}
+        .btn-save{width:100%;padding:12px;background:var(--accent-color);color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;}
+
+        /* Styled File Upload */
+        .file-upload-wrapper { position: relative; width: 100%; }
+        .file-upload-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+        .file-upload-label { display: flex; align-items: center; justify-content: center; padding: 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 13px; color: #555; transition: all 0.2s; font-weight: 500; }
+        .file-upload-label i { margin-right: 8px; color: var(--accent-color); font-size: 14px; }
+        .file-upload-label:hover { background: #fff9fa; border-color: var(--primary-color); color: var(--accent-color); }
+
+        /* Mobile View Toggle */
+        .view-toggle-btn { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 10000; padding: 12px 24px; background: var(--accent-color); color: white; border: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; align-items: center; gap: 8px; }
+        .view-toggle-btn i { font-size: 16px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            :root { --sidebar-width: 380px; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; height: auto; }
+            .sidebar { width: 100%; border-right: none; flex-direction: column; }
+            .sidebar-nav { width: 100%; height: auto; flex-direction: row; padding: 5px; border-right: none; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; background: #f8f9fa; }
+            .nav-item { width: auto; height: auto; min-width: 65px; padding: 10px 5px; margin-bottom: 0; margin-right: 4px; border-radius: 6px; }
+            .nav-item i { font-size: 16px; }
+            .editor-pane { width: 100%; height: auto; }
+            .preview-area { width: 100%; padding: 20px 10px; min-height: 100vh; }
+            .mobile-frame { width: 100%; max-width: 375px; border: 2px solid #1a1a1a; border-radius: 20px; min-height: auto; }
+            
+            /* Toggle logic */
+            .view-toggle-btn { display: flex; }
+            .mobile-hide { display: none !important; }
+            .preview-area { background: #fff; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-nav">
+            <div class="nav-item active" onclick="switchSection('cover')"><i class="fa-solid fa-image"></i>커버</div>
+            <div class="nav-item" onclick="switchSection('weddingday')"><i class="fa-solid fa-calendar-check"></i>예식 일시</div>
+            <div class="nav-item" onclick="switchSection('greeting')"><i class="fa-solid fa-comment-dots"></i>인사말</div>
+            <div class="nav-item" onclick="switchSection('intro')"><i class="fa-solid fa-user-friends"></i>신랑신부</div>
+            <div class="nav-item" onclick="switchSection('gallery')"><i class="fa-solid fa-images"></i>갤러리</div>
+            <div class="nav-item" onclick="switchSection('location')"><i class="fa-solid fa-map-location-dot"></i>오시는 길</div>
+            <div class="nav-item" onclick="switchSection('account')"><i class="fa-solid fa-credit-card"></i>계좌번호</div>
+            <div class="nav-item" onclick="switchSection('guestbook')"><i class="fa-solid fa-book-open"></i>방명록</div>
+            <div class="nav-item" onclick="switchSection('thanks')"><i class="fa-solid fa-heart"></i>감사 인사</div>
+        </div>
+        <div class="editor-pane">
+            <div class="sidebar-header">청첩장 편집</div>
+            <div class="editor-content" id="editor-forms">
+                <!-- Cover -->
+                <div id="edit-cover" class="edit-section active">
+                    <div class="section-title">커버 설정</div>
+                    <div class="form-group"><label>메인 타이틀</label><input type="text" id="in-cover-title" value="Happy Wedding" oninput="up()"></div>
+                    <div class="form-group"><label>이름 표시 텍스트</label><input type="text" id="in-cover-names" value="김신랑 & 이신부" oninput="up()"></div>
+                    <div class="form-group"><label>날짜 표시 텍스트</label><input type="text" id="in-cover-date-text" value="2026. 06. 12" oninput="up()"></div>
+
+                    <div class="form-group"><label>전체 폰트 종류</label>
+                        <select id="in-cover-font" onchange="up()">
+                            <option value="'Pretendard', sans-serif">기본 (Pretendard)</option>
+                            <option value="'Playfair Display', serif">Elegant Serif (Playfair Display)</option>
+                            <option value="'Noto Serif KR', serif">클래식 명조 (Noto Serif KR)</option>
+                            <option value="'Nanum Myeongjo', serif">나눔 명조 (Nanum Myeongjo)</option>
+                            <option value="'Song Myung', serif">감성 바탕 (Song Myung)</option>
+                            <option value="'Dancing Script', cursive">핸드라이팅 (Dancing Script)</option>
+                        </select>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <div class="form-group" style="margin-bottom:0;"><label>타이틀 색상</label><input type="color" id="in-cover-color" value="#ffffff" oninput="up()"></div>
+                        <div class="form-group" style="margin-bottom:0;"><label>타이틀 크기(px)</label><input type="number" id="in-cover-size" value="16" min="10" max="100" oninput="up()"></div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <div class="form-group" style="margin-bottom:0;"><label>이름 색상</label><input type="color" id="in-names-color" value="#ffffff" oninput="up()"></div>
+                        <div class="form-group" style="margin-bottom:0;"><label>이름 크기(px)</label><input type="number" id="in-names-size" value="34" min="10" max="100" oninput="up()"></div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <div class="form-group" style="margin-bottom:0;"><label>날짜 색상</label><input type="color" id="in-date-color" value="#ffffff" oninput="up()"></div>
+                        <div class="form-group" style="margin-bottom:0;"><label>날짜 크기(px)</label><input type="number" id="in-date-size" value="17" min="10" max="100" oninput="up()"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>배경 사진 업로드</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="in-cover-file" class="file-upload-input" accept="image/*" onchange="handleCoverUpload(this)">
+                            <label for="in-cover-file" class="file-upload-label"><i class="fa-solid fa-cloud-arrow-up"></i>커버 사진 올리기</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Date -->
+                <div id="edit-weddingday" class="edit-section">
+                    <div class="section-title">예식 일시</div>
+                    <div class="form-group"><label>날짜 및 시간</label><input type="datetime-local" id="in-date" value="2026-06-12T12:00" oninput="up()"></div>
+                </div>
+                <!-- Greeting -->
+                <div id="edit-greeting" class="edit-section">
+                    <div class="section-title">인사말 편집</div>
+                    <div id="greet-editor"></div>
+                </div>
+                <!-- People -->
+                <div id="edit-intro" class="edit-section">
+                    <div class="section-title">신랑·신부 정보</div>
+                    <div class="form-group"><label>신랑 성함</label><input type="text" id="in-groom" value="김신랑" oninput="up()"></div>
+                    <div class="form-group"><label>신랑 연락처</label><input type="text" id="in-groom-tel" value="010-1234-5678" oninput="up()"></div>
+                    <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
+                        <div style="font-size:12px; font-weight:bold; margin-bottom:10px; color:#666;">신랑측 혼주</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div class="form-group"><label>아버님 성함</label><input type="text" id="in-groom-father" value="김아빠" oninput="up()"></div>
+                            <div class="form-group"><label>아버님 연락처</label><input type="text" id="in-groom-father-tel" value="010-1111-2222" oninput="up()"></div>
+                            <div class="form-group"><label>어머님 성함</label><input type="text" id="in-groom-mother" value="박엄마" oninput="up()"></div>
+                            <div class="form-group"><label>어머님 연락처</label><input type="text" id="in-groom-mother-tel" value="010-3333-4444" oninput="up()"></div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="form-group"><label>신부 성함</label><input type="text" id="in-bride" value="이신부" oninput="up()"></div>
+                    <div class="form-group"><label>신부 연락처</label><input type="text" id="in-bride-tel" value="010-9876-5432" oninput="up()"></div>
+                    <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
+                        <div style="font-size:12px; font-weight:bold; margin-bottom:10px; color:#666;">신부측 혼주</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div class="form-group"><label>아버님 성함</label><input type="text" id="in-bride-father" value="이아빠" oninput="up()"></div>
+                            <div class="form-group"><label>아버님 연락처</label><input type="text" id="in-bride-father-tel" value="010-5555-6666" oninput="up()"></div>
+                            <div class="form-group"><label>어머님 성함</label><input type="text" id="in-bride-mother" value="최엄마" oninput="up()"></div>
+                            <div class="form-group"><label>어머님 연락처</label><input type="text" id="in-bride-mother-tel" value="010-7777-8888" oninput="up()"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Gallery -->
+                <div id="edit-gallery" class="edit-section">
+                    <div class="section-title">갤러리</div>
+                    <div class="form-group">
+                        <label>사진 추가 (여러 장 가능)</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="in-gallery-file" class="file-upload-input" multiple accept="image/*" onchange="handleGalleryUpload(this)">
+                            <label for="in-gallery-file" class="file-upload-label"><i class="fa-solid fa-images"></i>갤러리 사진 올리기</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Location -->
+                <div id="edit-location" class="edit-section">
+                    <div class="section-title">오시는 길</div>
+                    <div class="form-group"><label>예식장 이름</label><input type="text" id="in-venue" value="시그니엘 서울" oninput="up()"></div>
+                    <div class="form-group"><label>주소</label><input type="text" id="in-addr" value="서울특별시 송파구 올림픽로 300" oninput="up()"></div>
+                    <div class="form-group"><label>지하철 안내</label><input type="text" id="in-subway" value="2, 8호선 잠실역 1, 2번 출구 연결" oninput="up()"></div>
+                    <div class="form-group"><label>버스 안내</label><input type="text" id="in-bus" value="잠실역.롯데월드몰 정류장 하차 (간선 301, 341, 360 등)" oninput="up()"></div>
+                </div>
+                <!-- Account -->
+                <div id="edit-account" class="edit-section">
+                    <div class="section-title">계좌번호</div>
+                    <div class="form-group">
+                        <label>신랑 계좌</label>
+                        <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px;">
+                            <input type="text" id="in-acc-groom-bank" placeholder="은행명" value="국민" oninput="up()">
+                            <input type="text" id="in-acc-groom-num" placeholder="계좌번호" value="123-456-789" oninput="up()">
+                        </div>
+                        <div style="font-size:11px; color:#999; margin-top:4px;">예금주: <span id="acc-groom-name-preview"></span> (신랑신부 탭의 신랑 성함과 연동됩니다)</div>
+                    </div>
+                    <div class="form-group">
+                        <label>신부 계좌</label>
+                        <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px;">
+                            <input type="text" id="in-acc-bride-bank" placeholder="은행명" value="신한" oninput="up()">
+                            <input type="text" id="in-acc-bride-num" placeholder="계좌번호" value="987-654-321" oninput="up()">
+                        </div>
+                        <div style="font-size:11px; color:#999; margin-top:4px;">예금주: <span id="acc-bride-name-preview"></span> (신랑신부 탭의 신부 성함과 연동됩니다)</div>
+                    </div>
+                    <div id="acc-parent-extra" style="display:none;">
+                        <hr>
+                        <div class="form-group">
+                            <label>신랑측 아버님 계좌</label>
+                            <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px;">
+                                <input type="text" id="in-acc-groom-father-bank" placeholder="은행명" value="" oninput="up()">
+                                <input type="text" id="in-acc-groom-father-num" placeholder="계좌번호" value="" oninput="up()">
+                            </div>
+                            <div style="font-size:11px; color:#999; margin-top:4px;">예금주: <span id="acc-groom-father-name-preview"></span> (신랑신부 탭과 연동됩니다)</div>
+                        </div>
+                        <div class="form-group">
+                            <label>신랑측 어머님 계좌</label>
+                            <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px;">
+                                <input type="text" id="in-acc-groom-mother-bank" placeholder="은행명" value="" oninput="up()">
+                                <input type="text" id="in-acc-groom-mother-num" placeholder="계좌번호" value="" oninput="up()">
+                            </div>
+                            <div style="font-size:11px; color:#999; margin-top:4px;">예금주: <span id="acc-groom-mother-name-preview"></span> (신랑신부 탭과 연동됩니다)</div>
+                        </div>
+                        <div class="form-group">
+                            <label>신부측 아버님 계좌</label>
+                            <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px;">
+                                <input type="text" id="in-acc-bride-father-bank" placeholder="은행명" value="" oninput="up()">
+                                <input type="text" id="in-acc-bride-father-num" placeholder="계좌번호" value="" oninput="up()">
+                            </div>
+                            <div style="font-size:11px; color:#999; margin-top:4px;">예금주: <span id="acc-bride-father-name-preview"></span> (신랑신부 탭과 연동됩니다)</div>
+                        </div>
+                        <div class="form-group">
+                            <label>신부측 어머님 계좌</label>
+                            <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px;">
+                                <input type="text" id="in-acc-bride-mother-bank" placeholder="은행명" value="" oninput="up()">
+                                <input type="text" id="in-acc-bride-mother-num" placeholder="계좌번호" value="" oninput="up()">
+                            </div>
+                            <div style="font-size:11px; color:#999; margin-top:4px;">예금주: <span id="acc-bride-mother-name-preview"></span> (신랑신부 탭과 연동됩니다)</div>
+                        </div>
+                    </div>
+                    <button type="button" id="acc-add-parent-btn" onclick="addParentAccounts()" style="width:100%; padding:10px; border:1px dashed var(--primary-color); background:#fff9fa; color:var(--accent-color); border-radius:8px; cursor:pointer; font-size:13px; font-weight:600;">+ 부모님 계좌 추가</button>
+                </div>
+                <!-- Guestbook Settings -->
+                <div id="edit-guestbook" class="edit-section">
+                    <div class="section-title">방명록 설정</div>
+                    <div class="form-group">
+                        <label>방명록 사용 여부</label>
+                        <select id="in-gb-use" onchange="up()">
+                            <option value="y">사용함</option>
+                            <option value="n">사용 안 함</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>방명록 안내 문구</label>
+                        <input type="text" id="in-gb-title" value="따뜻한 축하의 한마디를 남겨주세요." oninput="up()">
+                    </div>
+                </div>
+                <!-- Thanks -->
+                <div id="edit-thanks" class="edit-section">
+                    <div class="section-title">감사 인사 설정</div>
+                    <div class="form-group"><label>감사 타이틀</label><input type="text" id="in-thanks-title" value="Thank You" oninput="up()"></div>
+                    <div class="form-group"><label>타이틀 폰트</label>
+                        <select id="in-thanks-title-font" onchange="up()">
+                            <option value="'Pretendard', sans-serif">기본 (Pretendard)</option>
+                            <option value="'Playfair Display', serif">Elegant Serif (Playfair Display)</option>
+                            <option value="'Noto Serif KR', serif">클래식 명조 (Noto Serif KR)</option>
+                            <option value="'Nanum Myeongjo', serif">나눔 명조 (Nanum Myeongjo)</option>
+                            <option value="'Song Myung', serif">감성 바탕 (Song Myung)</option>
+                            <option value="'Dancing Script', cursive">핸드라이팅 (Dancing Script)</option>
+                        </select>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <div class="form-group" style="margin-bottom:0;"><label>타이틀 색상</label><input type="color" id="in-thanks-title-color" value="#000000" oninput="up()"></div>
+                        <div class="form-group" style="margin-bottom:0;"><label>타이틀 크기(px)</label><input type="number" id="in-thanks-title-size" value="18" min="10" max="100" oninput="up()"></div>
+                    </div>
+                    <hr>
+                    <div class="form-group"><label>감사 본문</label><textarea id="in-thanks-body" rows="3" oninput="up()">저희의 앞날을 축복해 주셔서 감사합니다.</textarea></div>
+                    <div class="form-group"><label>본문 폰트</label>
+                        <select id="in-thanks-body-font" onchange="up()">
+                            <option value="'Pretendard', sans-serif">기본 (Pretendard)</option>
+                            <option value="'Playfair Display', serif">Elegant Serif (Playfair Display)</option>
+                            <option value="'Noto Serif KR', serif">클래식 명조 (Noto Serif KR)</option>
+                            <option value="'Nanum Myeongjo', serif">나눔 명조 (Nanum Myeongjo)</option>
+                            <option value="'Song Myung', serif">감성 바탕 (Song Myung)</option>
+                            <option value="'Dancing Script', cursive">핸드라이팅 (Dancing Script)</option>
+                        </select>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <div class="form-group" style="margin-bottom:0;"><label>본문 색상</label><input type="color" id="in-thanks-body-color" value="#999999" oninput="up()"></div>
+                        <div class="form-group" style="margin-bottom:0;"><label>본문 크기(px)</label><input type="number" id="in-thanks-body-size" value="13" min="10" max="100" oninput="up()"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions"><button class="btn-save">임시 저장</button></div>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <div class="mobile-frame">
+            <div class="preview-scroll-container" id="p-container">
+                <!-- Cover Section (Classic Overlay) -->
+                <div class="p-cover-container">
+                    <div id="p-cover-media-box" style="width:100%;height:100%;"></div>
+                    <div class="p-cover-overlay"></div>
+                    <div class="p-cover-content">
+                        <div class="p-cover-title" id="p-cover-title-label">HAPPY WEDDING</div>
+                        <div class="p-cover-names" id="p-cover-names-label">김신랑 & 이신부</div>
+                        <div class="p-cover-date" id="p-date-top">2026. 06. 12</div>
+                    </div>
+                </div>
+
+                <!-- Greeting -->
+                <div class="p-section">
+                    <div class="p-title-small">Greeting</div>
+                    <div id="p-greet-body" class="ql-editor" style="font-size:14px;padding:0;text-align:center;"></div>
+                </div>
+
+                <!-- Contact -->
+                <div class="p-section">
+                    <div class="p-title-small">Contact</div>
+                    <div style="display:flex; flex-direction:column; gap:8px; align-items:center; font-size:15px; color:#333;">
+                        <div><span id="p-groom-father-val"></span> · <span id="p-groom-mother-val"></span> <span style="font-size:12px; color:#888;">의 아들</span> <b id="p-groom-name-val"></b></div>
+                        <div><span id="p-bride-father-val"></span> · <span id="p-bride-mother-val"></span> <span style="font-size:12px; color:#888;">의 딸</span> <b id="p-bride-name-val"></b></div>
+                    </div>
+                    <button onclick="openContactModal()" class="p-contact-btn">연락하기</button>
+                </div>
+
+                <!-- Gallery -->
+                <div class="p-section">
+                    <div class="p-title-small">GALLERY</div>
+                    <div class="p-gallery-grid" id="p-gallery-grid"></div>
+                    <button id="p-gallery-more-btn" class="p-gallery-more-btn" onclick="showAllGallery()">더보기</button>
+                </div>
+
+                <!-- D-Day & Calendar -->
+                <div class="p-section">
+                    <div class="p-calendar-card">
+                        <div class="p-calendar-date-heading" id="p-calendar-month"></div>
+                        <table class="p-calendar-table">
+                            <thead><tr><td style="color:#e91e63;">일</td><td>월</td><td>화</td><td>수</td><td>목</td><td>금</td><td style="color:#2196f3;">토</td></tr></thead>
+                            <tbody id="p-calendar-body"></tbody>
+                        </table>
+                        <div class="p-dday-card">
+                            <div class="p-dday-card-label">D-day</div>
+                            <div class="p-dday-card-count" id="p-dday-val"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="p-section">
+                    <div class="p-title-small">LOCATION</div>
+                    <div id="p-venue-name" style="font-weight:bold;font-size:18px;margin-bottom:10px;"></div>
+                    <div id="p-addr-text" style="font-size:13px;color:#666;margin:10px 0;"></div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:15px;">
+                        <button onclick="copyAddr()" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-copy" style="margin-right:4px;"></i>주소 복사</button>
+                        <button onclick="openNavi('naver')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-location-arrow" style="margin-right:4px;"></i>네이버 지도</button>
+                        <button onclick="openNavi('kakao')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-comment" style="margin-right:4px; color:#fee500;"></i>카카오맵</button>
+                        <button onclick="openNavi('tmap')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-car" style="margin-right:4px; color:#ff4500;"></i>티맵</button>
+                    </div>
+
+                    <iframe id="p-map-iframe" width="100%" height="220" frameborder="0" style="border-radius:15px; background:#f0f0f0; margin-bottom:20px;"></iframe>
+                    
+                    <div id="p-transport-box" style="text-align:left; font-size:13px; line-height:1.6; padding:0 10px;">
+                        <div id="p-subway-wrap" style="margin-bottom:12px;">
+                            <div style="color:var(--accent-color); font-weight:bold; margin-bottom:4px;"><i class="fa-solid fa-subway" style="margin-right:6px;"></i>지하철</div>
+                            <div id="p-subway-text" style="color:#555;"></div>
+                        </div>
+                        <div id="p-bus-wrap">
+                            <div style="color:var(--accent-color); font-weight:bold; margin-bottom:4px;"><i class="fa-solid fa-bus" style="margin-right:6px;"></i>버스</div>
+                            <div id="p-bus-text" style="color:#555;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account -->
+                <div class="p-section" style="background:#fdfdfd;">
+                    <div class="p-title-small">ACCOUNT</div>
+                    <div style="text-align:left; padding:0 10px;">
+                        <div class="p-acc-row"><span id="p-acc-groom-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                        <div class="p-acc-row"><span id="p-acc-bride-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-bride-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                        <div class="p-acc-row" id="p-acc-groom-father-row" style="display:none;"><span id="p-acc-groom-father-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-father-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                        <div class="p-acc-row" id="p-acc-groom-mother-row" style="display:none;"><span id="p-acc-groom-mother-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-mother-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                        <div class="p-acc-row" id="p-acc-bride-father-row" style="display:none;"><span id="p-acc-bride-father-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-bride-father-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                        <div class="p-acc-row" id="p-acc-bride-mother-row" style="display:none;"><span id="p-acc-bride-mother-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-bride-mother-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                    </div>
+                </div>
+
+                <!-- Guestbook -->
+                <div id="p-guestbook-section" class="p-section">
+                    <div class="p-title-small">GUESTBOOK</div>
+                    <div id="p-gb-title-val" style="font-size:14px; margin-bottom:20px; color:#666;"></div>
+                    
+                    <div class="p-guestbook-form">
+                        <input type="text" id="gb-name" class="p-gb-input" placeholder="이름">
+                        <textarea id="gb-content" class="p-gb-input" style="height:80px; resize:none;" placeholder="축하 메시지를 남겨주세요."></textarea>
+                        <button onclick="addComment()" class="p-gb-btn">메시지 남기기</button>
+                    </div>
+
+                    <div id="p-gb-list" class="p-gb-list">
+                        <!-- Mock Comments -->
+                        <div class="p-gb-item">
+                            <div class="p-gb-header"><span class="p-gb-name">김친구</span><span class="p-gb-date">2026.06.10</span></div>
+                            <div class="p-gb-content">결혼 진심으로 축하해! 행복하게 잘 살아~</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-section" style="padding:100px 20px; border:none;">
+                    <div id="p-thanks-title" style="font-size:18px; font-family:serif; font-weight:700;">Thank You</div>
+                    <div id="p-thanks-body" style="font-size:13px; color:#999; margin-top:10px; white-space: pre-wrap;">저희의 앞날을 축복해 주셔서 감사합니다.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal-overlay" onclick="closeContactModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="font-weight:bold; font-size:16px; margin-bottom:15px; text-align:center;">연락하기</div>
+            <div id="p-contact-modal-list">
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신랑 <b id="pm-groom-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-groom-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-groom-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신랑 아버님 <b id="pm-groom-father-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-groom-father-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-groom-father-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신랑 어머님 <b id="pm-groom-mother-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-groom-mother-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-groom-mother-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-divider"></div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신부 <b id="pm-bride-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-bride-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-bride-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신부 아버님 <b id="pm-bride-father-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-bride-father-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-bride-father-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신부 어머님 <b id="pm-bride-mother-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-bride-mother-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-bride-mother-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeContactModal()" style="width:100%; margin-top:15px; padding:10px; border:none; background:#eee; border-radius:8px; cursor:pointer;">닫기</button>
+        </div>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div id="cropper-modal">
+        <div class="cropper-box">
+            <div style="height:400px; overflow:hidden;"><img id="cropper-img-source"></div>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button onclick="closeCropper()" style="flex:1; padding:12px; border:none; background:#eee; border-radius:8px;">취소</button>
+                <button onclick="applyCrop()" style="flex:1; padding:12px; border:none; background:var(--accent-color); color:#fff; border-radius:8px;">완료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="img-preview-modal" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:5000;justify-content:center;align-items:center;cursor:zoom-out;">
+        <button onclick="event.stopPropagation(); changeImg(-1)" class="p-img-nav p-img-nav-prev"><i class="fa-solid fa-chevron-left"></i></button>
+        <img id="p-full-img" style="max-width:95%;max-height:95%;object-fit:contain;box-shadow:0 0 20px rgba(0,0,0,0.5);border-radius:4px;">
+        <button onclick="event.stopPropagation(); changeImg(1)" class="p-img-nav p-img-nav-next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <button class="view-toggle-btn" onclick="toggleMobileView()">
+        <span id="toggle-icon"><i class="fa-solid fa-eye"></i></span>
+        <span id="toggle-text">미리보기</span>
+    </button>
+
+    <script th:inline="none">
+        let quill, coverFile=null, cropper=null, mapTimeout=null, galleryImages=[], ddayInterval=null;
+        const gE = (id) => document.getElementById(id);
+        const gV = (id) => gE(id)?.value || '';
+        const sT = (id, v) => { if(gE(id)) gE(id).innerText = v; };
+        const sH = (id, v) => { if(gE(id)) gE(id).innerHTML = v; };
+
+        window.onload=()=>{
+            try {
+                const setV = (id, val) => { const el = gE(id); if(el) el.value = val; };
+                
+                setV('in-cover-title', "HAPPY WEDDING");
+                setV('in-cover-names', "김신랑 & 이신부");
+                setV('in-cover-date-text', "2026. 06. 12");
+                setV('in-date', "2026-06-12T12:00");
+                setV('in-groom', "김신랑");
+                setV('in-groom-tel', "010-1234-5678");
+                setV('in-groom-father', "김아빠");
+                setV('in-groom-father-tel', "010-1111-2222");
+                setV('in-groom-mother', "박엄마");
+                setV('in-groom-mother-tel', "010-3333-4444");
+                setV('in-bride', "이신부");
+                setV('in-bride-tel', "010-9876-5432");
+                setV('in-bride-father', "이아빠");
+                setV('in-bride-father-tel', "010-5555-6666");
+                setV('in-bride-mother', "최엄마");
+                setV('in-bride-mother-tel', "010-7777-8888");
+                setV('in-venue', "시그니엘 서울");
+                setV('in-addr', "서울특별시 송파구 올림픽로 300");
+                setV('in-subway', "2, 8호선 잠실역 1, 2번 출구 연결");
+                setV('in-bus', "잠실역.롯데월드몰 정류장 하차 (간선 301, 341, 360 등)");
+                setV('in-acc-groom-bank', "국민");
+                setV('in-acc-groom-num', "123-456-789");
+                setV('in-acc-bride-bank', "신한");
+                setV('in-acc-bride-num', "987-654-321");
+                
+                setV('in-thanks-title', "Thank You");
+                setV('in-thanks-title-font', "'Playfair Display', serif");
+                setV('in-thanks-title-size', "18");
+                setV('in-thanks-title-color', "#000000");
+                setV('in-thanks-body', "저희의 앞날을 축복해 주셔서 감사합니다.");
+                setV('in-thanks-body-font', "'Pretendard', sans-serif");
+                setV('in-thanks-body-size', "13");
+                setV('in-thanks-body-color', "#999999");
+
+                const editorEl = gE('greet-editor');
+                if(editorEl) {
+                    quill=new Quill('#greet-editor',{theme:'snow',modules:{toolbar:[['bold','italic'],[{'color':[]},{'background':[]}],['clean']]}});
+                    quill.on('text-change',()=>{
+                        const pb = gE('p-greet-body');
+                        if(pb) pb.innerHTML=quill.root.innerHTML;
+                    });
+                    quill.root.innerHTML="평생을 같이하고 싶은 person을 만났습니다.<br>서로 아껴주고 이해하며 사랑을 베푸는 저희의 앞날에<br>함께하셔서 축복해 주시면 감사하겠습니다.";
+                }
+            } catch(e) { console.error("Init error:", e); }
+            up();
+        };
+
+        function switchSection(id){
+            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+            document.querySelectorAll('.edit-section').forEach(s=>s.classList.remove('active'));
+            const n=document.querySelector(`.nav-item[onclick="switchSection('${id}')"]`); if(n) n.classList.add('active');
+            const s=document.getElementById('edit-'+id); if(s) s.classList.add('active');
+        }
+
+        function handleCoverUpload(input){
+            const f=input.files[0]; if(!f) return;
+            const r=new FileReader();
+            r.onload=e=>{
+                gE('cropper-img-source').src=e.target.result;
+                gE('cropper-modal').style.display='flex';
+                if(cropper) cropper.destroy();
+                setTimeout(()=>{ cropper = new Cropper(gE('cropper-img-source'),{aspectRatio:375/600,viewMode:1}); }, 100);
+            };
+            r.readAsDataURL(f);
+        }
+        function closeCropper(){ gE('cropper-modal').style.display='none'; if(cropper) cropper.destroy(); }
+        function applyCrop(){ coverFile=cropper.getCroppedCanvas().toDataURL(); closeCropper(); up(); }
+
+        function openContactModal(){ const m=gE('contact-modal'); if(m) m.style.display='flex'; }
+        function closeContactModal(){ const m=gE('contact-modal'); if(m) m.style.display='none'; }
+
+        function addParentAccounts(){
+            const extra = gE('acc-parent-extra');
+            const btn = gE('acc-add-parent-btn');
+            if(extra) extra.style.display = 'block';
+            if(btn) btn.style.display = 'none';
+        }
+
+        function up(){
+            try {
+                // Cover Text & Styles
+                const selectedFont = gV('in-cover-font');
+                
+                const titleLabel = gE('p-cover-title-label');
+                if(titleLabel) {
+                    titleLabel.innerText = gV('in-cover-title').toUpperCase() || 'HAPPY WEDDING';
+                    titleLabel.style.color = gV('in-cover-color');
+                    titleLabel.style.fontSize = gV('in-cover-size') + 'px';
+                    titleLabel.style.fontFamily = selectedFont;
+                }
+
+                const namesLabel = gE('p-cover-names-label');
+                if(namesLabel) {
+                    namesLabel.innerText = gV('in-cover-names') || '김신랑 & 이신부';
+                    namesLabel.style.color = gV('in-names-color');
+                    namesLabel.style.fontSize = gV('in-names-size') + 'px';
+                    namesLabel.style.fontFamily = selectedFont;
+                }
+
+                const dateTop = gE('p-date-top');
+                if(dateTop) {
+                    dateTop.innerText = gV('in-cover-date-text') || '2026. 06. 12';
+                    dateTop.style.color = gV('in-date-color');
+                    dateTop.style.fontSize = gV('in-date-size') + 'px';
+                    dateTop.style.fontFamily = selectedFont;
+                }
+
+                if(coverFile) gE('p-cover-media-box').innerHTML=`<img src="${coverFile}" class="p-cover-media">`;
+
+                const setContactRow = (prefix, name, tel) => {
+                    sT(`pm-${prefix}-name`, name);
+                    const call = gE(`pm-${prefix}-call`), sms = gE(`pm-${prefix}-sms`);
+                    const row = call ? call.closest('.p-contact-row') : null;
+                    if(row) row.style.display = tel ? 'flex' : 'none';
+                    if(call) call.href = `tel:${tel}`;
+                    if(sms) sms.href = `sms:${tel}`;
+                };
+                setContactRow('groom', gV('in-groom'), gV('in-groom-tel'));
+                setContactRow('groom-father', gV('in-groom-father'), gV('in-groom-father-tel'));
+                setContactRow('groom-mother', gV('in-groom-mother'), gV('in-groom-mother-tel'));
+                setContactRow('bride', gV('in-bride'), gV('in-bride-tel'));
+                setContactRow('bride-father', gV('in-bride-father'), gV('in-bride-father-tel'));
+                setContactRow('bride-mother', gV('in-bride-mother'), gV('in-bride-mother-tel'));
+
+                sT('p-venue-name',gV('in-venue'));
+                sT('p-addr-text',gV('in-addr'));
+                sT('p-subway-text',gV('in-subway'));
+                sT('p-bus-text',gV('in-bus'));
+                
+                gE('p-subway-wrap').style.display = gV('in-subway') ? 'block' : 'none';
+                gE('p-bus-wrap').style.display = gV('in-bus') ? 'block' : 'none';
+
+                const accText = (bank, num, name) => [bank, num, name].filter(Boolean).join(' ');
+                const groomName = gV('in-groom'), brideName = gV('in-bride');
+                const gFatherName = gV('in-groom-father'), gMotherName = gV('in-groom-mother');
+                const bFatherName = gV('in-bride-father'), bMotherName = gV('in-bride-mother');
+
+                sT('acc-groom-name-preview', groomName || '-');
+                sT('acc-bride-name-preview', brideName || '-');
+                sT('acc-groom-father-name-preview', gFatherName || '-');
+                sT('acc-groom-mother-name-preview', gMotherName || '-');
+                sT('acc-bride-father-name-preview', bFatherName || '-');
+                sT('acc-bride-mother-name-preview', bMotherName || '-');
+
+                sT('p-acc-groom-val', accText(gV('in-acc-groom-bank'), gV('in-acc-groom-num'), groomName));
+                sT('p-acc-bride-val', accText(gV('in-acc-bride-bank'), gV('in-acc-bride-num'), brideName));
+
+                const setAccRow = (rowId, valId, bank, num, name) => {
+                    sT(valId, accText(bank, num, name));
+                    const row = gE(rowId);
+                    if(row) row.style.display = (bank || num) ? 'flex' : 'none';
+                };
+                setAccRow('p-acc-groom-father-row','p-acc-groom-father-val', gV('in-acc-groom-father-bank'), gV('in-acc-groom-father-num'), gFatherName);
+                setAccRow('p-acc-groom-mother-row','p-acc-groom-mother-val', gV('in-acc-groom-mother-bank'), gV('in-acc-groom-mother-num'), gMotherName);
+                setAccRow('p-acc-bride-father-row','p-acc-bride-father-val', gV('in-acc-bride-father-bank'), gV('in-acc-bride-father-num'), bFatherName);
+                setAccRow('p-acc-bride-mother-row','p-acc-bride-mother-val', gV('in-acc-bride-mother-bank'), gV('in-acc-bride-mother-num'), bMotherName);
+
+                // Parent Info
+                sT('p-groom-father-val', gV('in-groom-father'));
+                sT('p-groom-mother-val', gV('in-groom-mother'));
+                sT('p-groom-name-val', gV('in-groom'));
+                sT('p-bride-father-val', gV('in-bride-father'));
+                sT('p-bride-mother-val', gV('in-bride-mother'));
+                sT('p-bride-name-val', gV('in-bride'));
+
+                sT('p-gb-title-val', gV('in-gb-title'));
+                gE('p-guestbook-section').style.display = gV('in-gb-use') === 'y' ? 'block' : 'none';
+
+                // Thank You Section
+                const thanksTitle = gE('p-thanks-title');
+                if(thanksTitle) {
+                    thanksTitle.innerText = gV('in-thanks-title');
+                    thanksTitle.style.fontFamily = gV('in-thanks-title-font');
+                    thanksTitle.style.fontSize = gV('in-thanks-title-size') + 'px';
+                    thanksTitle.style.color = gV('in-thanks-title-color');
+                }
+                const thanksBody = gE('p-thanks-body');
+                if(thanksBody) {
+                    thanksBody.innerText = gV('in-thanks-body');
+                    thanksBody.style.fontFamily = gV('in-thanks-body-font');
+                    thanksBody.style.fontSize = gV('in-thanks-body-size') + 'px';
+                    thanksBody.style.color = gV('in-thanks-body-color');
+                }
+
+                const dV=gV('in-date');
+                if(dV){
+                    const d=new Date(dV);
+                    startDdayCountdown(d);
+                    renderCalendar(d);
+                }
+
+                const ad=gV('in-addr');
+                if(ad && gE('p-map-iframe')){
+                    clearTimeout(mapTimeout);
+                    mapTimeout = setTimeout(() => {
+                        const newSrc = `https://maps.google.com/maps?q=${encodeURIComponent(ad)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+                        if(gE('p-map-iframe').src !== newSrc) gE('p-map-iframe').src = newSrc;
+                    }, 500);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function handleGalleryUpload(i){
+            const g=document.getElementById('p-gallery-grid');
+            if(!g)return;
+            g.innerHTML='';
+            galleryImages = [];
+            const files = Array.from(i.files);
+            files.forEach((f, idx)=>{
+                const r=new FileReader();
+                r.onload=e=>{
+                    galleryImages[idx] = e.target.result;
+                    const d=document.createElement('div');
+                    d.className='p-gallery-item' + (idx>=9 ? ' p-gallery-hidden' : '');
+                    d.style.backgroundImage=`url(${e.target.result})`;
+                    d.onclick = () => showImg(idx);
+                    g.appendChild(d);
+                };
+                r.readAsDataURL(f);
+            });
+            const moreBtn = gE('p-gallery-more-btn');
+            if(moreBtn) moreBtn.style.display = files.length > 9 ? 'inline-block' : 'none';
+        }
+        function showAllGallery(){
+            document.querySelectorAll('.p-gallery-hidden').forEach(el => el.classList.remove('p-gallery-hidden'));
+            const moreBtn = gE('p-gallery-more-btn');
+            if(moreBtn) moreBtn.style.display = 'none';
+        }
+
+        let currentImgIdx = 0;
+        function showImg(idx) {
+            currentImgIdx = idx;
+            const m = gE('img-preview-modal');
+            const mi = gE('p-full-img');
+            if(m && mi && galleryImages[idx]) {
+                mi.src = galleryImages[idx];
+                m.style.display = 'flex';
+            }
+        }
+        function changeImg(dir) {
+            const total = galleryImages.length;
+            if(!total) return;
+            const idx = (currentImgIdx + dir + total) % total;
+            showImg(idx);
+        }
+
+        function startDdayCountdown(target){
+            if(ddayInterval) clearInterval(ddayInterval);
+            const render=()=>{
+                const el=gE('p-dday-val');
+                if(!el) return;
+                const diff=target-new Date();
+                if(diff<=0){
+                    el.innerText='결혼식 날입니다!';
+                    clearInterval(ddayInterval);
+                    return;
+                }
+                const totalSec=Math.floor(diff/1000);
+                const days=Math.floor(totalSec/86400);
+                const hours=Math.floor((totalSec%86400)/3600);
+                const mins=Math.floor((totalSec%3600)/60);
+                const secs=totalSec%60;
+                el.innerText=`${days}일 ${hours}시간 ${mins}분 ${secs}초 남았습니다.`;
+            };
+            render();
+            ddayInterval=setInterval(render,1000);
+        }
+
+        function renderCalendar(t){
+            const y=t.getFullYear(),m=t.getMonth(),d=t.getDate();
+            const cm=gE('p-calendar-month');if(cm)cm.innerText=`${y}년 ${m+1}월 ${d}일`;
+            const f=new Date(y,m,1).getDay(),l=new Date(y,m+1,0).getDate(),b=gE('p-calendar-body');
+            if(!b)return;b.innerHTML='';let r=document.createElement('tr');
+            for(let i=0; i<f; i++) r.appendChild(document.createElement('td'));
+            for(let i=1; i<=l; i++){
+                if((f+i-1)%7===0&&i!==1){b.appendChild(r);r=document.createElement('tr');}
+                const c=document.createElement('td');const s=document.createElement('span');s.innerText=i;
+                if(i===d)s.className='selected';c.appendChild(s);r.appendChild(c);
+            }
+            while(r.children.length < 7) r.appendChild(document.createElement('td'));
+            b.appendChild(r);
+        }
+
+        function copyAddr(){ copyText(gV('in-addr')); }
+        function copyText(v){ if(v)navigator.clipboard.writeText(v).then(()=>alert('복사되었습니다.')); }
+        
+        function openNavi(type){
+            const ad = gV('in-addr');
+            if(!ad) return;
+            let url = '';
+            if(type==='naver') url = `https://map.naver.com/v5/search/${encodeURIComponent(ad)}`;
+            else if(type==='kakao') url = `https://map.kakao.com/link/search/${encodeURIComponent(ad)}`;
+            else url = `https://maps.google.com/maps?q=${encodeURIComponent(ad)}`;
+            window.open(url, '_blank');
+        }
+
+        function toggleMobileView() {
+            const isH = document.querySelector('.sidebar').classList.toggle('mobile-hide');
+            document.querySelector('.preview-area').classList.toggle('mobile-hide', !isH);
+            gE('toggle-text').innerText = isH ? '편집하기' : '미리보기';
+        }
+
+        function addComment() {
+            const name = gV('gb-name'), content = gV('gb-content');
+            if(!name || !content) return alert('이름과 메시지를 입력해주세요.');
+            const list = gE('p-gb-list'), item = document.createElement('div');
+            item.className = 'p-gb-item';
+            item.innerHTML = `<div class="p-gb-header"><span class="p-gb-name">${name}</span><span class="p-gb-date">${new Date().toLocaleDateString()}</span></div><div class="p-gb-content">${content}</div>`;
+            list.insertBefore(item, list.firstChild);
+            gE('gb-name').value = ''; gE('gb-content').value = '';
+            alert('메시지가 등록되었습니다.');
+        }
+    </script>
+</body>
+</html>
