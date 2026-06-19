@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모바일 청첩장 제작기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <style>
+        :root { --sidebar-width: 450px; --preview-bg: #f0f2f5; --border-color: #e1e4e8; --primary-color: #f8bbd0; --accent-color: #e91e63; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; display: flex; height: 100vh; overflow: hidden; background: #fff; }
+        .sidebar { width: var(--sidebar-width); border-right: 1px solid var(--border-color); display: flex; background: #fff; }
+        .sidebar-nav { width: 80px; background: #f8f9fa; border-right: 1px solid var(--border-color); overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
+        .nav-item { width: 60px; height: 60px; margin-bottom: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border-radius: 8px; color: #888; font-size: 9px; text-align: center; }
+        .nav-item i { font-size: 18px; margin-bottom: 4px; }
+        .nav-item.active { background: var(--primary-color); color: white; }
+        .editor-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .sidebar-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); font-weight: bold; font-size: 14px; }
+        .editor-content { padding: 20px; flex: 1; overflow-y: auto; }
+        .edit-section { display: none; }
+        .edit-section.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        .section-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: var(--accent-color); border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px; color: #444; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-size: 13px; font-family: inherit; }
+        .preview-area { flex: 1; background: var(--preview-bg); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 40px 20px; }
+        .mobile-frame { width: 375px; min-height: 812px; background: white; border-radius: 40px; overflow: hidden; display: flex; flex-direction: column; border: 10px solid #1a1a1a; position: relative; }
+        .preview-scroll-container { flex: 1; overflow-y: auto; scrollbar-width: none; }
+        .p-section { padding: 60px 20px; text-align: center; border-bottom: 1px solid #f5f5f5; position: relative; }
+        .p-title { font-size: 11px; color: var(--accent-color); letter-spacing: 3px; margin-bottom: 20px; text-transform: uppercase; }
+        .p-cover-media { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; background: #fff9fa; }
+        .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+        .p-cover-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: center; padding: 0 20px; box-sizing: border-box; pointer-events: none; }
+        .p-cover-title { font-size: 16px; letter-spacing: 6px; margin-bottom: 25px; font-weight: 600; text-transform: uppercase; }
+        .p-cover-names { font-size: 34px; font-family: serif; margin-bottom: 12px; font-weight: bold; }
+        .p-cover-date { font-size: 17px; letter-spacing: 2px; }
+        .petals-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 15; display: none; }
+        .petal { position: absolute; background: #ffebf0; border-radius: 150% 0 150% 0; animation: falling 10s linear infinite; }
+        @keyframes falling { 0% { transform: translate(0, -10%) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translate(100px, 110%) rotate(360deg); opacity: 0; } }
+        .p-contact-icons { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .p-contact-circle { width: 44px; height: 44px; border-radius: 50%; background: #fff9fa; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--accent-color); border: 1px solid var(--primary-color); text-decoration: none; }
+        .p-gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .p-gallery-item { aspect-ratio: 1; background: #eee; border-radius: 2px; cursor: pointer; background-size: cover; background-position: center; }
+        .p-calendar-table { width: 100%; max-width: 280px; margin: 0 auto; border-collapse: collapse; font-size: 13px; }
+        .p-calendar-table td { padding: 8px; text-align: center; }
+        .p-calendar-table .selected { background: var(--primary-color); color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; }
+        .p-dday-box { font-size: 20px; font-weight: bold; background: #fff9fa; padding: 15px 30px; border-radius: 10px; display: inline-block; border: 1px solid var(--primary-color); }
+        .p-nav-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; }
+        .p-nav-btn { display: flex; flex-direction: column; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px; text-decoration: none; font-size: 10px; color: #333; border: 1px solid #eee; }
+        .p-pay-btn { background: #fee500; color: #3c1e1e; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-left: 5px; }
+        .modal-overlay, #lightbox, #cropper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 340px; border-radius: 20px; padding: 25px; box-sizing: border-box; }
+        #lightbox { background: rgba(0,0,0,0.9); z-index: 2000; }
+        #lightbox-img { max-width: 90%; max-height: 80%; object-fit: contain; }
+        .lb-btn { position: absolute; color: white; font-size: 30px; cursor: pointer; padding: 20px; }
+        #cropper-modal { background: rgba(0,0,0,0.8); z-index: 3000; flex-direction: column; }
+        .cropper-container-box { width: 90%; max-width: 500px; background: #fff; padding: 10px; border-radius: 10px; }
+        .cropper-preview-area { max-height: 450px; width: 100%; overflow: hidden; }
+        .actions { padding: 15px 20px; border-top: 1px solid var(--border-color); background: #fff; }
+        .btn-save { width: 100%; padding: 12px; background: var(--accent-color); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-nav">
+            <div class="nav-item active" onclick="switchSection('cover')"><i class="fa-solid fa-image"></i>Cover</div>
+            <div class="nav-item" onclick="switchSection('weddingday')"><i class="fa-solid fa-calendar-check"></i>예식 일시</div>
+            <div class="nav-item" onclick="switchSection('greeting')"><i class="fa-solid fa-comment-dots"></i>인사말</div>
+            <div class="nav-item" onclick="switchSection('intro')"><i class="fa-solid fa-user-friends"></i>신랑·신부</div>
+            <div class="nav-item" onclick="switchSection('gallery')"><i class="fa-solid fa-images"></i>갤러리</div>
+            <div class="nav-item" onclick="switchSection('calendar')"><i class="fa-solid fa-calendar-days"></i>달력</div>
+            <div class="nav-item" onclick="switchSection('location')"><i class="fa-solid fa-map-location-dot"></i>오시는 길</div>
+            <div class="nav-item" onclick="switchSection('traffic')"><i class="fa-solid fa-bus"></i>교통 안내</div>
+            <div class="nav-item" onclick="switchSection('rsvp')"><i class="fa-solid fa-envelope-open-text"></i>참석 여부</div>
+            <div class="nav-item" onclick="switchSection('account')"><i class="fa-solid fa-credit-card"></i>계좌번호</div>
+            <div class="nav-item" onclick="switchSection('guestbook')"><i class="fa-solid fa-book"></i>방명록</div>
+        </div>
+        <div class="editor-pane">
+            <div class="sidebar-header">편집 메뉴</div>
+            <div class="editor-content" id="editor-forms">
+                <div id="edit-cover" class="edit-section active">
+                    <div class="section-title">커버 설정</div>
+                    <div class="form-group"><label>메인 타이틀</label><input type="text" id="in-cover-title" value="Happy Wedding" oninput="up()"></div>
+                    <div class="form-group"><label>배경 사진 업로드</label><input type="file" id="in-cover-file" accept="image/*" onchange="handleCoverUpload(this)"></div>
+                    <hr>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group"><label>폰트 색상</label><input type="color" id="in-cover-font-color" value="#ffffff" oninput="up()"></div>
+                        <div class="form-group"><label>폰트 투명도</label><input type="range" id="in-cover-font-alpha" min="0" max="1" step="0.1" value="1" oninput="up()"></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group"><label>배경 필터 색상</label><input type="color" id="in-cover-bg-color" value="#000000" oninput="up()"></div>
+                        <div class="form-group"><label>필터 투명도</label><input type="range" id="in-cover-bg-alpha" min="0" max="1" step="0.1" value="0.2" oninput="up()"></div>
+                    </div>
+                    <div class="form-group"><label>벚꽃 효과</label><select id="in-petals" onchange="up()"><option value="none">사용 안 함</option><option value="block">사용함</option></select></div>
+                </div>
+                <div id="edit-weddingday" class="edit-section">
+                    <div class="section-title">예식 날짜 설정</div>
+                    <div class="form-group"><label>날짜 및 시간</label><input type="datetime-local" id="in-date" value="2026-06-12T12:00" oninput="up()"></div>
+                    <div class="form-group"><label>D-Day 노출</label><select id="in-dday-show" onchange="up()"><option value="block">표시함</option><option value="none">표시안함</option></select></div>
+                </div>
+                <div id="edit-greeting" class="edit-section"><div class="section-title">인사말</div><textarea id="in-greet-body" rows="6" oninput="up()">저희 두 사람의 새로운 출발을 함께 축복해 주세요.</textarea></div>
+                <div id="edit-intro" class="edit-section">
+                    <div class="section-title">신랑·신부 정보</div>
+                    <div class="form-group"><label>신랑 성함</label><input type="text" id="in-groom" value="김신랑" oninput="up()"></div>
+                    <div class="form-group"><label>신랑 연락처</label><input type="text" id="in-groom-tel" value="010-1234-5678" oninput="up()"></div>
+                    <div class="form-group"><label>신랑 혼주</label><input type="text" id="in-groom-parents" value="김철수·이영희의 장남" oninput="up()"></div>
+                    <hr>
+                    <div class="form-group"><label>신부 성함</label><input type="text" id="in-bride" value="이신부" oninput="up()"></div>
+                    <div class="form-group"><label>신부 연락처</label><input type="text" id="in-bride-tel" value="010-9876-5432" oninput="up()"></div>
+                    <div class="form-group"><label>신부 혼주</label><input type="text" id="in-bride-parents" value="이몽룡·성춘향의 장녀" oninput="up()"></div>
+                </div>
+                <div id="edit-gallery" class="edit-section"><div class="section-title">갤러리</div><input type="file" id="in-gallery-files" multiple accept="image/*" onchange="handleGalleryUpload(this)"></div>
+                <div id="edit-location" class="edit-section"><div class="section-title">오시는 길</div><div class="form-group"><label>예식장</label><input type="text" id="in-venue" value="시그니엘 서울" oninput="up()"></div><div class="form-group"><label>주소</label><input type="text" id="in-addr" value="서울특별시 송파구 올림픽로 300" oninput="up()"></div></div>
+                <div id="edit-traffic" class="edit-section"><div class="section-title">교통 안내</div><div class="form-group"><label>지하철</label><textarea id="in-subway" oninput="up()">잠실역 1, 2번 출구</textarea></div><div class="form-group"><label>버스</label><textarea id="in-bus" oninput="up()">잠실역 정류장</textarea></div><div class="form-group"><label>주차</label><textarea id="in-parking" oninput="up()">건물 지하 주차장 이용</textarea></div></div>
+                <div id="edit-rsvp" class="edit-section"><div class="section-title">참석 여부</div><div class="form-group"><input type="text" id="in-rsvp-msg" value="참석 여부를 알려주세요." oninput="up()"></div></div>
+                <div id="edit-account" class="edit-section"><div class="section-title">계좌번호</div><div class="form-group"><label>신랑 계좌</label><input type="text" id="in-acc-groom" value="국민 123-456-789 김신랑" oninput="up()"></div><div class="form-group"><label>신랑 페이 링크</label><input type="text" id="in-pay-groom" placeholder="카카오페이 링크" oninput="up()"></div><hr><div class="form-group"><label>신부 계좌</label><input type="text" id="in-acc-bride" value="신한 987-654-321 이신부" oninput="up()"></div><div class="form-group"><label>신부 페이 링크</label><input type="text" id="in-pay-bride" placeholder="카카오페이 링크" oninput="up()"></div></div>
+                <div id="edit-guestbook" class="edit-section"><div class="section-title">방명록</div><div class="form-group"><input type="text" id="in-gb-msg" value="축하의 한마디를 남겨주세요." oninput="up()"></div></div>
+            </div>
+            <div class="actions"><button class="btn-save">임시 저장</button></div>
+        </div>
+    </div>
+    <div class="preview-area">
+        <div class="mobile-frame">
+            <div class="preview-scroll-container" id="p-container">
+                <div class="p-section" id="p-sec-cover" style="height:600px; padding:0; background:#fff9fa; overflow:hidden;">
+                    <div id="p-cover-media-box" style="width:100%; height:100%;"></div>
+                    <div id="p-cover-overlay-el" class="p-cover-overlay"></div>
+                    <div id="p-cover-content-el" class="p-cover-content">
+                        <div class="petals-container" id="petals"></div>
+                        <div class="p-cover-title" id="p-cover-title-label">HAPPY WEDDING</div>
+                        <div class="p-cover-names"><span id="p-groom-cover">김신랑</span> & <span id="p-bride-cover">이신부</span></div>
+                        <div class="p-cover-date" id="p-date-top">2026. 06. 12</div>
+                    </div>
+                </div>
+                <div class="p-section"><div class="p-title">인사말</div><div id="p-greet-body" style="font-size:14px; line-height:1.8; white-space:pre-line;"></div></div>
+                <div class="p-section"><div class="p-title">신랑 · 신부</div><div style="display:flex; justify-content:center; gap:40px;">
+                    <div><div id="p-groom-info" style="font-size:14px;"></div><div class="p-contact-icons"><a id="p-groom-call" href="#" class="p-contact-circle"><i class="fa-solid fa-phone"></i></a><a id="p-groom-sms" href="#" class="p-contact-circle"><i class="fa-solid fa-comment-sms"></i></a></div></div>
+                    <div><div id="p-bride-info" style="font-size:14px;"></div><div class="p-contact-icons"><a id="p-bride-call" href="#" class="p-contact-circle"><i class="fa-solid fa-phone"></i></a><a id="p-bride-sms" href="#" class="p-contact-circle"><i class="fa-solid fa-comment-sms"></i></a></div></div>
+                </div></div>
+                <div class="p-section"><div class="p-title">GALLERY</div><div class="p-gallery-grid" id="p-gallery-grid"></div></div>
+                <div class="p-section" id="p-sec-dday"><div class="p-title">D-DAY</div><div class="p-dday-box" id="p-dday-val"></div></div>
+                <div class="p-section"><div class="p-title" id="p-calendar-month"></div><table class="p-calendar-table"><thead><tr><td>일</td><td>월</td><td>화</td><td>수</td><td>목</td><td>금</td><td>토</td></tr></thead><tbody id="p-calendar-body"></tbody></table></div>
+                <div class="p-section"><div class="p-title">LOCATION</div><div id="p-venue-name" style="font-weight:bold; font-size:18px;"></div><div id="p-addr-text" style="font-size:13px; color:#666; margin:10px 0;"></div><iframe id="p-map-iframe" width="100%" height="200" frameborder="0" style="border-radius:12px;"></iframe><div class="p-nav-btns"><a id="nav-kakao" href="#" target="_blank" class="p-nav-btn"><i class="fa-solid fa-location-dot"></i>카카오내비</a><a id="nav-tmap" href="#" target="_blank" class="p-nav-btn"><i class="fa-solid fa-compass"></i>T맵</a><a id="nav-naver" href="#" target="_blank" class="p-nav-btn"><i class="fa-solid fa-map"></i>네이버 지도</a></div></div>
+                <div class="p-section" style="text-align:left; background:#fafafa;"><div class="p-title" style="text-align:center;">TRAFFIC</div><div style="margin-bottom:10px;"><div style="font-weight:bold; font-size:13px;">지하철</div><div id="p-val-subway" style="font-size:12px; color:#666;"></div></div><div style="margin-bottom:10px;"><div style="font-weight:bold; font-size:13px;">버스</div><div id="p-val-bus" style="font-size:12px; color:#666;"></div></div><div><div style="font-weight:bold; font-size:13px;">주차장</div><div id="p-val-parking" style="font-size:12px; color:#666;"></div></div></div>
+                <div class="p-section"><div class="p-title">참석 여부</div><div id="p-rsvp-msg" style="margin-bottom:15px; font-size:14px;"></div><button onclick="openRSVP()" style="width:100%; padding:15px; background:var(--accent-color); color:white; border:none; border-radius:30px; font-weight:bold;">참석 의사 전달하기</button></div>
+                <div class="p-section" style="background:#fdfdfd;"><div class="p-title">ACCOUNT</div><div style="text-align:left;"><div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;"><span id="p-acc-groom-val" style="font-size:13px;"></span><div><button onclick="copyAcc('in-acc-groom')" style="padding:4px 8px; font-size:11px; border:1px solid #ddd; background:#fff; border-radius:4px;">복사</button><a id="p-pay-groom" href="#" target="_blank" class="p-pay-btn" style="display:none;">pay</a></div></div><div style="display:flex; justify-content:space-between; align-items:center;"><span id="p-acc-bride-val" style="font-size:13px;"></span><div><button onclick="copyAcc('in-acc-bride')" style="padding:4px 8px; font-size:11px; border:1px solid #ddd; background:#fff; border-radius:4px;">복사</button><a id="p-pay-bride" href="#" target="_blank" class="p-pay-btn" style="display:none;">pay</a></div></div></div></div>
+                <div class="p-section"><div class="p-title">방명록</div><div id="p-gb-msg" style="margin-bottom:15px; font-size:14px; color:#666;"></div><div style="text-align:left; background:#f9f9f9; padding:15px; border-radius:12px;"><input type="text" placeholder="이름" style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:4px;"><textarea placeholder="축하 메시지" rows="3" style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ddd; border-radius:4px;"></textarea><button style="width:100%; padding:10px; background:var(--accent-color); color:white; border:none; border-radius:6px;">메시지 남기기</button></div></div>
+                <div class="p-section" style="padding:100px 20px;"><div class="p-names">Thank You</div><div style="font-size:13px; color:#888; margin-top:10px;">함께해 주셔서 감사합니다.</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="rsvp-modal"><div class="modal-content"><div class="modal-header">참석 여부 확인</div><div class="modal-form-group"><label>성함</label><input type="text" id="rsvp-name" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;"></div><div class="modal-form-group"><label>식사 여부</label><div class="modal-radio-group"><label><input type="radio" name="meal" value="yes"> 식사</label><label><input type="radio" name="meal" value="no"> 안함</label></div></div><div class="modal-form-group"><label>동행 인원</label><input type="number" id="rsvp-guests" value="0" min="0" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;"></div><div class="modal-actions"><button class="btn-modal btn-cancel" onclick="closeRSVP()">취소</button><button class="btn-modal btn-submit" onclick="submitRSVP()">전송하기</button></div></div></div>
+    <div id="cropper-modal"><div class="cropper-container-box"><div class="cropper-preview-area"><img id="cropper-img-source"></div><div class="modal-actions"><button class="btn-modal btn-cancel" onclick="closeCropper()">취소</button><button class="btn-modal btn-submit" onclick="applyCrop()">자르기 완료</button></div></div></div>
+    <div id="lightbox"><span class="lb-btn lb-close" onclick="closeLightbox()">&times;</span><span class="lb-btn lb-prev" onclick="changeImage(-1)">&#10094;</span><img id="lightbox-img"><span class="lb-btn lb-next" onclick="changeImage(1)">&#10095;</span></div>
+    <script>
+        let galleryImages = [], currentImgIdx = 0, coverFile = null, cropper = null;
+        function switchSection(id) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.querySelectorAll('.edit-section').forEach(s => s.classList.remove('active')); const targetNav = document.querySelector(`.nav-item[onclick="switchSection('${id}')"]`); if(targetNav) targetNav.classList.add('active'); const targetEdit = document.getElementById('edit-' + id); if(targetEdit) targetEdit.classList.add('active'); }
+        function setText(pid, inid, def = '') { const el = document.getElementById(inid), pel = document.getElementById(pid); if (el && pel) pel.innerText = el.value || def; }
+        function hexToRgb(hex) { const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : "0,0,0"; }
+        function handleCoverUpload(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = e => { document.getElementById('cropper-img-source').src = e.target.result; document.getElementById('cropper-modal').style.display = 'flex'; if(cropper) cropper.destroy(); setTimeout(() => { cropper = new Cropper(document.getElementById('cropper-img-source'), { aspectRatio: 375 / 600, viewMode: 1 }); }, 100); }; reader.readAsDataURL(file); }
+        function closeCropper() { document.getElementById('cropper-modal').style.display = 'none'; if(cropper) cropper.destroy(); }
+        function applyCrop() { const canvas = cropper.getCroppedCanvas(); coverFile = { data: canvas.toDataURL() }; closeCropper(); up(); }
+        function up() {
+            setText('p-cover-title-label', 'in-cover-title', 'HAPPY WEDDING'); setText('p-groom-cover', 'in-groom', '김신랑'); setText('p-bride-cover', 'in-bride', '이신부'); setText('p-greet-body', 'in-greet-body'); setText('p-venue-name', 'in-venue'); setText('p-addr-text', 'in-addr'); setText('p-val-subway', 'in-subway'); setText('p-val-bus', 'in-bus'); setText('p-val-parking', 'in-parking'); setText('p-rsvp-msg', 'in-rsvp-msg'); setText('p-gb-msg', 'in-gb-msg'); setText('p-acc-groom-val', 'in-acc-groom'); setText('p-acc-bride-val', 'in-acc-bride');
+            const fC = document.getElementById('in-cover-font-color').value, fA = document.getElementById('in-cover-font-alpha').value, bC = document.getElementById('in-cover-bg-color').value, bA = document.getElementById('in-cover-bg-alpha').value;
+            const cE = document.getElementById('p-cover-content-el'), oE = document.getElementById('p-cover-overlay-el');
+            cE.style.color = fC; cE.style.opacity = fA; oE.style.backgroundColor = `rgba(${hexToRgb(bC)}, ${bA})`;
+            const gP = document.getElementById('in-groom-parents').value, gN = document.getElementById('in-groom').value, gT = document.getElementById('in-groom-tel').value;
+            document.getElementById('p-groom-info').innerHTML = `<div style="font-size:11px; color:#888; margin-bottom:4px;">${gP}</div><b>${gN}</b>`;
+            document.getElementById('p-groom-call').href = `tel:${gT}`; document.getElementById('p-groom-sms').href = `sms:${gT}`;
+            const bP = document.getElementById('in-bride-parents').value, bN = document.getElementById('in-bride').value, bT = document.getElementById('in-bride-tel').value;
+            document.getElementById('p-bride-info').innerHTML = `<div style="font-size:11px; color:#888; margin-bottom:4px;">${bP}</div><b>${bN}</b>`;
+            document.getElementById('p-bride-call').href = `tel:${bT}`; document.getElementById('p-bride-sms').href = `sms:${bT}`;
+            const mediaBox = document.getElementById('p-cover-media-box'); if(coverFile) { let img = mediaBox.querySelector('img'); if(!img || img.getAttribute('data-src') !== coverFile.data) { mediaBox.innerHTML = `<img src="${coverFile.data}" data-src="${coverFile.data}" class="p-cover-media">`; } }
+            const pShow = document.getElementById('in-petals').value, pCont = document.getElementById('petals'); pCont.style.display = pShow;
+            if(pShow === 'block' && pCont.innerHTML === '') { for(let i=0; i<15; i++) { const p = document.createElement('div'); p.className = 'petal'; p.style.left = Math.random() * 100 + '%'; p.style.width = p.style.height = (Math.random() * 10 + 5) + 'px'; p.style.animationDelay = Math.random() * 10 + 's'; pCont.appendChild(p); } }
+            const pgL = document.getElementById('in-pay-groom').value, pbL = document.getElementById('in-pay-bride').value, pgBtn = document.getElementById('p-pay-groom'), pbBtn = document.getElementById('p-pay-bride');
+            pgBtn.style.display = pgL ? 'inline-flex' : 'none'; pgBtn.href = pgL; pbBtn.style.display = pbL ? 'inline-flex' : 'none'; pbBtn.href = pbL;
+            const dateVal = document.getElementById('in-date').value; if(dateVal) { const d = new Date(dateVal); document.getElementById('p-date-top').innerText = d.toLocaleDateString('ko-KR'); const diff = Math.ceil((new Date(d).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000); document.getElementById('p-dday-val').innerText = diff > 0 ? "D-" + diff : (diff === 0 ? "D-Day" : "D+" + Math.abs(diff)); renderCalendar(d); }
+            document.getElementById('p-sec-dday').style.display = document.getElementById('in-dday-show').value;
+            const addr = document.getElementById('in-addr').value; if(addr) { const enc = encodeURIComponent(addr); document.getElementById('p-map-iframe').src = `https://maps.google.com/maps?q=${enc}&t=&z=15&ie=UTF8&iwloc=&output=embed`; document.getElementById('nav-kakao').href = `https://map.kakao.com/link/search/${enc}`; document.getElementById('nav-tmap').href = `https://search.tmap.co.kr/search.do?kwd=${enc}`; document.getElementById('nav-naver').href = `https://map.naver.com/v5/search/${enc}`; }
+        }
+        function handleGalleryUpload(input) { const grid = document.getElementById('p-gallery-grid'); grid.innerHTML = ''; galleryImages = []; Array.from(input.files).forEach((file, idx) => { const reader = new FileReader(); reader.onload = e => { galleryImages.push(e.target.result); const div = document.createElement('div'); div.className = 'p-gallery-item'; div.style.backgroundImage = `url(${e.target.result})`; div.onclick = () => openLightbox(idx); grid.appendChild(div); }; reader.readAsDataURL(file); }); }
+        function openLightbox(idx) { currentImgIdx = idx; document.getElementById('lightbox-img').src = galleryImages[idx]; document.getElementById('lightbox').style.display = 'flex'; }
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
+        function changeImage(dir) { currentImgIdx = (currentImgIdx + dir + galleryImages.length) % galleryImages.length; document.getElementById('lightbox-img').src = galleryImages[currentImgIdx]; }
+        function renderCalendar(targetDate) { const year = targetDate.getFullYear(), month = targetDate.getMonth(), day = targetDate.getDate(); document.getElementById('p-calendar-month').innerText = `${year}. ${String(month + 1).padStart(2, '0')}`; const firstDay = new Date(year, month, 1).getDay(), lastDate = new Date(year, month + 1, 0).getDate(); const body = document.getElementById('p-calendar-body'); body.innerHTML = ''; let row = document.createElement('tr'); for (let i = 0; i < firstDay; i++) row.appendChild(document.createElement('td')); for (let i = 1; i <= lastDate; i++) { if ((firstDay + i - 1) % 7 === 0 && i !== 1) { body.appendChild(row); row = document.createElement('tr'); } const cell = document.createElement('td'); const span = document.createElement('span'); span.innerText = i; if (i === day) span.className = 'selected'; cell.appendChild(span); row.appendChild(cell); } body.appendChild(row); }
+        function openRSVP() { document.getElementById('rsvp-modal').style.display = 'flex'; }
+        function closeRSVP() { document.getElementById('rsvp-modal').style.display = 'none'; }
+        function submitRSVP() { alert('감사합니다!'); closeRSVP(); }
+        function copyAcc(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => alert('복사되었습니다.')); }
+        window.onload = up;
+    </script>
+</body>
+</html>
