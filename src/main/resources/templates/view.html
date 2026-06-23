@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모바일 청첩장</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@200;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Song+Myung&display=swap" rel="stylesheet">
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+    <style>
+        :root{--preview-bg:#f0f2f5;--border-color:#e1e4e8;--primary-color:#f8bbd0;--accent-color:#e91e63;}
+        *{box-sizing:border-box;}
+        body{margin:0;font-family:'Pretendard',sans-serif;background:var(--preview-bg);-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:30px 12px;min-height:100vh;}
+
+        .mobile-frame{width:100%;max-width:430px;min-height:calc(100vh - 60px);background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.12);}
+        .p-section{padding:60px 20px;text-align:center;border-bottom:1px solid #f5f5f5;position:relative;}
+        .p-title-small{font-size:11px;color:var(--accent-color);letter-spacing:3px;margin-bottom:25px;text-transform:uppercase;font-weight:700;}
+
+        .p-cover-container { position: relative; width: 100%; height: 600px; background: #fff9fa; overflow: hidden; }
+        .p-cover-media { width: 100%; height: 100%; object-fit: cover; }
+        .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 2; }
+        .p-cover-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none; }
+        .p-cover-title { font-size: 16px; letter-spacing: 6px; margin-bottom: 25px; font-weight: 600; text-transform: uppercase; }
+        .p-cover-names { font-size: 34px; font-family: serif; margin-bottom: 12px; font-weight: bold; }
+        .p-cover-date { font-size: 17px; letter-spacing: 2px; }
+
+        .p-contact-btn{margin-top:20px;padding:10px 24px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
+        .p-contact-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+        .p-contact-row:last-child{border-bottom:none;}
+        .p-contact-row-name{font-size:14px;color:#333;}
+        .p-contact-row-icons{display:flex;gap:8px;}
+        .p-contact-row-icons a{width:32px;height:32px;border-radius:50%;background:#fff9fa;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--accent-color);border:1px solid var(--primary-color);text-decoration:none;}
+        .p-contact-divider{height:1px;background:var(--primary-color);margin:6px 0;opacity:0.5;}
+
+        .p-gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+        .p-gallery-item{aspect-ratio:1;background:#eee;border-radius:2px;cursor:pointer;background-size:cover;background-position:center;}
+        .p-gallery-hidden{display:none;}
+        .p-gallery-more-btn{display:none;margin-top:15px;padding:10px 24px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
+        .p-img-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5001;}
+        .p-img-nav:hover{background:rgba(255,255,255,0.3);}
+        .p-img-nav-prev{left:15px;}
+        .p-img-nav-next{right:15px;}
+
+        .p-acc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+        .p-acc-row:last-child{margin-bottom:0;}
+        .p-acc-copy-btn{padding:6px 14px;font-size:11px;border:none;background:var(--accent-color);color:#fff;border-radius:8px;font-weight:bold;cursor:pointer;}
+
+        .p-calendar-table{width:100%;max-width:280px;margin:0 auto;border-collapse:collapse;font-size:13px;}
+        .p-calendar-table td{padding:8px;text-align:center;}
+        .p-calendar-table .selected{background:var(--accent-color);color:white;border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+        .p-calendar-card{background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,0.07);padding:25px 18px;}
+        .p-calendar-date-heading{font-size:16px;font-weight:700;color:#333;margin-bottom:18px;}
+        .p-dday-card{margin-top:22px;border:1px solid #f4c2cc;border-radius:12px;padding:14px;text-align:center;}
+        .p-dday-card-label{font-size:14px;font-weight:700;color:var(--accent-color);margin-bottom:6px;}
+        .p-dday-card-count{font-size:13px;color:var(--accent-color);}
+
+        .p-guestbook-form { background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 30px; text-align: left; }
+        .p-gb-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 13px; }
+        .p-gb-btn { width: 100%; padding: 10px; background: var(--accent-color); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .p-gb-list { text-align: left; display: flex; flex-direction: column; gap: 15px; }
+        .p-gb-item { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #f0f0f0; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .p-gb-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .p-gb-name { font-weight: bold; color: #333; }
+        .p-gb-date { color: #999; font-size: 11px; }
+        .p-gb-content { font-size: 13px; color: #555; line-height: 1.5; white-space: pre-wrap; }
+        .p-gb-empty { font-size: 13px; color: #aaa; text-align: center; padding: 10px 0; }
+
+        .p-rsvp-heading{font-size:19px;font-weight:700;color:var(--accent-color);margin-bottom:14px;}
+        .p-rsvp-desc{font-size:13px;color:#888;line-height:1.6;margin-bottom:24px;}
+        .p-rsvp-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;}
+
+        /* RSVP Modal */
+        .rsvp-modal-content{background:#fff;width:90%;max-width:340px;border-radius:24px;padding:32px 24px 24px;box-sizing:border-box;position:relative;text-align:center;}
+        .rsvp-modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:none;background:#f5f5f5;border-radius:50%;color:#999;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+        .rsvp-modal-close:hover{background:#eee;}
+        .rsvp-modal-icon{width:48px;height:48px;border-radius:50%;background:#fff0f4;color:var(--accent-color);font-size:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+        .rsvp-modal-title{font-size:17px;font-weight:700;color:#333;margin-bottom:4px;}
+        .rsvp-modal-subtitle{font-size:12px;color:#999;margin-bottom:24px;}
+        .rsvp-field{margin-bottom:14px;text-align:left;}
+        .rsvp-label{display:block;font-size:11px;font-weight:700;color:#999;margin-bottom:6px;}
+        .rsvp-input{width:100%;padding:11px 12px;border:1px solid #eee;border-radius:10px;font-size:13px;background:#fafafa;box-sizing:border-box;}
+        .rsvp-input:focus{outline:none;border-color:var(--primary-color);background:#fff;}
+        .rsvp-pill-group{display:flex;gap:8px;}
+        .rsvp-pill{flex:1;padding:10px;border:1px solid #eee;background:#fafafa;border-radius:10px;font-size:13px;font-weight:600;color:#999;cursor:pointer;transition:0.15s;}
+        .rsvp-pill.active{border-color:var(--accent-color);background:#fff0f4;color:var(--accent-color);}
+        .rsvp-submit-btn{width:100%;margin-top:8px;padding:13px;border:none;border-radius:12px;background:var(--accent-color);color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+
+        .kakao-share-btn{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:13px 28px;border:none;border-radius:30px;background:#FEE500;color:#3C1E1E;font-size:14px;font-weight:700;cursor:pointer;}
+        .kakao-share-btn i{font-size:15px;}
+
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;}
+        .modal-content{background:white;width:90%;max-width:340px;border-radius:20px;padding:25px;box-sizing:border-box;}
+
+        #loading-overlay{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#999;z-index:9999;}
+
+        #bgm-toggle-btn{display:none;position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.85);box-shadow:0 2px 10px rgba(0,0,0,0.15);border:none;align-items:center;justify-content:center;font-size:15px;color:var(--accent-color);cursor:pointer;z-index:2000;}
+        #bgm-toggle-btn.playing i{animation:p-bgm-spin 3s linear infinite;}
+        @keyframes p-bgm-spin{to{transform:rotate(360deg);}}
+
+        .p-petals-layer{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;z-index:4;}
+        .p-petal{position:absolute;top:-24px;border-radius:0% 70% 0% 70%;opacity:0.85;animation-name:p-petal-fall;animation-timing-function:linear;animation-iteration-count:infinite;}
+        @keyframes p-petal-fall{0%{transform:translate(0,-24px) rotate(0deg);}100%{transform:translate(var(--drift,20px),640px) rotate(360deg);}}
+
+        .p-reveal{opacity:0;transform:translateY(44px);transition:opacity 1.1s cubic-bezier(0.16,1,0.3,1),transform 1.1s cubic-bezier(0.16,1,0.3,1);}
+        .p-reveal-visible{opacity:1;transform:translateY(0);}
+        .p-reveal.p-reveal-no-transition{transition:none !important;}
+
+        .p-cover-content .p-cover-title,
+        .p-cover-content .p-cover-names,
+        .p-cover-content .p-cover-date{opacity:0;transform:translateY(18px);}
+        @keyframes p-cover-up{to{opacity:1;transform:translateY(0);}}
+        .p-cover-content.p-cover-animate .p-cover-title{animation:p-cover-up 0.9s ease forwards 0.2s;}
+        .p-cover-content.p-cover-animate .p-cover-names{animation:p-cover-up 0.9s ease forwards 0.45s;}
+        .p-cover-content.p-cover-animate .p-cover-date{animation:p-cover-up 0.9s ease forwards 0.7s;}
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">불러오는 중...</div>
+
+    <button id="bgm-toggle-btn" onclick="toggleBgm()"><i class="fa-solid fa-music"></i></button>
+    <audio id="bgm-audio" loop></audio>
+
+    <div class="mobile-frame">
+        <div id="p-container">
+            <div class="p-cover-container">
+                <div id="p-cover-media-box" style="width:100%;height:100%;"></div>
+                <div class="p-cover-overlay"></div>
+                <div class="p-petals-layer" id="p-petals"></div>
+                <div class="p-cover-content" id="p-cover-content">
+                    <div class="p-cover-title" id="p-cover-title-label"></div>
+                    <div class="p-cover-names" id="p-cover-names-label"></div>
+                    <div class="p-cover-date" id="p-date-top"></div>
+                </div>
+            </div>
+
+            <div class="p-section">
+                <div class="p-title-small">Greeting</div>
+                <div id="p-greet-body" style="font-size:14px;padding:0;text-align:center;"></div>
+            </div>
+
+            <div class="p-section">
+                <div class="p-title-small">Contact</div>
+                <div style="display:flex; flex-direction:column; gap:8px; align-items:center; font-size:15px; color:#333;">
+                    <div><span id="p-groom-father-val"></span> · <span id="p-groom-mother-val"></span> <span style="font-size:12px; color:#888;">의 아들</span> <b id="p-groom-name-val"></b></div>
+                    <div><span id="p-bride-father-val"></span> · <span id="p-bride-mother-val"></span> <span style="font-size:12px; color:#888;">의 딸</span> <b id="p-bride-name-val"></b></div>
+                </div>
+                <button onclick="openContactModal()" class="p-contact-btn">연락하기</button>
+            </div>
+
+            <div class="p-section">
+                <div class="p-title-small">GALLERY</div>
+                <div class="p-gallery-grid" id="p-gallery-grid"></div>
+                <button id="p-gallery-more-btn" class="p-gallery-more-btn" onclick="showAllGallery()">더보기</button>
+            </div>
+
+            <div class="p-section">
+                <div class="p-calendar-card">
+                    <div class="p-calendar-date-heading" id="p-calendar-month"></div>
+                    <table class="p-calendar-table">
+                        <thead><tr><td style="color:#e91e63;">일</td><td>월</td><td>화</td><td>수</td><td>목</td><td>금</td><td style="color:#2196f3;">토</td></tr></thead>
+                        <tbody id="p-calendar-body"></tbody>
+                    </table>
+                    <div class="p-dday-card">
+                        <div class="p-dday-card-label">D-day</div>
+                        <div class="p-dday-card-count" id="p-dday-val"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-section">
+                <div class="p-title-small">LOCATION</div>
+                <div id="p-venue-name" style="font-weight:bold;font-size:18px;margin-bottom:10px;"></div>
+                <div id="p-addr-text" style="font-size:13px;color:#666;margin:10px 0;"></div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:15px;">
+                    <button onclick="copyAddr()" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-copy" style="margin-right:4px;"></i>주소 복사</button>
+                    <button onclick="openNavi('naver')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-location-arrow" style="margin-right:4px;"></i>네이버 지도</button>
+                    <button onclick="openNavi('kakao')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-comment" style="margin-right:4px; color:#fee500;"></i>카카오맵</button>
+                    <button onclick="openNavi('tmap')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-car" style="margin-right:4px; color:#ff4500;"></i>티맵</button>
+                </div>
+
+                <iframe id="p-map-iframe" width="100%" height="220" frameborder="0" style="border-radius:15px; background:#f0f0f0; margin-bottom:20px;"></iframe>
+
+                <div id="p-transport-box" style="text-align:left; font-size:13px; line-height:1.6; padding:0 10px;">
+                    <div id="p-subway-wrap" style="margin-bottom:12px;">
+                        <div style="color:var(--accent-color); font-weight:bold; margin-bottom:4px;"><i class="fa-solid fa-subway" style="margin-right:6px;"></i>지하철</div>
+                        <div id="p-subway-text" style="color:#555;"></div>
+                    </div>
+                    <div id="p-bus-wrap">
+                        <div style="color:var(--accent-color); font-weight:bold; margin-bottom:4px;"><i class="fa-solid fa-bus" style="margin-right:6px;"></i>버스</div>
+                        <div id="p-bus-text" style="color:#555;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-section" style="background:#fdfdfd;">
+                <div class="p-title-small">ACCOUNT</div>
+                <div style="text-align:left; padding:0 10px;">
+                    <div class="p-acc-row"><span id="p-acc-groom-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                    <div class="p-acc-row"><span id="p-acc-bride-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-bride-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                    <div class="p-acc-row" id="p-acc-groom-father-row" style="display:none;"><span id="p-acc-groom-father-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-father-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                    <div class="p-acc-row" id="p-acc-groom-mother-row" style="display:none;"><span id="p-acc-groom-mother-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-mother-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                    <div class="p-acc-row" id="p-acc-bride-father-row" style="display:none;"><span id="p-acc-bride-father-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-bride-father-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                    <div class="p-acc-row" id="p-acc-bride-mother-row" style="display:none;"><span id="p-acc-bride-mother-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-bride-mother-val').innerText)" class="p-acc-copy-btn">복사</button></div>
+                </div>
+            </div>
+
+            <div id="p-guestbook-section" class="p-section">
+                <div class="p-title-small">GUESTBOOK</div>
+                <div id="p-gb-title-val" style="font-size:14px; margin-bottom:20px; color:#666;"></div>
+
+                <div class="p-guestbook-form">
+                    <input type="text" id="gb-name" class="p-gb-input" placeholder="이름">
+                    <textarea id="gb-content" class="p-gb-input" style="height:80px; resize:none;" placeholder="축하 메시지를 남겨주세요."></textarea>
+                    <button id="gb-submit-btn" onclick="addComment()" class="p-gb-btn">메시지 남기기</button>
+                </div>
+
+                <div id="p-gb-list" class="p-gb-list"></div>
+            </div>
+
+            <div id="p-rsvp-section" class="p-section">
+                <div class="p-title-small">R.S.V.P.</div>
+                <div class="p-rsvp-heading">참석 의사 전달</div>
+                <div id="p-rsvp-title-val" class="p-rsvp-desc"></div>
+                <button onclick="openRsvpModal()" class="p-rsvp-btn"><i class="fa-solid fa-clipboard-check"></i>참석의사 전달하기</button>
+            </div>
+
+            <div class="p-section" style="padding:100px 20px 60px; border:none;">
+                <div id="p-thanks-title" style="font-size:18px; font-family:serif; font-weight:700;"></div>
+                <div id="p-thanks-body" style="font-size:13px; color:#999; margin-top:10px; white-space: pre-wrap;"></div>
+                <button onclick="shareKakao()" class="kakao-share-btn"><i class="fa-solid fa-comment"></i>카카오톡으로 공유하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal-overlay" onclick="closeContactModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="font-weight:bold; font-size:16px; margin-bottom:15px; text-align:center;">연락하기</div>
+            <div id="p-contact-modal-list">
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신랑 <b id="pm-groom-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-groom-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-groom-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신랑 아버님 <b id="pm-groom-father-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-groom-father-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-groom-father-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신랑 어머님 <b id="pm-groom-mother-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-groom-mother-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-groom-mother-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-divider"></div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신부 <b id="pm-bride-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-bride-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-bride-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신부 아버님 <b id="pm-bride-father-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-bride-father-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-bride-father-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+                <div class="p-contact-row">
+                    <div class="p-contact-row-name">신부 어머님 <b id="pm-bride-mother-name"></b></div>
+                    <div class="p-contact-row-icons">
+                        <a id="pm-bride-mother-call" href="#"><i class="fa-solid fa-phone"></i></a>
+                        <a id="pm-bride-mother-sms" href="#"><i class="fa-solid fa-comment-sms"></i></a>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeContactModal()" style="width:100%; margin-top:15px; padding:10px; border:none; background:#eee; border-radius:8px; cursor:pointer;">닫기</button>
+        </div>
+    </div>
+
+    <!-- RSVP Modal -->
+    <div id="rsvp-modal" class="modal-overlay" onclick="closeRsvpModal()">
+        <div class="rsvp-modal-content" onclick="event.stopPropagation()">
+            <button type="button" class="rsvp-modal-close" onclick="closeRsvpModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="rsvp-modal-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+            <div class="rsvp-modal-title">참석의사 전달</div>
+            <div class="rsvp-modal-subtitle">소중한 발걸음, 미리 알려주세요</div>
+
+            <div class="rsvp-field">
+                <label class="rsvp-label">이름</label>
+                <input type="text" id="rsvp-name" class="rsvp-input" placeholder="이름을 입력해주세요">
+            </div>
+
+            <div class="rsvp-field">
+                <label class="rsvp-label">구분</label>
+                <div class="rsvp-pill-group" id="rsvp-side-group">
+                    <button type="button" class="rsvp-pill active" data-value="groom" onclick="selectRsvpPill('side','groom')">신랑측</button>
+                    <button type="button" class="rsvp-pill" data-value="bride" onclick="selectRsvpPill('side','bride')">신부측</button>
+                </div>
+            </div>
+
+            <div class="rsvp-field">
+                <label class="rsvp-label">참석 여부</label>
+                <div class="rsvp-pill-group" id="rsvp-attending-group">
+                    <button type="button" class="rsvp-pill active" data-value="y" onclick="selectRsvpPill('attending','y')">참석</button>
+                    <button type="button" class="rsvp-pill" data-value="n" onclick="selectRsvpPill('attending','n')">불참</button>
+                </div>
+            </div>
+
+            <div id="rsvp-detail-fields">
+                <div class="rsvp-field">
+                    <label class="rsvp-label">참석 인원</label>
+                    <input type="number" id="rsvp-guest-count" class="rsvp-input" min="1" value="1">
+                </div>
+                <div class="rsvp-field">
+                    <label class="rsvp-label">식사 여부</label>
+                    <div class="rsvp-pill-group" id="rsvp-meal-group">
+                        <button type="button" class="rsvp-pill active" data-value="y" onclick="selectRsvpPill('meal','y')">식사 함</button>
+                        <button type="button" class="rsvp-pill" data-value="n" onclick="selectRsvpPill('meal','n')">식사 안 함</button>
+                    </div>
+                </div>
+            </div>
+
+            <button id="rsvp-submit-btn" onclick="submitRsvp()" class="rsvp-submit-btn">전달하기</button>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="img-preview-modal" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:5000;justify-content:center;align-items:center;cursor:zoom-out;">
+        <button onclick="event.stopPropagation(); changeImg(-1)" class="p-img-nav p-img-nav-prev"><i class="fa-solid fa-chevron-left"></i></button>
+        <img id="p-full-img" style="max-width:95%;max-height:95%;object-fit:contain;box-shadow:0 0 20px rgba(0,0,0,0.5);border-radius:4px;">
+        <button onclick="event.stopPropagation(); changeImg(1)" class="p-img-nav p-img-nav-next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <script th:inline="javascript">
+        var CARD_ID = /*[[${cardId}]]*/ '';
+        var KAKAO_JS_KEY = /*[[${kakaoJsKey}]]*/ '';
+    </script>
+    <script th:inline="none">
+        let galleryImages = [], ddayInterval = null, currentImgIdx = 0;
+        const gE = (id) => document.getElementById(id);
+        const sT = (id, v) => { if(gE(id)) gE(id).innerText = v; };
+
+        function renderCard(data){
+            const v = (id) => data[id] || '';
+
+            const titleLabel = gE('p-cover-title-label');
+            titleLabel.innerText = (v('in-cover-title') || 'HAPPY WEDDING').toUpperCase();
+            titleLabel.style.color = v('in-cover-color') || '#ffffff';
+            titleLabel.style.fontSize = (v('in-cover-size') || '16') + 'px';
+            titleLabel.style.fontFamily = v('in-cover-font') || "'Pretendard', sans-serif";
+
+            const namesLabel = gE('p-cover-names-label');
+            namesLabel.innerText = v('in-cover-names') || '김신랑 & 이신부';
+            namesLabel.style.color = v('in-names-color') || '#ffffff';
+            namesLabel.style.fontSize = (v('in-names-size') || '34') + 'px';
+            namesLabel.style.fontFamily = v('in-cover-font') || "'Pretendard', sans-serif";
+
+            const dateTop = gE('p-date-top');
+            dateTop.innerText = v('in-cover-date-text') || '2026. 06. 12';
+            dateTop.style.color = v('in-date-color') || '#ffffff';
+            dateTop.style.fontSize = (v('in-date-size') || '17') + 'px';
+            dateTop.style.fontFamily = v('in-cover-font') || "'Pretendard', sans-serif";
+
+            if(data.coverImage) gE('p-cover-media-box').innerHTML = `<img src="${data.coverImage}" class="p-cover-media">`;
+
+            gE('p-greet-body').innerHTML = data.greetingHtml || '';
+
+            const setContactRow = (prefix, name, tel) => {
+                sT(`pm-${prefix}-name`, name);
+                const call = gE(`pm-${prefix}-call`), sms = gE(`pm-${prefix}-sms`);
+                const row = call ? call.closest('.p-contact-row') : null;
+                if(row) row.style.display = tel ? 'flex' : 'none';
+                if(call) call.href = `tel:${tel}`;
+                if(sms) sms.href = `sms:${tel}`;
+            };
+            setContactRow('groom', v('in-groom'), v('in-groom-tel'));
+            setContactRow('groom-father', v('in-groom-father'), v('in-groom-father-tel'));
+            setContactRow('groom-mother', v('in-groom-mother'), v('in-groom-mother-tel'));
+            setContactRow('bride', v('in-bride'), v('in-bride-tel'));
+            setContactRow('bride-father', v('in-bride-father'), v('in-bride-father-tel'));
+            setContactRow('bride-mother', v('in-bride-mother'), v('in-bride-mother-tel'));
+
+            sT('p-groom-father-val', v('in-groom-father'));
+            sT('p-groom-mother-val', v('in-groom-mother'));
+            sT('p-groom-name-val', v('in-groom'));
+            sT('p-bride-father-val', v('in-bride-father'));
+            sT('p-bride-mother-val', v('in-bride-mother'));
+            sT('p-bride-name-val', v('in-bride'));
+
+            galleryImages = Array.isArray(data.galleryImages) ? data.galleryImages : [];
+            const grid = gE('p-gallery-grid');
+            grid.innerHTML = '';
+            galleryImages.forEach((src, idx) => {
+                const d = document.createElement('div');
+                d.className = 'p-gallery-item' + (idx >= 9 ? ' p-gallery-hidden' : '');
+                d.style.backgroundImage = `url(${src})`;
+                d.onclick = () => showImg(idx);
+                grid.appendChild(d);
+            });
+            gE('p-gallery-more-btn').style.display = galleryImages.length > 9 ? 'inline-block' : 'none';
+
+            sT('p-venue-name', v('in-venue'));
+            sT('p-addr-text', v('in-addr'));
+            sT('p-subway-text', v('in-subway'));
+            sT('p-bus-text', v('in-bus'));
+            gE('p-subway-wrap').style.display = v('in-subway') ? 'block' : 'none';
+            gE('p-bus-wrap').style.display = v('in-bus') ? 'block' : 'none';
+
+            const accText = (bank, num, name) => [bank, num, name].filter(Boolean).join(' ');
+            const groomName = v('in-groom'), brideName = v('in-bride');
+            const gFatherName = v('in-groom-father'), gMotherName = v('in-groom-mother');
+            const bFatherName = v('in-bride-father'), bMotherName = v('in-bride-mother');
+
+            sT('p-acc-groom-val', accText(v('in-acc-groom-bank'), v('in-acc-groom-num'), groomName));
+            sT('p-acc-bride-val', accText(v('in-acc-bride-bank'), v('in-acc-bride-num'), brideName));
+
+            const setAccRow = (rowId, valId, bank, num, name) => {
+                sT(valId, accText(bank, num, name));
+                const row = gE(rowId);
+                if(row) row.style.display = (bank || num) ? 'flex' : 'none';
+            };
+            setAccRow('p-acc-groom-father-row','p-acc-groom-father-val', v('in-acc-groom-father-bank'), v('in-acc-groom-father-num'), gFatherName);
+            setAccRow('p-acc-groom-mother-row','p-acc-groom-mother-val', v('in-acc-groom-mother-bank'), v('in-acc-groom-mother-num'), gMotherName);
+            setAccRow('p-acc-bride-father-row','p-acc-bride-father-val', v('in-acc-bride-father-bank'), v('in-acc-bride-father-num'), bFatherName);
+            setAccRow('p-acc-bride-mother-row','p-acc-bride-mother-val', v('in-acc-bride-mother-bank'), v('in-acc-bride-mother-num'), bMotherName);
+
+            sT('p-gb-title-val', v('in-gb-title'));
+            gE('p-guestbook-section').style.display = v('in-gb-use') === 'n' ? 'none' : 'block';
+
+            sT('p-rsvp-title-val', v('in-rsvp-title'));
+            gE('p-rsvp-section').style.display = v('in-rsvp-use') === 'n' ? 'none' : 'block';
+
+            const thanksTitle = gE('p-thanks-title');
+            thanksTitle.innerText = v('in-thanks-title') || 'Thank You';
+            thanksTitle.style.fontFamily = v('in-thanks-title-font') || "'Pretendard', sans-serif";
+            thanksTitle.style.fontSize = (v('in-thanks-title-size') || '18') + 'px';
+            thanksTitle.style.color = v('in-thanks-title-color') || '#000000';
+
+            const thanksBody = gE('p-thanks-body');
+            thanksBody.innerText = v('in-thanks-body') || '';
+            thanksBody.style.fontFamily = v('in-thanks-body-font') || "'Pretendard', sans-serif";
+            thanksBody.style.fontSize = (v('in-thanks-body-size') || '13') + 'px';
+            thanksBody.style.color = v('in-thanks-body-color') || '#999999';
+
+            const dV = v('in-date');
+            if(dV){
+                const d = new Date(dV);
+                startDdayCountdown(d);
+                renderCalendar(d);
+            }
+
+            const ad = v('in-addr');
+            if(ad){
+                gE('p-map-iframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(ad)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+            }
+
+            setupBgm(v('in-bgm-url'));
+            setupPetals(v('in-petal-use') || 'y', v('in-petal-color'), v('in-petal-count'), v('in-petal-speed'));
+
+            shareInfo = { names: v('in-cover-names') || '김신랑 & 이신부', dateText: v('in-cover-date-text') || '', venue: v('in-venue') || '' };
+        }
+
+        let shareInfo = { names: '', dateText: '', venue: '' };
+
+        function shareKakao(){
+            if(!window.Kakao){ alert('카카오톡 공유 기능을 사용할 수 없습니다.'); return; }
+            if(!Kakao.isInitialized()){
+                if(!KAKAO_JS_KEY){ alert('카카오 공유 설정이 완료되지 않았습니다.'); return; }
+                Kakao.init(KAKAO_JS_KEY);
+            }
+            const shareUrl = `${location.origin}/c/${CARD_ID}`;
+            const textLines = [shareInfo.names, shareInfo.dateText, shareInfo.venue].filter(Boolean);
+            Kakao.Share.sendDefault({
+                objectType: 'text',
+                text: textLines.join('\n'),
+                link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+                buttonTitle: '청첩장 보기'
+            });
+        }
+
+        let bgmTriggered = false;
+
+        function setupBgm(url){
+            const btn = gE('bgm-toggle-btn');
+            if(!url){ btn.style.display = 'none'; return; }
+            const audio = gE('bgm-audio');
+            audio.src = url;
+            btn.style.display = 'flex';
+            window.addEventListener('scroll', startBgmOnScroll, { passive: true, once: true });
+        }
+
+        function startBgmOnScroll(){
+            if(bgmTriggered) return;
+            playBgm();
+        }
+
+        function playBgm(){
+            const audio = gE('bgm-audio'), btn = gE('bgm-toggle-btn');
+            bgmTriggered = true;
+            audio.play().then(() => btn.classList.add('playing')).catch(() => btn.classList.remove('playing'));
+        }
+
+        function toggleBgm(){
+            const audio = gE('bgm-audio'), btn = gE('bgm-toggle-btn');
+            bgmTriggered = true;
+            if(audio.paused){
+                audio.play().then(() => btn.classList.add('playing')).catch(() => {});
+            } else {
+                audio.pause();
+                btn.classList.remove('playing');
+            }
+        }
+
+        function renderComments(comments){
+            const list = gE('p-gb-list');
+            list.innerHTML = '';
+            if(!comments || comments.length === 0){
+                list.innerHTML = '<div class="p-gb-empty">아직 작성된 메시지가 없습니다.</div>';
+                return;
+            }
+            comments.forEach(c => list.appendChild(buildCommentItem(c)));
+        }
+
+        function buildCommentItem(c){
+            const item = document.createElement('div');
+            item.className = 'p-gb-item';
+            const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '';
+            item.innerHTML = `<div class="p-gb-header"><span class="p-gb-name"></span><span class="p-gb-date">${date}</span></div><div class="p-gb-content"></div>`;
+            item.querySelector('.p-gb-name').innerText = c.name;
+            item.querySelector('.p-gb-content').innerText = c.content;
+            return item;
+        }
+
+        async function loadCard(){
+            try {
+                const res = await fetch(`/api/cards/${CARD_ID}`);
+                if(!res.ok) throw new Error('not found');
+                const card = await res.json();
+                renderCard(card.data || {});
+                renderComments(card.comments || []);
+            } catch(e) {
+                console.error(e);
+                document.body.innerHTML = '<div style="margin:auto;text-align:center;color:#999;font-size:13px;">청첩장을 불러올 수 없습니다.</div>';
+            } finally {
+                const overlay = gE('loading-overlay');
+                if(overlay) overlay.style.display = 'none';
+                const coverContent = gE('p-cover-content');
+                if(coverContent) coverContent.classList.add('p-cover-animate');
+            }
+        }
+
+        async function addComment(){
+            const name = gE('gb-name').value.trim();
+            const content = gE('gb-content').value.trim();
+            if(!name || !content) return alert('이름과 메시지를 입력해주세요.');
+            const btn = gE('gb-submit-btn');
+            try {
+                btn.disabled = true;
+                const res = await fetch(`/api/cards/${CARD_ID}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, content })
+                });
+                if(!res.ok) throw new Error('comment failed');
+                const comment = await res.json();
+                const list = gE('p-gb-list');
+                const empty = list.querySelector('.p-gb-empty');
+                if(empty) empty.remove();
+                list.insertBefore(buildCommentItem(comment), list.firstChild);
+                gE('gb-name').value = '';
+                gE('gb-content').value = '';
+                alert('메시지가 등록되었습니다.');
+            } catch(e) {
+                console.error(e);
+                alert('메시지 등록에 실패했습니다.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        const rsvpState = { side: 'groom', attending: 'y', meal: 'y' };
+
+        function selectRsvpPill(group, value){
+            rsvpState[group] = value;
+            const groupEl = gE(`rsvp-${group}-group`);
+            if(groupEl) groupEl.querySelectorAll('.rsvp-pill').forEach(btn => btn.classList.toggle('active', btn.dataset.value === value));
+            if(group === 'attending'){
+                const fields = gE('rsvp-detail-fields');
+                if(fields) fields.style.display = value === 'y' ? 'block' : 'none';
+            }
+        }
+
+        function resetRsvpForm(){
+            gE('rsvp-name').value = '';
+            gE('rsvp-guest-count').value = '1';
+            selectRsvpPill('side', 'groom');
+            selectRsvpPill('attending', 'y');
+            selectRsvpPill('meal', 'y');
+        }
+
+        function openRsvpModal(){ resetRsvpForm(); gE('rsvp-modal').style.display = 'flex'; }
+        function closeRsvpModal(){ gE('rsvp-modal').style.display = 'none'; }
+
+        async function submitRsvp(){
+            const name = gE('rsvp-name').value.trim();
+            if(!name) return alert('이름을 입력해주세요.');
+            const side = rsvpState.side;
+            const attending = rsvpState.attending === 'y';
+            const guestCount = attending ? (parseInt(gE('rsvp-guest-count').value, 10) || 1) : 0;
+            const meal = attending ? rsvpState.meal === 'y' : false;
+            const btn = gE('rsvp-submit-btn');
+            try {
+                btn.disabled = true;
+                const res = await fetch(`/api/cards/${CARD_ID}/attendances`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, side, attending, guestCount, meal })
+                });
+                if(!res.ok) throw new Error('rsvp failed');
+                gE('rsvp-name').value = '';
+                closeRsvpModal();
+                alert('참석의사가 전달되었습니다.');
+            } catch(e) {
+                console.error(e);
+                alert('참석의사 전달에 실패했습니다.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function initScrollReveal(){
+            const targets = document.querySelectorAll('.p-section');
+            let lastScrollY = window.scrollY;
+            let scrollDirection = 'down';
+            window.addEventListener('scroll', () => {
+                const y = window.scrollY;
+                scrollDirection = y >= lastScrollY ? 'down' : 'up';
+                lastScrollY = y;
+            }, { passive: true });
+
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const el = entry.target;
+                    if(scrollDirection === 'up'){
+                        el.classList.add('p-reveal-no-transition');
+                        el.classList.toggle('p-reveal-visible', entry.isIntersecting);
+                        void el.offsetWidth;
+                        requestAnimationFrame(() => el.classList.remove('p-reveal-no-transition'));
+                    } else {
+                        el.classList.toggle('p-reveal-visible', entry.isIntersecting);
+                    }
+                });
+            }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+            targets.forEach(t => { t.classList.add('p-reveal'); io.observe(t); });
+        }
+
+        function lightenHex(hex, percent){
+            const num = parseInt((hex || '#ff9ebb').replace('#', ''), 16);
+            const mix = (channel) => Math.min(255, Math.round(channel + (255 - channel) * percent));
+            const r = mix((num >> 16) & 0xff), g = mix((num >> 8) & 0xff), b = mix(num & 0xff);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        const PETAL_SPEED_RANGES = { slow: [10, 16], normal: [6, 12], fast: [3, 6] };
+
+        function setupPetals(use, color, count, speed){
+            const layer = gE('p-petals');
+            if(!layer) return;
+            layer.innerHTML = '';
+            if(use === 'n') return;
+
+            const petalColor = color || '#ff9ebb';
+            const petalCount = parseInt(count, 10) || 16;
+            const [minDur, maxDur] = PETAL_SPEED_RANGES[speed] || PETAL_SPEED_RANGES.normal;
+
+            for(let i = 0; i < petalCount; i++){
+                const petal = document.createElement('div');
+                petal.className = 'p-petal';
+                const size = 8 + Math.random() * 10;
+                petal.style.width = size + 'px';
+                petal.style.height = (size * 0.8) + 'px';
+                petal.style.left = (Math.random() * 100) + '%';
+                petal.style.background = `linear-gradient(135deg, ${lightenHex(petalColor, 0.55)}, ${petalColor})`;
+                const duration = minDur + Math.random() * (maxDur - minDur);
+                petal.style.animationDuration = duration + 's';
+                petal.style.animationDelay = (-Math.random() * duration) + 's';
+                petal.style.setProperty('--drift', (Math.random() * 80 - 40) + 'px');
+                layer.appendChild(petal);
+            }
+        }
+
+        function openContactModal(){ gE('contact-modal').style.display = 'flex'; }
+        function closeContactModal(){ gE('contact-modal').style.display = 'none'; }
+
+        function showAllGallery(){
+            document.querySelectorAll('.p-gallery-hidden').forEach(el => el.classList.remove('p-gallery-hidden'));
+            gE('p-gallery-more-btn').style.display = 'none';
+        }
+        function showImg(idx){
+            currentImgIdx = idx;
+            const m = gE('img-preview-modal'), mi = gE('p-full-img');
+            if(galleryImages[idx]){ mi.src = galleryImages[idx]; m.style.display = 'flex'; }
+        }
+        function changeImg(dir){
+            const total = galleryImages.length;
+            if(!total) return;
+            showImg((currentImgIdx + dir + total) % total);
+        }
+
+        function startDdayCountdown(target){
+            if(ddayInterval) clearInterval(ddayInterval);
+            const render = () => {
+                const el = gE('p-dday-val');
+                const diff = target - new Date();
+                if(diff <= 0){ el.innerText = '결혼식 날입니다!'; clearInterval(ddayInterval); return; }
+                const totalSec = Math.floor(diff/1000);
+                const days = Math.floor(totalSec/86400);
+                const hours = Math.floor((totalSec%86400)/3600);
+                const mins = Math.floor((totalSec%3600)/60);
+                const secs = totalSec%60;
+                el.innerText = `${days}일 ${hours}시간 ${mins}분 ${secs}초 남았습니다.`;
+            };
+            render();
+            ddayInterval = setInterval(render, 1000);
+        }
+
+        function renderCalendar(t){
+            const y=t.getFullYear(),m=t.getMonth(),d=t.getDate();
+            gE('p-calendar-month').innerText = `${y}년 ${m+1}월 ${d}일`;
+            const f=new Date(y,m,1).getDay(),l=new Date(y,m+1,0).getDate(),b=gE('p-calendar-body');
+            b.innerHTML=''; let r=document.createElement('tr');
+            for(let i=0; i<f; i++) r.appendChild(document.createElement('td'));
+            for(let i=1; i<=l; i++){
+                if((f+i-1)%7===0&&i!==1){b.appendChild(r);r=document.createElement('tr');}
+                const c=document.createElement('td');const s=document.createElement('span');s.innerText=i;
+                if(i===d)s.className='selected';c.appendChild(s);r.appendChild(c);
+            }
+            while(r.children.length < 7) r.appendChild(document.createElement('td'));
+            b.appendChild(r);
+        }
+
+        function copyAddr(){ copyText(gE('p-addr-text').innerText); }
+        function copyText(v){ if(v) navigator.clipboard.writeText(v).then(()=>alert('복사되었습니다.')); }
+
+        function openNavi(type){
+            const ad = gE('p-addr-text').innerText;
+            if(!ad) return;
+            let url = '';
+            if(type==='naver') url = `https://map.naver.com/v5/search/${encodeURIComponent(ad)}`;
+            else if(type==='kakao') url = `https://map.kakao.com/link/search/${encodeURIComponent(ad)}`;
+            else url = `https://maps.google.com/maps?q=${encodeURIComponent(ad)}`;
+            window.open(url, '_blank');
+        }
+
+        loadCard();
+        initScrollReveal();
+    </script>
+</body>
+</html>

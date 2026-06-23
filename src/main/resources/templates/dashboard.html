@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 청첩장 - 모바일 청첩장 제작기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root{--primary-color:#f8bbd0;--accent-color:#e91e63;}
+        *{box-sizing:border-box;}
+        body{margin:0;font-family:'Pretendard',sans-serif;background:#f7f8fa;color:#333;}
+        .header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#fff;border-bottom:1px solid #eee;}
+        .header-left{display:flex;align-items:center;gap:10px;}
+        .header-logo{width:32px;height:32px;border-radius:8px;background:var(--accent-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
+        .header-title{font-size:15px;font-weight:700;}
+        .header-right{display:flex;align-items:center;gap:14px;font-size:12px;color:#999;}
+        .logout-btn{border:none;background:#f5f5f5;color:#888;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;}
+
+        .wrap{max-width:760px;margin:0 auto;padding:30px 20px 60px;}
+        .wrap-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+        .wrap-title{font-size:18px;font-weight:800;}
+        .new-card-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:24px;border:none;background:var(--accent-color);color:#fff;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer;}
+
+        .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+        .card-item{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
+        .card-names{font-size:15px;font-weight:700;margin-bottom:4px;}
+        .card-date{font-size:12px;color:#999;margin-bottom:16px;}
+        .card-links{display:flex;flex-wrap:wrap;gap:6px;}
+        .card-links a{flex:1;text-align:center;padding:8px 6px;border-radius:8px;font-size:11px;font-weight:600;text-decoration:none;border:1px solid #eee;color:#666;white-space:nowrap;}
+        .card-links a.primary{background:#fff0f4;color:var(--accent-color);border-color:var(--primary-color);}
+
+        .empty{text-align:center;color:#aaa;font-size:13px;padding:80px 20px;}
+        .empty i{font-size:28px;color:var(--primary-color);margin-bottom:14px;display:block;}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="header-logo"><i class="fa-solid fa-heart"></i></div>
+            <div class="header-title">모바일 청첩장 제작기</div>
+        </div>
+        <div class="header-right">
+            <a sec:authorize="hasRole('ADMIN')" href="/admin" style="color:var(--accent-color); font-weight:700; text-decoration:none;">관리자 페이지</a>
+            <span th:text="${userEmail}"></span>
+            <form method="post" th:action="@{/logout}" style="margin:0;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">로그아웃</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div class="wrap-head">
+            <div class="wrap-title">내 청첩장</div>
+            <a href="/" class="new-card-btn"><i class="fa-solid fa-plus"></i>새 청첩장 만들기</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(cards)}" class="empty">
+            <i class="fa-solid fa-envelope-open-text"></i>
+            아직 만든 청첩장이 없습니다.<br>새 청첩장을 만들어보세요.
+        </div>
+
+        <div class="card-grid" th:unless="${#lists.isEmpty(cards)}">
+            <div class="card-item" th:each="card : ${cards}">
+                <div class="card-names" th:text="${card.names}"></div>
+                <div class="card-date" th:text="${card.dateText}"></div>
+                <div class="card-links">
+                    <a th:href="@{'/editor/' + ${card.id}}">수정</a>
+                    <a th:href="@{'/c/' + ${card.id}}" target="_blank">보기</a>
+                    <a class="primary" th:href="@{'/manage/' + ${card.id} + '?key=' + ${card.adminKey}}" target="_blank">참석/방명록</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

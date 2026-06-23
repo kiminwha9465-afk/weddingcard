@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 모바일 청첩장 제작기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root{--primary-color:#f8bbd0;--accent-color:#e91e63;}
+        *{box-sizing:border-box;}
+        body{margin:0;font-family:'Pretendard',sans-serif;background:#f7f8fa;color:#333;}
+        .header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#fff;border-bottom:1px solid #eee;}
+        .header-left{display:flex;align-items:center;gap:10px;}
+        .header-logo{width:32px;height:32px;border-radius:8px;background:var(--accent-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
+        .header-title{font-size:15px;font-weight:700;}
+        .header-right a{font-size:12px;color:#888;font-weight:600;text-decoration:none;}
+
+        .wrap{max-width:920px;margin:0 auto;padding:30px 20px 60px;}
+        .section-title{font-size:16px;font-weight:800;margin:30px 0 14px;}
+        .section-title:first-child{margin-top:0;}
+
+        .panel{background:#fff;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,0.04);overflow:hidden;}
+        table{width:100%;border-collapse:collapse;}
+        th,td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid #f5f5f5;}
+        th{color:#999;font-size:11px;font-weight:700;text-transform:uppercase;background:#fafafa;}
+        tr:last-child td{border-bottom:none;}
+        .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#fff0f4;color:var(--accent-color);}
+        .links a{margin-right:8px;font-size:11px;font-weight:600;color:var(--accent-color);text-decoration:none;}
+        .del-btn{border:none;background:none;color:#bbb;font-size:11px;font-weight:600;cursor:pointer;padding:0;}
+        .del-btn:hover{color:var(--accent-color);}
+        .empty{padding:30px;text-align:center;color:#aaa;font-size:13px;}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="header-logo"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="header-title">관리자 페이지</div>
+        </div>
+        <div class="header-right"><a href="/dashboard">내 청첩장으로</a></div>
+    </div>
+
+    <div class="wrap">
+        <div class="section-title">전체 사용자 (<span th:text="${#lists.size(users)}"></span>)</div>
+        <div class="panel">
+            <table>
+                <thead><tr><th>이메일</th><th>권한</th><th>가입일</th><th></th></tr></thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.email}"></td>
+                        <td><span class="tag" th:text="${user.role}"></span></td>
+                        <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td>
+                            <form th:action="@{'/admin/users/' + ${user.id} + '/delete'}" method="post" onsubmit="return confirm('이 사용자를 삭제할까요? 사용자가 만든 청첩장은 삭제되지 않습니다.');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="del-btn">삭제</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${#lists.isEmpty(users)}" class="empty">가입된 사용자가 없습니다.</div>
+        </div>
+
+        <div class="section-title">전체 청첩장 (<span th:text="${#lists.size(cards)}"></span>)</div>
+        <div class="panel">
+            <table>
+                <thead><tr><th>이름</th><th>날짜</th><th>작성자</th><th>수정일</th><th>링크</th><th></th></tr></thead>
+                <tbody>
+                    <tr th:each="card : ${cards}">
+                        <td th:text="${card.names}"></td>
+                        <td th:text="${card.dateText}"></td>
+                        <td th:text="${card.ownerEmail} ?: '(미지정)'"></td>
+                        <td th:text="${#temporals.format(card.updatedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td class="links">
+                            <a th:href="@{'/c/' + ${card.id}}" target="_blank">보기</a>
+                            <a th:href="@{'/editor/' + ${card.id}}" target="_blank">수정</a>
+                        </td>
+                        <td>
+                            <form th:action="@{'/admin/cards/' + ${card.id} + '/delete'}" method="post" onsubmit="return confirm('이 청첩장을 삭제할까요? 방명록·참석의사 데이터도 함께 삭제됩니다.');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="del-btn">삭제</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${#lists.isEmpty(cards)}" class="empty">생성된 청첩장이 없습니다.</div>
+        </div>
+    </div>
+</body>
+</html>
