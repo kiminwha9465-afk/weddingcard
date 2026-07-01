@@ -98,7 +98,7 @@
                     <a th:href="@{'/c/' + ${card.id}}" target="_blank">보기</a>
                     <a class="primary" th:href="@{'/manage/' + ${card.id} + '?key=' + ${card.adminKey}}" target="_blank">참석/방명록</a>
                 </div>
-                <button class="card-delete-btn" th:onclick="'confirmDelete(\'' + ${card.id} + '\', \'' + ${card.names} + '\')'">삭제</button>
+                <button class="card-delete-btn" th:data-id="${card.id}" th:data-names="${card.names}" onclick="confirmDelete(this.dataset.id, this.dataset.names)">삭제</button>
             </div>
         </div>
     </div>
