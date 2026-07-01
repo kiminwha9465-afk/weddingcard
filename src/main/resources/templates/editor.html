@@ -9,7 +9,7 @@
     <!-- Dependencies -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@200;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Song+Myung&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nanum+Gothic:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;700&family=Noto+Serif+KR:wght@200;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Song+Myung&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
@@ -287,7 +287,7 @@
                     <div class="form-group"><label>이름 표시 텍스트</label><input type="text" id="in-cover-names" value="김신랑 & 이신부" oninput="up()"></div>
                     <div class="form-group"><label>날짜 표시 텍스트</label><input type="text" id="in-cover-date-text" value="2026. 06. 12" oninput="up()"></div>
 
-                    <div class="form-group"><label>전체 폰트 종류</label>
+                    <div class="form-group"><label>커버 폰트</label>
                         <select id="in-cover-font" onchange="up()">
                             <option value="'Pretendard', sans-serif">기본 (Pretendard)</option>
                             <option value="'Playfair Display', serif">Elegant Serif (Playfair Display)</option>
@@ -423,6 +423,18 @@
                             </div>
                             <div class="mood-label">빈티지</div>
                         </div>
+                    </div>
+                    <div style="height:1px;background:#f0f0f0;margin:16px 0 18px;"></div>
+                    <label style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;display:block;margin-bottom:10px;">FONT</label>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>전체 폰트 <span style="font-size:10px;color:#bbb;">(커버 제외 모든 섹션)</span></label>
+                        <select id="in-body-font" onchange="up()">
+                            <option value="'Pretendard', sans-serif">기본 (Pretendard)</option>
+                            <option value="'Noto Sans KR', sans-serif">노토 산스 KR</option>
+                            <option value="'Nanum Gothic', sans-serif">나눔 고딕</option>
+                            <option value="'Noto Serif KR', serif">노토 세리프 KR (명조)</option>
+                            <option value="'Nanum Myeongjo', serif">나눔 명조</option>
+                        </select>
                     </div>
                     <div style="height:1px;background:#f0f0f0;margin:16px 0 18px;"></div>
                     <p style="font-size:12px;color:#999;margin-bottom:14px;">포인트 컬러가 버튼·태그·아이콘 등 전체에 적용됩니다.</p>
@@ -969,7 +981,7 @@
         const sH = (id, v) => { if(gE(id)) gE(id).innerHTML = v; };
 
         const FIELD_IDS = [
-            'in-theme-accent','in-theme-primary',
+            'in-theme-accent','in-theme-primary','in-body-font',
             'in-cover-title','in-cover-names','in-cover-date-text','in-cover-font','in-cover-color','in-cover-size',
             'in-cover-valign','in-cover-deco','in-cover-mood','in-cover-overlay','in-cover-spacing','in-bgm-url',
             'in-petal-use','in-petal-color','in-petal-count','in-petal-speed',
@@ -1310,6 +1322,11 @@
         function up(){
             isDirty = true;
             try {
+                // Global body font
+                const bodyFont = gV('in-body-font') || "'Pretendard', sans-serif";
+                const frame = document.querySelector('.mobile-frame');
+                if (frame) frame.style.fontFamily = bodyFont;
+
                 // Cover Text & Styles
                 const selectedFont = gV('in-cover-font');
                 
