@@ -24,6 +24,11 @@ public class ViewController {
         this.cardService = cardService;
     }
 
+    @GetMapping("/templates")
+    public String templates() {
+        return "card-templates";
+    }
+
     @GetMapping("/c/{id}")
     public String view(@PathVariable String id, Model model) {
         CardResponse card;

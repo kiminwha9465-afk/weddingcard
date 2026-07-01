@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>템플릿 선택</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+KR:wght@400;700&family=Nanum+Myeongjo:wght@400;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Pretendard',sans-serif;background:#f7f8fa;color:#222;-webkit-font-smoothing:antialiased;}
+
+        /* Header */
+        .header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:100;}
+        .header-logo{display:flex;align-items:center;gap:10px;}
+        .header-logo-icon{width:32px;height:32px;border-radius:8px;background:#e91e63;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
+        .header-logo-text{font-size:15px;font-weight:800;color:#222;}
+        .header-nav{display:flex;gap:8px;}
+        .header-nav a{font-size:13px;font-weight:600;color:#555;text-decoration:none;padding:8px 14px;border-radius:8px;transition:background .15s;}
+        .header-nav a:hover{background:#f5f5f5;}
+        .header-nav a.primary{background:#e91e63;color:#fff;}
+        .header-nav a.primary:hover{background:#c2185b;}
+
+        /* Hero */
+        .hero{text-align:center;padding:60px 20px 40px;}
+        .hero-tag{display:inline-block;font-size:12px;font-weight:700;color:#e91e63;background:#fce4ec;padding:5px 14px;border-radius:20px;margin-bottom:18px;letter-spacing:0.05em;}
+        .hero-title{font-size:32px;font-weight:900;color:#111;margin-bottom:12px;line-height:1.2;}
+        .hero-desc{font-size:15px;color:#888;line-height:1.6;max-width:480px;margin:0 auto;}
+
+        /* Grid */
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;max-width:860px;margin:0 auto;padding:0 20px 80px;}
+
+        /* Template Card */
+        .t-card{background:#fff;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.07);overflow:hidden;transition:transform .2s,box-shadow .2s;}
+        .t-card:hover{transform:translateY(-4px);box-shadow:0 10px 36px rgba(0,0,0,0.12);}
+
+        /* Mockup */
+        .t-mockup{position:relative;height:300px;overflow:hidden;}
+        .t-cover-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+        .t-overlay{position:absolute;inset:0;}
+        .t-content{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,0.35);pointer-events:none;}
+        .t-title-text{font-size:11px;letter-spacing:5px;font-weight:600;text-transform:uppercase;margin-bottom:12px;}
+        .t-deco{font-size:14px;margin-bottom:12px;opacity:0.85;}
+        .t-deco-line{display:block;width:36px;height:1px;background:currentColor;opacity:0.7;}
+        .t-names{font-size:26px;font-weight:bold;margin-bottom:8px;}
+        .t-date{font-size:13px;letter-spacing:3px;opacity:0.9;}
+
+        /* Info */
+        .t-info{padding:20px 22px 22px;}
+        .t-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.08em;padding:3px 9px;border-radius:20px;margin-bottom:10px;}
+        .t-name{font-size:17px;font-weight:800;color:#111;margin-bottom:5px;}
+        .t-desc{font-size:13px;color:#888;margin-bottom:16px;line-height:1.5;}
+        .t-actions{display:flex;gap:8px;}
+        .t-btn-start{flex:1;padding:11px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s;}
+        .t-btn-start:hover{opacity:0.88;}
+
+        @media(max-width:600px){
+            .hero-title{font-size:24px;}
+            .grid{grid-template-columns:1fr;gap:20px;}
+            .t-mockup{height:260px;}
+            .header{padding:14px 16px;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-logo">
+        <div class="header-logo-icon"><i class="fa-solid fa-heart"></i></div>
+        <div class="header-logo-text">모바일 청첩장</div>
+    </div>
+    <nav class="header-nav">
+        <a href="/dashboard">내 청첩장</a>
+        <a href="/editor?template=rose" class="primary"><i class="fa-solid fa-plus"></i> 새로 만들기</a>
+    </nav>
+</div>
+
+<div class="hero">
+    <div class="hero-tag">TEMPLATE</div>
+    <div class="hero-title">마음에 드는 템플릿을<br>골라보세요</div>
+    <div class="hero-desc">선택한 템플릿을 기반으로 에디터에서 자유롭게 수정할 수 있어요.</div>
+</div>
+
+<div class="grid">
+
+    <!-- 1. Classic Rose -->
+    <div class="t-card">
+        <div class="t-mockup">
+            <div class="t-cover-bg" style="background:linear-gradient(160deg,#f48fb1 0%,#e91e63 50%,#880e4f 100%);"></div>
+            <div class="t-overlay" style="background:rgba(0,0,0,0.22);"></div>
+            <div class="t-content" style="justify-content:center;">
+                <div class="t-title-text" style="font-family:'Playfair Display',serif;">WEDDING</div>
+                <div class="t-deco"><span class="t-deco-line"></span></div>
+                <div class="t-names" style="font-family:'Playfair Display',serif;letter-spacing:2px;">OOO &amp; OOO</div>
+                <div class="t-date" style="font-family:'Playfair Display',serif;">2026 . 06 . 12</div>
+            </div>
+        </div>
+        <div class="t-info">
+            <div class="t-badge" style="background:#fce4ec;color:#c2185b;">CLASSIC ROSE</div>
+            <div class="t-name">클래식 로즈</div>
+            <div class="t-desc">우아한 세리프 폰트와 로즈 컬러로 완성하는 로맨틱한 클래식 디자인</div>
+            <div class="t-actions">
+                <a href="/editor?template=rose" class="t-btn-start" style="background:#e91e63;color:#fff;">
+                    <i class="fa-solid fa-pen"></i> 이 템플릿으로 시작하기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Minimal White -->
+    <div class="t-card">
+        <div class="t-mockup">
+            <div class="t-cover-bg" style="background:linear-gradient(160deg,#9e9e9e 0%,#424242 60%,#212121 100%);"></div>
+            <div class="t-overlay" style="background:rgba(0,0,0,0.12);"></div>
+            <div class="t-content" style="justify-content:flex-end;padding-bottom:50px;">
+                <div class="t-title-text" style="font-family:'Pretendard',sans-serif;letter-spacing:8px;font-size:9px;">WE ARE GETTING MARRIED</div>
+                <div class="t-names" style="font-family:'Pretendard',sans-serif;font-size:22px;letter-spacing:5px;font-weight:300;">OOO  &amp;  OOO</div>
+                <div class="t-date" style="font-family:'Pretendard',sans-serif;letter-spacing:5px;font-size:12px;">2026 . 06 . 12</div>
+            </div>
+        </div>
+        <div class="t-info">
+            <div class="t-badge" style="background:#f5f5f5;color:#424242;">MINIMAL</div>
+            <div class="t-name">미니멀 블랙</div>
+            <div class="t-desc">군더더기 없이 깔끔한 모노톤 미니멀 디자인. 사진이 더 돋보입니다</div>
+            <div class="t-actions">
+                <a href="/editor?template=minimal" class="t-btn-start" style="background:#424242;color:#fff;">
+                    <i class="fa-solid fa-pen"></i> 이 템플릿으로 시작하기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Garden Green -->
+    <div class="t-card">
+        <div class="t-mockup">
+            <div class="t-cover-bg" style="background:linear-gradient(160deg,#a5d6a7 0%,#388e3c 50%,#1b5e20 100%);"></div>
+            <div class="t-overlay" style="background:rgba(0,0,0,0.20);"></div>
+            <div class="t-content" style="justify-content:center;">
+                <div class="t-title-text" style="font-family:'Noto Serif KR',serif;">WEDDING</div>
+                <div class="t-deco">✿</div>
+                <div class="t-names" style="font-family:'Noto Serif KR',serif;font-size:24px;">OOO &amp; OOO</div>
+                <div class="t-date" style="font-family:'Noto Serif KR',serif;">2026 . 06 . 12</div>
+            </div>
+        </div>
+        <div class="t-info">
+            <div class="t-badge" style="background:#e8f5e9;color:#2e7d32;">GARDEN</div>
+            <div class="t-name">가든 그린</div>
+            <div class="t-desc">자연 속 정원 웨딩 분위기의 싱그러운 그린 테마. 꽃 장식이 포인트</div>
+            <div class="t-actions">
+                <a href="/editor?template=garden" class="t-btn-start" style="background:#2e7d32;color:#fff;">
+                    <i class="fa-solid fa-pen"></i> 이 템플릿으로 시작하기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Midnight Blue -->
+    <div class="t-card">
+        <div class="t-mockup">
+            <div class="t-cover-bg" style="background:linear-gradient(160deg,#90caf9 0%,#1565c0 50%,#0d47a1 100%);"></div>
+            <div class="t-overlay" style="background:rgba(0,0,0,0.30);"></div>
+            <div class="t-content" style="justify-content:flex-end;padding-bottom:50px;">
+                <div class="t-title-text" style="font-family:'Nanum Myeongjo',serif;letter-spacing:4px;">WEDDING DAY</div>
+                <div class="t-deco">✦</div>
+                <div class="t-names" style="font-family:'Nanum Myeongjo',serif;font-size:24px;letter-spacing:2px;">OOO &amp; OOO</div>
+                <div class="t-date" style="font-family:'Nanum Myeongjo',serif;letter-spacing:3px;">2026 . 06 . 12</div>
+            </div>
+        </div>
+        <div class="t-info">
+            <div class="t-badge" style="background:#e3f2fd;color:#1565c0;">MIDNIGHT BLUE</div>
+            <div class="t-name">미드나잇 블루</div>
+            <div class="t-desc">깊고 고요한 블루 톤에 명조 폰트로 격조 있는 분위기를 연출</div>
+            <div class="t-actions">
+                <a href="/editor?template=blue" class="t-btn-start" style="background:#1565c0;color:#fff;">
+                    <i class="fa-solid fa-pen"></i> 이 템플릿으로 시작하기
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

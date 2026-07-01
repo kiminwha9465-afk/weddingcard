@@ -27,7 +27,7 @@ public class SecurityConfig {
                         "/h2-console/**"))
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/c/**", "/manage/**",
+                        .requestMatchers("/login", "/register", "/c/**", "/manage/**", "/templates",
                                 "/h2-console/**", "/css/**", "/js/**", "/images/**", "/favicon.ico", "/*.png").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/cards/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/cards/*/manage").permitAll()
