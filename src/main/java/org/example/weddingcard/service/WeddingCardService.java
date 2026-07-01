@@ -81,7 +81,14 @@ public class WeddingCardService {
         return cardRepository.findByOwnerEmailOrderByUpdatedAtDesc(ownerEmail).stream()
                 .map(card -> {
                     Map<String, Object> data = readJson(card.getDataJson());
-                    String names = String.valueOf(data.getOrDefault("in-cover-names", "(이름 미입력)"));
+                    String groom = String.valueOf(data.getOrDefault("in-groom", "")).trim();
+                    String bride = String.valueOf(data.getOrDefault("in-bride", "")).trim();
+                    String names;
+                    if (!groom.isBlank() || !bride.isBlank()) {
+                        names = (!groom.isBlank() ? groom : "?") + " ♥ " + (!bride.isBlank() ? bride : "?");
+                    } else {
+                        names = String.valueOf(data.getOrDefault("in-cover-names", "(이름 미입력)"));
+                    }
                     String dateText = String.valueOf(data.getOrDefault("in-cover-date-text", ""));
                     return new CardSummaryResponse(card.getId(), names, dateText, card.getAdminKey(), card.getUpdatedAt());
                 })
