@@ -47,6 +47,12 @@ public class WeddingCardApiController {
         return cardService.getManageData(id, key);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable String id, Authentication authentication) {
+        cardService.deleteCard(id, authentication.getName());
+    }
+
     @PostMapping("/{id}/comments")
     @ResponseStatus(HttpStatus.CREATED)
     public CommentResponse addComment(@PathVariable String id, @RequestBody CommentRequest request) {

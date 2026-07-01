@@ -134,6 +134,15 @@ public class WeddingCardService {
                 .toList();
     }
 
+    public void deleteCard(String id, String requesterEmail) {
+        WeddingCard card = cardRepository.findById(id)
+                .orElseThrow(() -> new CardNotFoundException(id));
+        verifyOwner(card, requesterEmail);
+        commentRepository.deleteByCardId(id);
+        attendanceRepository.deleteByCardId(id);
+        cardRepository.deleteById(id);
+    }
+
     public void deleteCardAsAdmin(String id) {
         if (!cardRepository.existsById(id)) {
             throw new CardNotFoundException(id);

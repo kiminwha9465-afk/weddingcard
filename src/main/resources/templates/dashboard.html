@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title>내 청첩장 - 모바일 청첩장 제작기</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
@@ -29,6 +31,17 @@
         .card-links{display:flex;flex-wrap:wrap;gap:6px;}
         .card-links a{flex:1;text-align:center;padding:8px 6px;border-radius:8px;font-size:11px;font-weight:600;text-decoration:none;border:1px solid #eee;color:#666;white-space:nowrap;}
         .card-links a.primary{background:#fff0f4;color:var(--accent-color);border-color:var(--primary-color);}
+        .card-delete-btn{width:100%;margin-top:8px;padding:7px;border:none;background:none;color:#ddd;font-size:11px;font-weight:600;cursor:pointer;border-radius:8px;transition:all .15s;}
+        .card-delete-btn:hover{background:#fff5f5;color:#e53935;}
+        .confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1000;align-items:center;justify-content:center;}
+        .confirm-overlay.show{display:flex;}
+        .confirm-box{background:#fff;border-radius:18px;padding:28px 24px 20px;width:280px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.15);}
+        .confirm-box p{font-size:14px;font-weight:600;color:#333;margin:0 0 6px;}
+        .confirm-box small{font-size:12px;color:#aaa;}
+        .confirm-btns{display:flex;gap:8px;margin-top:20px;}
+        .confirm-btns button{flex:1;padding:11px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;}
+        .confirm-cancel{background:#f5f5f5;color:#888;}
+        .confirm-ok{background:#e53935;color:#fff;}
 
         .empty{text-align:center;color:#aaa;font-size:13px;padding:80px 20px;}
         .empty i{font-size:28px;color:var(--primary-color);margin-bottom:14px;display:block;}
@@ -85,8 +98,53 @@
                     <a th:href="@{'/c/' + ${card.id}}" target="_blank">보기</a>
                     <a class="primary" th:href="@{'/manage/' + ${card.id} + '?key=' + ${card.adminKey}}" target="_blank">참석/방명록</a>
                 </div>
+                <button class="card-delete-btn" th:onclick="'confirmDelete(\'' + ${card.id} + '\', \'' + ${card.names} + '\')'">삭제</button>
             </div>
         </div>
     </div>
+    <!-- 삭제 확인 모달 -->
+    <div class="confirm-overlay" id="confirm-overlay">
+        <div class="confirm-box">
+            <p>청첩장을 삭제할까요?</p>
+            <small id="confirm-names"></small>
+            <div class="confirm-btns">
+                <button class="confirm-cancel" onclick="closeConfirm()">취소</button>
+                <button class="confirm-ok" onclick="doDelete()">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let _deleteId = null;
+        const csrf = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        function confirmDelete(id, names) {
+            _deleteId = id;
+            document.getElementById('confirm-names').textContent = names;
+            document.getElementById('confirm-overlay').classList.add('show');
+        }
+        function closeConfirm() {
+            _deleteId = null;
+            document.getElementById('confirm-overlay').classList.remove('show');
+        }
+        async function doDelete() {
+            if (!_deleteId) return;
+            const id = _deleteId;
+            closeConfirm();
+            const res = await fetch('/api/cards/' + id, {
+                method: 'DELETE',
+                headers: { [csrfHeader]: csrf }
+            });
+            if (res.ok) {
+                location.reload();
+            } else {
+                alert('삭제에 실패했습니다. 다시 시도해주세요.');
+            }
+        }
+        document.getElementById('confirm-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeConfirm();
+        });
+    </script>
 </body>
 </html>
