@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>모바일 청첩장</title>
+    <title th:text="${ogTitle}">모바일 청첩장</title>
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" th:content="${ogTitle}">
+    <meta property="og:description" th:content="${ogDescription}">
+    <meta property="og:image" th:content="${ogImage}">
+    <meta property="og:url" th:content="${ogUrl}">
+    <meta property="og:site_name" content="모바일 청첩장">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" th:content="${ogTitle}">
+    <meta name="twitter:description" th:content="${ogDescription}">
+    <meta name="twitter:image" th:content="${ogImage}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@200;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Song+Myung&display=swap" rel="stylesheet">
@@ -21,11 +32,13 @@
         .p-cover-media { width: 100%; height: 100%; object-fit: cover; }
         .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 2; }
         .p-cover-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none; }
-        .p-cover-title { font-size: 16px; letter-spacing: 6px; margin-bottom: 25px; font-weight: 600; text-transform: uppercase; }
+        .p-cover-title { font-size: 16px; letter-spacing: 6px; margin-bottom: 16px; font-weight: 600; text-transform: uppercase; }
+        .p-cover-deco { margin: 4px 0 16px; font-size: 16px; opacity: 0.85; min-height: 0; }
+        .p-cover-deco-line { display: block; width: 44px; height: 1px; background: currentColor; margin: 0 auto; opacity: 0.7; }
         .p-cover-names { font-size: 34px; font-family: serif; margin-bottom: 12px; font-weight: bold; }
         .p-cover-date { font-size: 17px; letter-spacing: 2px; }
 
-        .p-contact-btn{margin-top:20px;padding:10px 24px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
+        .p-contact-btn{margin-top:20px;padding:10px 24px;border:1px solid var(--accent-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
         .p-contact-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5;}
         .p-contact-row:last-child{border-bottom:none;}
         .p-contact-row-name{font-size:14px;color:#333;}
@@ -68,23 +81,23 @@
 
         .p-rsvp-heading{font-size:19px;font-weight:700;color:var(--accent-color);margin-bottom:14px;}
         .p-rsvp-desc{font-size:13px;color:#888;line-height:1.6;margin-bottom:24px;}
-        .p-rsvp-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;}
+        .p-rsvp-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border:1px solid var(--accent-color);background:#fff;color:var(--accent-color);border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;}
 
         /* RSVP Modal */
         .rsvp-modal-content{background:#fff;width:90%;max-width:340px;border-radius:24px;padding:32px 24px 24px;box-sizing:border-box;position:relative;text-align:center;}
-        .rsvp-modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:none;background:#f5f5f5;border-radius:50%;color:#999;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-        .rsvp-modal-close:hover{background:#eee;}
-        .rsvp-modal-icon{width:48px;height:48px;border-radius:50%;background:#fff0f4;color:var(--accent-color);font-size:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
-        .rsvp-modal-title{font-size:17px;font-weight:700;color:#333;margin-bottom:4px;}
-        .rsvp-modal-subtitle{font-size:12px;color:#999;margin-bottom:24px;}
-        .rsvp-field{margin-bottom:14px;text-align:left;}
-        .rsvp-label{display:block;font-size:11px;font-weight:700;color:#999;margin-bottom:6px;}
-        .rsvp-input{width:100%;padding:11px 12px;border:1px solid #eee;border-radius:10px;font-size:13px;background:#fafafa;box-sizing:border-box;}
-        .rsvp-input:focus{outline:none;border-color:var(--primary-color);background:#fff;}
+        .rsvp-modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:none;background:#f0f0f0;border-radius:50%;color:#aaa;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+        .rsvp-modal-close:hover{background:#e8e8e8;color:#666;}
+        .rsvp-modal-icon{width:52px;height:52px;border-radius:50%;background:var(--primary-color);color:var(--accent-color);font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+        .rsvp-modal-title{font-size:17px;font-weight:700;color:#222;margin-bottom:4px;}
+        .rsvp-modal-subtitle{font-size:12px;color:#aaa;margin-bottom:24px;}
+        .rsvp-field{margin-bottom:16px;text-align:left;}
+        .rsvp-label{display:block;font-size:11px;font-weight:700;color:#bbb;letter-spacing:0.05em;margin-bottom:7px;}
+        .rsvp-input{width:100%;padding:11px 12px;border:1px solid #ececec;border-radius:10px;font-size:13px;background:#fafafa;box-sizing:border-box;transition:border-color 0.15s;}
+        .rsvp-input:focus{outline:none;border-color:var(--accent-color);background:#fff;}
         .rsvp-pill-group{display:flex;gap:8px;}
-        .rsvp-pill{flex:1;padding:10px;border:1px solid #eee;background:#fafafa;border-radius:10px;font-size:13px;font-weight:600;color:#999;cursor:pointer;transition:0.15s;}
-        .rsvp-pill.active{border-color:var(--accent-color);background:#fff0f4;color:var(--accent-color);}
-        .rsvp-submit-btn{width:100%;margin-top:8px;padding:13px;border:none;border-radius:12px;background:var(--accent-color);color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+        .rsvp-pill{flex:1;padding:10px;border:1px solid #e8e8e8;background:#fafafa;border-radius:12px;font-size:13px;font-weight:600;color:#bbb;cursor:pointer;transition:all 0.15s;text-align:center;}
+        .rsvp-pill.active{border-color:var(--accent-color);background:var(--primary-color);color:var(--accent-color);font-weight:700;}
+        .rsvp-submit-btn{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:var(--accent-color);color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;}
 
         .kakao-share-btn{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:13px 28px;border:none;border-radius:30px;background:#FEE500;color:#3C1E1E;font-size:14px;font-weight:700;cursor:pointer;}
         .kakao-share-btn i{font-size:15px;}
@@ -129,17 +142,18 @@
                 <div class="p-petals-layer" id="p-petals"></div>
                 <div class="p-cover-content" id="p-cover-content">
                     <div class="p-cover-title" id="p-cover-title-label"></div>
+                    <div class="p-cover-deco" id="p-cover-deco"></div>
                     <div class="p-cover-names" id="p-cover-names-label"></div>
                     <div class="p-cover-date" id="p-date-top"></div>
                 </div>
             </div>
 
-            <div class="p-section">
+            <div class="p-section" data-section="greeting">
                 <div class="p-title-small">Greeting</div>
                 <div id="p-greet-body" style="font-size:14px;padding:0;text-align:center;"></div>
             </div>
 
-            <div class="p-section">
+            <div class="p-section" data-section="contact">
                 <div class="p-title-small">Contact</div>
                 <div style="display:flex; flex-direction:column; gap:8px; align-items:center; font-size:15px; color:#333;">
                     <div><span id="p-groom-father-val"></span> · <span id="p-groom-mother-val"></span> <span style="font-size:12px; color:#888;">의 아들</span> <b id="p-groom-name-val"></b></div>
@@ -148,13 +162,13 @@
                 <button onclick="openContactModal()" class="p-contact-btn">연락하기</button>
             </div>
 
-            <div class="p-section">
+            <div class="p-section" data-section="gallery">
                 <div class="p-title-small">GALLERY</div>
                 <div class="p-gallery-grid" id="p-gallery-grid"></div>
                 <button id="p-gallery-more-btn" class="p-gallery-more-btn" onclick="showAllGallery()">더보기</button>
             </div>
 
-            <div class="p-section">
+            <div class="p-section" data-section="calendar">
                 <div class="p-calendar-card">
                     <div class="p-calendar-date-heading" id="p-calendar-month"></div>
                     <table class="p-calendar-table">
@@ -168,7 +182,7 @@
                 </div>
             </div>
 
-            <div class="p-section">
+            <div class="p-section" data-section="location">
                 <div class="p-title-small">LOCATION</div>
                 <div id="p-venue-name" style="font-weight:bold;font-size:18px;margin-bottom:10px;"></div>
                 <div id="p-addr-text" style="font-size:13px;color:#666;margin:10px 0;"></div>
@@ -194,7 +208,7 @@
                 </div>
             </div>
 
-            <div class="p-section" style="background:#fdfdfd;">
+            <div class="p-section" data-section="account" style="background:#fdfdfd;">
                 <div class="p-title-small">ACCOUNT</div>
                 <div style="text-align:left; padding:0 10px;">
                     <div class="p-acc-row"><span id="p-acc-groom-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-val').innerText)" class="p-acc-copy-btn">복사</button></div>
@@ -206,7 +220,7 @@
                 </div>
             </div>
 
-            <div id="p-guestbook-section" class="p-section">
+            <div id="p-guestbook-section" class="p-section" data-section="guestbook">
                 <div class="p-title-small">GUESTBOOK</div>
                 <div id="p-gb-title-val" style="font-size:14px; margin-bottom:20px; color:#666;"></div>
 
@@ -219,14 +233,14 @@
                 <div id="p-gb-list" class="p-gb-list"></div>
             </div>
 
-            <div id="p-rsvp-section" class="p-section">
+            <div id="p-rsvp-section" class="p-section" data-section="rsvp">
                 <div class="p-title-small">R.S.V.P.</div>
                 <div class="p-rsvp-heading">참석 의사 전달</div>
                 <div id="p-rsvp-title-val" class="p-rsvp-desc"></div>
                 <button onclick="openRsvpModal()" class="p-rsvp-btn"><i class="fa-solid fa-clipboard-check"></i>참석의사 전달하기</button>
             </div>
 
-            <div class="p-section" style="padding:100px 20px 60px; border:none;">
+            <div class="p-section" data-section="thanks" style="padding:100px 20px 60px; border:none;">
                 <div id="p-thanks-title" style="font-size:18px; font-family:serif; font-weight:700;"></div>
                 <div id="p-thanks-body" style="font-size:13px; color:#999; margin-top:10px; white-space: pre-wrap;"></div>
                 <button onclick="shareKakao()" class="kakao-share-btn"><i class="fa-solid fa-comment"></i>카카오톡으로 공유하기</button>
@@ -283,7 +297,7 @@
                     </div>
                 </div>
             </div>
-            <button onclick="closeContactModal()" style="width:100%; margin-top:15px; padding:10px; border:none; background:#eee; border-radius:8px; cursor:pointer;">닫기</button>
+            <button onclick="closeContactModal()" style="width:100%; margin-top:15px; padding:11px; border:none; background:var(--primary-color); color:var(--accent-color); border-radius:10px; cursor:pointer; font-weight:600; font-size:14px;">닫기</button>
         </div>
     </div>
 
@@ -354,22 +368,36 @@
             const v = (id) => data[id] || '';
 
             const titleLabel = gE('p-cover-title-label');
-            titleLabel.innerText = (v('in-cover-title') || 'HAPPY WEDDING').toUpperCase();
+            titleLabel.innerText = (v('in-cover-title')).toUpperCase();
             titleLabel.style.color = v('in-cover-color') || '#ffffff';
             titleLabel.style.fontSize = (v('in-cover-size') || '16') + 'px';
             titleLabel.style.fontFamily = v('in-cover-font') || "'Pretendard', sans-serif";
 
+            const decoEl = gE('p-cover-deco');
+            const decoType = v('in-cover-deco') || 'none';
+            const decoColor = v('in-names-color') || '#ffffff';
+            if(decoEl){ decoEl.style.color = decoColor; applyDeco(decoEl, decoType); }
+
             const namesLabel = gE('p-cover-names-label');
-            namesLabel.innerText = v('in-cover-names') || '김신랑 & 이신부';
+            namesLabel.innerText = v('in-cover-names');
             namesLabel.style.color = v('in-names-color') || '#ffffff';
             namesLabel.style.fontSize = (v('in-names-size') || '34') + 'px';
             namesLabel.style.fontFamily = v('in-cover-font') || "'Pretendard', sans-serif";
+            namesLabel.style.letterSpacing = (v('in-cover-spacing') || '0') + 'px';
 
             const dateTop = gE('p-date-top');
-            dateTop.innerText = v('in-cover-date-text') || '2026. 06. 12';
+            dateTop.innerText = v('in-cover-date-text');
             dateTop.style.color = v('in-date-color') || '#ffffff';
             dateTop.style.fontSize = (v('in-date-size') || '17') + 'px';
             dateTop.style.fontFamily = v('in-cover-font') || "'Pretendard', sans-serif";
+            dateTop.style.letterSpacing = (v('in-cover-spacing') || '2') + 'px';
+
+            const overlayEl = document.querySelector('.p-cover-overlay');
+            if(overlayEl){ const op = parseFloat(v('in-cover-overlay') || '20') / 100; overlayEl.style.background = `rgba(0,0,0,${op})`; }
+
+            const coverContent = gE('p-cover-content');
+            const valign = v('in-cover-valign') || 'center';
+            if(coverContent){ coverContent.style.justifyContent = valign === 'top' ? 'flex-start' : valign === 'bottom' ? 'flex-end' : 'center'; coverContent.style.paddingTop = valign === 'top' ? '60px' : '0'; coverContent.style.paddingBottom = valign === 'bottom' ? '60px' : '0'; }
 
             if(data.coverImage) gE('p-cover-media-box').innerHTML = `<img src="${data.coverImage}" class="p-cover-media">`;
 
@@ -541,12 +569,42 @@
             return item;
         }
 
+        const DEFAULT_SECTION_ORDER = 'greeting,contact,gallery,calendar,location,account,guestbook,rsvp';
+
+        function applyThemeColors(data) {
+            const accent = data['in-theme-accent'];
+            const primary = data['in-theme-primary'];
+            if (accent) document.documentElement.style.setProperty('--accent-color', accent);
+            if (primary) document.documentElement.style.setProperty('--primary-color', primary);
+        }
+
+        function applySectionOrder(data) {
+            const raw = (data['in-section-order'] || DEFAULT_SECTION_ORDER);
+            const order = raw.split(',').filter(Boolean);
+            const container = document.querySelector('.mobile-frame');
+            if (!container) return;
+            const anchor = container.querySelector('[data-section="thanks"]');
+            if (!anchor) return;
+            order.forEach(key => {
+                const el = container.querySelector(`[data-section="${key}"]`);
+                if (el) container.insertBefore(el, anchor);
+            });
+        }
+
+        function applyDeco(el, type){
+            const decos = { line:'<span class="p-cover-deco-line"></span>', heart:'♥', flower:'✿', star:'✦', ring:'◇' };
+            el.innerHTML = decos[type] || '';
+        }
+
         async function loadCard(){
             try {
                 const res = await fetch(`/api/cards/${CARD_ID}`);
                 if(!res.ok) throw new Error('not found');
                 const card = await res.json();
-                renderCard(card.data || {});
+                const data = card.data || {};
+                applyThemeColors(data);
+                applySectionOrder(data);
+                renderCard(data);
                 renderComments(card.comments || []);
             } catch(e) {
                 console.error(e);
@@ -639,29 +697,33 @@
         }
 
         function initScrollReveal(){
-            const targets = document.querySelectorAll('.p-section');
-            let lastScrollY = window.scrollY;
-            let scrollDirection = 'down';
-            window.addEventListener('scroll', () => {
-                const y = window.scrollY;
-                scrollDirection = y >= lastScrollY ? 'down' : 'up';
-                lastScrollY = y;
-            }, { passive: true });
+            const targets = [...document.querySelectorAll('.p-section')];
+            targets.forEach(t => t.classList.add('p-reveal'));
 
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const el = entry.target;
-                    if(scrollDirection === 'up'){
+            let lastY = window.scrollY;
+
+            function checkReveal(){
+                const y = window.scrollY;
+                const goingUp = y < lastY;
+                lastY = y;
+                const vh = window.innerHeight;
+
+                targets.forEach(el => {
+                    const r = el.getBoundingClientRect();
+                    const inView = r.top < vh * 0.92 && r.bottom > 0;
+                    if(goingUp){
                         el.classList.add('p-reveal-no-transition');
-                        el.classList.toggle('p-reveal-visible', entry.isIntersecting);
+                        el.classList.toggle('p-reveal-visible', inView);
                         void el.offsetWidth;
                         requestAnimationFrame(() => el.classList.remove('p-reveal-no-transition'));
                     } else {
-                        el.classList.toggle('p-reveal-visible', entry.isIntersecting);
+                        el.classList.toggle('p-reveal-visible', inView);
                     }
                 });
-            }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
-            targets.forEach(t => { t.classList.add('p-reveal'); io.observe(t); });
+            }
+
+            window.addEventListener('scroll', checkReveal, { passive: true });
+            checkReveal();
         }
 
         function lightenHex(hex, percent){

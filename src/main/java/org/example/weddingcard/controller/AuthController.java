@@ -16,8 +16,8 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.admin-email}")
-    private String adminEmail;
+    @Value("${app.admin-username}")
+    private String adminUsername;
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -35,29 +35,29 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String email,
+    public String register(@RequestParam String username,
                             @RequestParam String password,
                             @RequestParam String passwordConfirm,
                             Model model) {
-        email = email == null ? "" : email.trim();
-        if (email.isBlank() || password == null || password.length() < 8) {
-            model.addAttribute("error", "이메일과 8자 이상의 비밀번호를 입력해주세요.");
-            model.addAttribute("email", email);
+        username = username == null ? "" : username.trim();
+        if (username.isBlank() || password == null || password.length() < 8) {
+            model.addAttribute("error", "아이디와 8자 이상의 비밀번호를 입력해주세요.");
+            model.addAttribute("username", username);
             return "register";
         }
         if (!password.equals(passwordConfirm)) {
             model.addAttribute("error", "비밀번호가 일치하지 않습니다.");
-            model.addAttribute("email", email);
+            model.addAttribute("username", username);
             return "register";
         }
-        if (userRepository.existsByEmail(email)) {
-            model.addAttribute("error", "이미 가입된 이메일입니다.");
-            model.addAttribute("email", email);
+        if (userRepository.existsByUsername(username)) {
+            model.addAttribute("error", "이미 사용 중인 아이디입니다.");
+            model.addAttribute("username", username);
             return "register";
         }
 
-        User user = new User(email, passwordEncoder.encode(password));
-        if (email.equalsIgnoreCase(adminEmail)) {
+        User user = new User(username, passwordEncoder.encode(password));
+        if (username.equalsIgnoreCase(adminUsername)) {
             user.setRole(User.Role.ADMIN);
         }
         userRepository.save(user);

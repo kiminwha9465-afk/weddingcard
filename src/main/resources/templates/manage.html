@@ -10,6 +10,11 @@
         :root{--border-color:#e1e4e8;--primary-color:#f8bbd0;--accent-color:#e91e63;--bg:#f7f8fa;}
         *{box-sizing:border-box;}
         body{margin:0;font-family:'Pretendard',sans-serif;background:var(--bg);color:#333;-webkit-font-smoothing:antialiased;}
+        .header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:100;}
+        .header-left{display:flex;align-items:center;gap:10px;}
+        .header-logo{width:32px;height:32px;border-radius:8px;background:var(--accent-color);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+        .header-title{font-size:15px;font-weight:700;color:#222;}
+        .header-badge{font-size:11px;font-weight:600;color:var(--accent-color);background:#fff0f4;padding:3px 8px;border-radius:20px;margin-left:4px;}
         .wrap{max-width:720px;margin:0 auto;padding:30px 20px 60px;}
         .page-title{font-size:20px;font-weight:800;margin-bottom:4px;}
         .page-sub{font-size:13px;color:#888;margin-bottom:28px;}
@@ -23,8 +28,9 @@
         .panel-title{padding:16px 20px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;}
         .panel-title span.count{font-size:12px;color:#999;font-weight:600;}
 
-        table{width:100%;border-collapse:collapse;}
-        th,td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid #f5f5f5;}
+        .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+        table{width:100%;min-width:480px;border-collapse:collapse;}
+        th,td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid #f5f5f5;white-space:nowrap;}
         th{color:#999;font-size:11px;font-weight:700;text-transform:uppercase;background:#fafafa;}
         tr:last-child td{border-bottom:none;}
         .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;}
@@ -39,11 +45,39 @@
         .gb-content{font-size:13px;color:#555;line-height:1.5;white-space:pre-wrap;}
 
         .empty{padding:30px 20px;text-align:center;color:#aaa;font-size:13px;}
-        .center-msg{max-width:340px;margin:120px auto;text-align:center;color:#888;font-size:14px;line-height:1.6;}
+        .center-msg{max-width:340px;margin:120px auto;text-align:center;color:#888;font-size:14px;line-height:1.6;padding:0 20px;}
         .center-msg i{font-size:28px;color:var(--primary-color);margin-bottom:14px;display:block;}
+
+        .rsvp-card-list{display:none;}
+        .rsvp-card{padding:14px 20px;border-bottom:1px solid #f5f5f5;}
+        .rsvp-card:last-child{border-bottom:none;}
+        .rsvp-card-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+        .rsvp-card-name{font-size:14px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .rsvp-card-side{font-size:11px;color:#999;}
+        .rsvp-card-info{font-size:12px;color:#555;margin-bottom:3px;}
+        .rsvp-card-date{font-size:11px;color:#bbb;}
+
+        @media (max-width: 600px) {
+            .header{padding:12px 16px;}
+            .header-title{font-size:13px;}
+            .wrap{padding:20px 14px 40px;}
+            .page-title{font-size:17px;}
+            .summary-grid{grid-template-columns:repeat(2,1fr);}
+            .center-msg{margin:80px auto;}
+            .table-scroll{display:none;}
+            .rsvp-card-list{display:block;}
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <div class="header-left">
+            <div class="header-logo"><i class="fa-solid fa-heart"></i></div>
+            <div class="header-title">참석 현황 관리<span class="header-badge" id="header-names"></span></div>
+        </div>
+        <a id="header-card-link" href="#" style="font-size:12px;color:var(--accent-color);font-weight:700;text-decoration:none;white-space:nowrap;"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>청첩장 보기</a>
+    </div>
+
     <div id="app" class="wrap" style="display:none;">
         <div class="page-title">참석 현황 관리</div>
         <div class="page-sub" id="page-sub"></div>
@@ -57,10 +91,13 @@
 
         <div class="panel">
             <div class="panel-title">참석의사 전달 목록 <span class="count" id="rsvp-count"></span></div>
-            <table>
-                <thead><tr><th>이름</th><th>구분</th><th>여부</th><th>인원</th><th>식사</th><th>전달일시</th></tr></thead>
-                <tbody id="rsvp-table-body"></tbody>
-            </table>
+            <div class="table-scroll">
+                <table>
+                    <thead><tr><th>이름</th><th>구분</th><th>여부</th><th>인원</th><th>식사</th><th>전달일시</th></tr></thead>
+                    <tbody id="rsvp-table-body"></tbody>
+                </table>
+            </div>
+            <div class="rsvp-card-list" id="rsvp-card-list"></div>
             <div id="rsvp-empty" class="empty" style="display:none;">아직 전달된 참석의사가 없습니다.</div>
         </div>
 
@@ -114,6 +151,10 @@
             const names = data['in-cover-names'] || '';
             const dateText = data['in-cover-date-text'] || '';
             gE('page-sub').innerText = [names, dateText].filter(Boolean).join(' · ');
+            const headerNames = gE('header-names');
+            if(headerNames && names) headerNames.textContent = names;
+            const cardLink = gE('header-card-link');
+            if(cardLink) cardLink.href = `/c/${CARD_ID}`;
 
             renderAttendances(body.attendances || []);
             renderComments(body.comments || []);
@@ -124,13 +165,17 @@
 
             let totalGuests = 0, attendCount = 0, mealCount = 0, absentCount = 0;
             const tbody = gE('rsvp-table-body');
+            const cardList = gE('rsvp-card-list');
             tbody.innerHTML = '';
+            cardList.innerHTML = '';
+
             list.forEach(a => {
                 if(a.attending){ attendCount++; totalGuests += a.guestCount || 0; if(a.meal) mealCount += a.guestCount || 0; }
                 else { absentCount++; }
 
-                const tr = document.createElement('tr');
                 const date = a.createdAt ? new Date(a.createdAt).toLocaleString() : '';
+
+                const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${a.name}</td>
                     <td>${sideLabel(a.side)}</td>
@@ -140,6 +185,23 @@
                     <td>${date}</td>
                 `;
                 tbody.appendChild(tr);
+
+                const card = document.createElement('div');
+                card.className = 'rsvp-card';
+                const infoText = a.attending
+                    ? `인원 ${a.guestCount || 0}명 · 식사 ${a.meal ? '함' : '안 함'}`
+                    : '불참';
+                card.innerHTML = `
+                    <div class="rsvp-card-top">
+                        <span class="rsvp-card-name"></span>
+                        <span class="tag ${a.attending ? 'tag-attend' : 'tag-absent'}">${a.attending ? '참석' : '불참'}</span>
+                        <span class="rsvp-card-side">${sideLabel(a.side)}</span>
+                    </div>
+                    <div class="rsvp-card-info">${a.attending ? `인원 ${a.guestCount || 0}명 · 식사 ${a.meal ? '함' : '안 함'}` : ''}</div>
+                    <div class="rsvp-card-date">${date}</div>
+                `;
+                card.querySelector('.rsvp-card-name').textContent = a.name;
+                cardList.appendChild(card);
             });
 
             gE('sum-total-guests').innerText = totalGuests;

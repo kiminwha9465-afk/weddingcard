@@ -29,12 +29,38 @@
         /* Sidebar */
         .sidebar{width:var(--sidebar-width);border-right:1px solid var(--border-color);display:flex;flex-shrink:0;}
         .sidebar-nav{width:80px;background:#f8f9fa;border-right:1px solid var(--border-color);overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:10px 0;scrollbar-width:none;}
+        .nav-items-row{display:contents;}
         .nav-item{width:60px;height:60px;margin-bottom:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;border-radius:8px;color:#888;font-size:9px;text-align:center;transition:0.2s;}
         .nav-item i{font-size:18px;margin-bottom:4px;}
         .nav-item.active{background:var(--primary-color);color:white;}
+        .valign-btn,.deco-btn{flex:1;padding:7px 4px;border:1px solid #ddd;background:#fafafa;border-radius:8px;font-size:12px;cursor:pointer;color:#555;transition:all .15s;min-width:0;}
+        .valign-btn.active,.deco-btn.active{border-color:var(--accent-color);background:var(--primary-color);color:var(--accent-color);font-weight:700;}
+        .deco-btn{flex:none;padding:7px 12px;}
+        .toggle-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding:4px 0;}
+        .toggle-track{position:relative;width:46px;height:26px;border-radius:13px;background:#ddd;transition:background .2s;flex-shrink:0;}
+        .toggle-track.on{background:var(--accent-color);}
+        .toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .2s;}
+        .toggle-track.on .toggle-thumb{left:23px;}
+        .toggle-text{font-size:13px;color:#555;}
+        .theme-swatches{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+        .theme-swatch{width:38px;height:38px;border-radius:50%;border:3px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;transition:transform .15s,box-shadow .15s;flex-shrink:0;}
+        .theme-swatch:hover{transform:scale(1.12);}
+        .theme-swatch.active{box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(0,0,0,0.25);}
+        .order-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:1px solid #eee;border-radius:10px;margin-bottom:8px;cursor:grab;transition:box-shadow .15s,opacity .15s;}
+        .order-item:active{cursor:grabbing;}
+        .order-item.dragging{opacity:0.35;}
+        .order-item.drag-over{border-color:var(--accent-color);box-shadow:0 0 0 2px rgba(233,30,99,.2);}
+        .order-drag-handle{color:#ccc;font-size:14px;flex-shrink:0;}
+        .order-item-label{flex:1;font-size:13px;font-weight:600;color:#333;}
+        .order-btns{display:flex;gap:4px;}
+        .order-btns button{width:28px;height:28px;border:1px solid #eee;background:#fafafa;border-radius:6px;font-size:11px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;}
+        .order-btns button:hover:not(:disabled){background:#f0f0f0;}
+        .order-btns button:disabled{opacity:0.3;cursor:default;}
+        .nav-more-btn-small{display:none;}
+        .nav-dropdown{display:none;}
 
         .editor-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-        .sidebar-header{padding:15px 20px;border-bottom:1px solid var(--border-color);font-weight:bold;font-size:14px;}
+        .sidebar-header{padding:15px 20px;border-bottom:1px solid var(--border-color);font-weight:bold;font-size:14px;display:flex;align-items:center;justify-content:space-between;}
         .editor-content{padding:20px;flex:1;overflow-y:auto;}
         .edit-section{display:none;}
         .edit-section.active{display:block;}
@@ -60,7 +86,9 @@
         .p-cover-media { width: 100%; height: 100%; object-fit: cover; }
         .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 2; }
         .p-cover-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none; }
-        .p-cover-title { font-size: 16px; letter-spacing: 6px; margin-bottom: 25px; font-weight: 600; text-transform: uppercase; }
+        .p-cover-title { font-size: 16px; letter-spacing: 6px; margin-bottom: 16px; font-weight: 600; text-transform: uppercase; }
+        .p-cover-deco { margin: 4px 0 16px; font-size: 16px; opacity: 0.85; min-height: 0; }
+        .p-cover-deco-line { display: block; width: 44px; height: 1px; background: currentColor; margin: 0 auto; opacity: 0.7; }
         .p-cover-names { font-size: 34px; font-family: serif; margin-bottom: 12px; font-weight: bold; }
         .p-cover-date { font-size: 17px; letter-spacing: 2px; }
 
@@ -73,7 +101,7 @@
         @keyframes p-bgm-spin{to{transform:rotate(360deg);}}
 
         /* Other Styles */
-        .p-contact-btn{margin-top:20px;padding:10px 24px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
+        .p-contact-btn{margin-top:20px;padding:10px 24px;border:1px solid var(--accent-color);background:#fff;color:var(--accent-color);border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;}
         .p-contact-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f5f5;}
         .p-contact-row:last-child{border-bottom:none;}
         .p-contact-row-name{font-size:14px;color:#333;}
@@ -114,23 +142,23 @@
         /* RSVP */
         .p-rsvp-heading{font-size:19px;font-weight:700;color:var(--accent-color);margin-bottom:14px;}
         .p-rsvp-desc{font-size:13px;color:#888;line-height:1.6;margin-bottom:24px;}
-        .p-rsvp-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border:1px solid var(--primary-color);background:#fff;color:var(--accent-color);border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;}
+        .p-rsvp-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border:1px solid var(--accent-color);background:#fff;color:var(--accent-color);border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;}
 
         /* RSVP Modal */
         .rsvp-modal-content{background:#fff;width:90%;max-width:340px;border-radius:24px;padding:32px 24px 24px;box-sizing:border-box;position:relative;text-align:center;}
-        .rsvp-modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:none;background:#f5f5f5;border-radius:50%;color:#999;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-        .rsvp-modal-close:hover{background:#eee;}
-        .rsvp-modal-icon{width:48px;height:48px;border-radius:50%;background:#fff0f4;color:var(--accent-color);font-size:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
-        .rsvp-modal-title{font-size:17px;font-weight:700;color:#333;margin-bottom:4px;}
-        .rsvp-modal-subtitle{font-size:12px;color:#999;margin-bottom:24px;}
-        .rsvp-field{margin-bottom:14px;text-align:left;}
-        .rsvp-label{display:block;font-size:11px;font-weight:700;color:#999;margin-bottom:6px;}
-        .rsvp-input{width:100%;padding:11px 12px;border:1px solid #eee;border-radius:10px;font-size:13px;background:#fafafa;box-sizing:border-box;}
-        .rsvp-input:focus{outline:none;border-color:var(--primary-color);background:#fff;}
+        .rsvp-modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:none;background:#f0f0f0;border-radius:50%;color:#aaa;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+        .rsvp-modal-close:hover{background:#e8e8e8;color:#666;}
+        .rsvp-modal-icon{width:52px;height:52px;border-radius:50%;background:var(--primary-color);color:var(--accent-color);font-size:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+        .rsvp-modal-title{font-size:17px;font-weight:700;color:#222;margin-bottom:4px;}
+        .rsvp-modal-subtitle{font-size:12px;color:#aaa;margin-bottom:24px;}
+        .rsvp-field{margin-bottom:16px;text-align:left;}
+        .rsvp-label{display:block;font-size:11px;font-weight:700;color:#bbb;letter-spacing:0.05em;margin-bottom:7px;}
+        .rsvp-input{width:100%;padding:11px 12px;border:1px solid #ececec;border-radius:10px;font-size:13px;background:#fafafa;box-sizing:border-box;transition:border-color 0.15s;}
+        .rsvp-input:focus{outline:none;border-color:var(--accent-color);background:#fff;}
         .rsvp-pill-group{display:flex;gap:8px;}
-        .rsvp-pill{flex:1;padding:10px;border:1px solid #eee;background:#fafafa;border-radius:10px;font-size:13px;font-weight:600;color:#999;cursor:pointer;transition:0.15s;}
-        .rsvp-pill.active{border-color:var(--accent-color);background:#fff0f4;color:var(--accent-color);}
-        .rsvp-submit-btn{width:100%;margin-top:8px;padding:13px;border:none;border-radius:12px;background:var(--accent-color);color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+        .rsvp-pill{flex:1;padding:10px;border:1px solid #e8e8e8;background:#fafafa;border-radius:12px;font-size:13px;font-weight:600;color:#bbb;cursor:pointer;transition:all 0.15s;text-align:center;}
+        .rsvp-pill.active{border-color:var(--accent-color);background:var(--primary-color);color:var(--accent-color);font-weight:700;}
+        .rsvp-submit-btn{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:var(--accent-color);color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;}
 
         .kakao-share-btn{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:13px 28px;border:none;border-radius:30px;background:#FEE500;color:#3C1E1E;font-size:14px;font-weight:700;cursor:pointer;}
         .kakao-share-btn i{font-size:15px;}
@@ -152,8 +180,9 @@
         .file-upload-label:hover { background: #fff9fa; border-color: var(--primary-color); color: var(--accent-color); }
 
         /* Mobile View Toggle */
-        .view-toggle-btn { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 10000; padding: 12px 24px; background: var(--accent-color); color: white; border: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; align-items: center; gap: 8px; }
-        .view-toggle-btn i { font-size: 16px; }
+        .view-toggle-btn { display: none; padding: 7px 14px; background: var(--accent-color); color: white; border: none; border-radius: 20px; font-weight: bold; font-size: 12px; cursor: pointer; align-items: center; gap: 6px; flex-shrink: 0; }
+        .view-toggle-btn i { font-size: 13px; }
+        .preview-close-btn { display: none; }
 
         /* Responsive */
         @media (max-width: 1024px) {
@@ -162,52 +191,81 @@
 
         @media (max-width: 768px) {
             body { overflow: auto; height: auto; }
+            .app-header { height: auto; flex-wrap: wrap; padding: 10px 12px; gap: 6px; }
+            .app-header-title { font-size: 13px; }
+            .app-header-nav { margin-left: 0 !important; width: 100%; flex-wrap: wrap; justify-content: flex-end; gap: 10px !important; }
+            .app-header-nav a, .app-header-nav button { font-size: 11px !important; }
             .app-body { flex-direction: column; }
             .sidebar { width: 100%; border-right: none; flex-direction: column; }
-            .sidebar-nav { width: 100%; height: auto; flex-direction: row; padding: 5px; border-right: none; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; background: #f8f9fa; }
-            .nav-item { width: auto; height: auto; min-width: 65px; padding: 10px 5px; margin-bottom: 0; margin-right: 4px; border-radius: 6px; }
-            .nav-item i { font-size: 16px; }
+            .sidebar-nav { width: 100%; height: auto; display: flex; flex-direction: column; align-items: stretch; padding: 8px 12px; border-right: none; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; background: #f8f9fa; }
+
+            .nav-items-row { display: flex; flex-direction: row; flex-wrap: wrap; overflow: hidden; gap: 6px; max-height: 50px; transition: max-height 0.25s ease; }
+            .nav-items-row.expanded { max-height: 600px; }
+            .nav-item { width: auto; height: auto; min-width: 64px; flex: 0 0 auto; padding: 8px 4px; margin-bottom: 0; border-radius: 6px; }
+            .nav-item i { font-size: 16px; margin-bottom: 2px; }
+
+            .nav-more-btn-small { display: flex; align-items: center; justify-content: center; gap: 5px; width: fit-content; margin: 6px auto 0; padding: 5px 16px; border-radius: 20px; background: #fff; border: 1px solid var(--border-color); font-size: 11px; font-weight: 600; color: var(--accent-color); cursor: pointer; }
+            .nav-more-btn-small .nav-trigger-chevron { transition: transform 0.2s; font-size: 9px; }
+            .nav-more-btn-small.open .nav-trigger-chevron { transform: rotate(180deg); }
             .editor-pane { width: 100%; height: auto; }
             .preview-area { width: 100%; padding: 20px 10px; min-height: 100vh; }
-            .mobile-frame { width: 100%; max-width: 375px; border: 2px solid #1a1a1a; border-radius: 20px; min-height: auto; }
+            .mobile-frame { width: 100%; max-width: 375px; border: 2px solid #1a1a1a; border-radius: 20px; min-height: auto; height: auto; overflow: hidden; }
+            .preview-scroll-container { flex: none; overflow-y: visible; }
             
             /* Toggle logic */
             .view-toggle-btn { display: flex; }
             .mobile-hide { display: none !important; }
-            .preview-area { background: #fff; }
+            .preview-area { background: #fff; position: relative; }
+            .preview-close-btn { display: flex; align-items: center; gap: 6px; position: fixed; top: 12px; right: 12px; z-index: 10000; padding: 8px 16px; background: #222; color: #fff; border: none; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
         }
     </style>
 </head>
 <body>
     <header class="app-header">
-        <div class="app-header-logo"><i class="fa-solid fa-heart"></i></div>
-        <div class="app-header-title">모바일 청첩장 제작기</div>
-        <div style="margin-left:auto; display:flex; align-items:center; gap:14px;">
-            <a href="/dashboard" style="font-size:12px; color:#888; font-weight:600; text-decoration:none;"><i class="fa-solid fa-list"></i> 내 청첩장</a>
-            <a sec:authorize="hasRole('ADMIN')" href="/admin" style="font-size:12px; color:var(--accent-color); font-weight:700; text-decoration:none;"><i class="fa-solid fa-user-shield"></i> 관리자</a>
+        <div class="app-header-left" onclick="goToDashboard()" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+            <div class="app-header-logo"><i class="fa-solid fa-heart"></i></div>
+            <div class="app-header-title">모바일 청첩장 제작기</div>
+        </div>
+        <div class="app-header-nav" style="margin-left:auto; display:flex; align-items:center; gap:14px;">
+            <a href="#" onclick="event.preventDefault(); goToDashboard();" style="font-size:12px; color:#888; font-weight:600; text-decoration:none; white-space:nowrap;"><i class="fa-solid fa-list"></i> 내 청첩장</a>
+            <a sec:authorize="hasRole('ADMIN')" href="/admin" style="font-size:12px; color:var(--accent-color); font-weight:700; text-decoration:none; white-space:nowrap;"><i class="fa-solid fa-user-shield"></i> 관리자</a>
             <form method="post" th:action="@{/logout}" style="margin:0;">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" style="border:none; background:#f5f5f5; color:#888; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">로그아웃</button>
+                <button type="submit" style="border:none; background:#f5f5f5; color:#888; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;">로그아웃</button>
             </form>
         </div>
     </header>
     <div class="app-body">
     <div class="sidebar">
         <div class="sidebar-nav">
-            <div class="nav-item active" onclick="switchSection('cover')"><i class="fa-solid fa-image"></i>커버</div>
-            <div class="nav-item" onclick="switchSection('effect')"><i class="fa-solid fa-wand-magic-sparkles"></i>효과</div>
-            <div class="nav-item" onclick="switchSection('weddingday')"><i class="fa-solid fa-calendar-check"></i>예식 일시</div>
-            <div class="nav-item" onclick="switchSection('greeting')"><i class="fa-solid fa-comment-dots"></i>인사말</div>
-            <div class="nav-item" onclick="switchSection('intro')"><i class="fa-solid fa-user-friends"></i>신랑신부</div>
-            <div class="nav-item" onclick="switchSection('gallery')"><i class="fa-solid fa-images"></i>갤러리</div>
-            <div class="nav-item" onclick="switchSection('location')"><i class="fa-solid fa-map-location-dot"></i>오시는 길</div>
-            <div class="nav-item" onclick="switchSection('account')"><i class="fa-solid fa-credit-card"></i>계좌번호</div>
-            <div class="nav-item" onclick="switchSection('guestbook')"><i class="fa-solid fa-book-open"></i>방명록</div>
-            <div class="nav-item" onclick="switchSection('rsvp')"><i class="fa-solid fa-clipboard-check"></i>참석의사</div>
-            <div class="nav-item" onclick="switchSection('thanks')"><i class="fa-solid fa-heart"></i>감사 인사</div>
+            <div class="nav-items-row">
+                <div class="nav-item active" onclick="switchSection('cover')"><i class="fa-solid fa-image"></i>커버</div>
+                <div class="nav-item" onclick="switchSection('design')"><i class="fa-solid fa-palette"></i>디자인</div>
+                <div class="nav-item" onclick="switchSection('effect')"><i class="fa-solid fa-wand-magic-sparkles"></i>효과</div>
+                <div class="nav-item" onclick="switchSection('weddingday')"><i class="fa-solid fa-calendar-check"></i>예식 일시</div>
+                <div class="nav-item" onclick="switchSection('greeting')"><i class="fa-solid fa-comment-dots"></i>인사말</div>
+                <div class="nav-item" onclick="switchSection('intro')"><i class="fa-solid fa-user-friends"></i>신랑신부</div>
+                <div class="nav-item" onclick="switchSection('gallery')"><i class="fa-solid fa-images"></i>갤러리</div>
+                <div class="nav-item" onclick="switchSection('location')"><i class="fa-solid fa-map-location-dot"></i>오시는 길</div>
+                <div class="nav-item" onclick="switchSection('account')"><i class="fa-solid fa-credit-card"></i>계좌번호</div>
+                <div class="nav-item" onclick="switchSection('guestbook')"><i class="fa-solid fa-book-open"></i>방명록</div>
+                <div class="nav-item" onclick="switchSection('rsvp')"><i class="fa-solid fa-clipboard-check"></i>참석의사</div>
+                <div class="nav-item" onclick="switchSection('thanks')"><i class="fa-solid fa-heart"></i>감사 인사</div>
+                <div class="nav-item" onclick="switchSection('order')"><i class="fa-solid fa-sort"></i>순서</div>
+            </div>
+
+            <div class="nav-more-btn-small" id="nav-more-btn" onclick="toggleNavExpand()">
+                <span id="nav-more-label">더보기</span><i class="fa-solid fa-chevron-down nav-trigger-chevron"></i>
+            </div>
         </div>
         <div class="editor-pane">
-            <div class="sidebar-header">청첩장 편집</div>
+            <div class="sidebar-header">
+                <span>청첩장 편집</span>
+                <button class="view-toggle-btn" onclick="toggleMobileView()">
+                    <span id="toggle-icon"><i class="fa-solid fa-eye"></i></span>
+                    <span id="toggle-text">미리보기</span>
+                </button>
+            </div>
             <div class="editor-content" id="editor-forms">
                 <!-- Cover -->
                 <div id="edit-cover" class="edit-section active">
@@ -240,6 +298,40 @@
                         <div class="form-group" style="margin-bottom:0;"><label>날짜 크기(px)</label><input type="number" id="in-date-size" value="17" min="10" max="100" oninput="up()"></div>
                     </div>
                     <div class="form-group">
+                        <label>텍스트 위치</label>
+                        <div style="display:flex;gap:8px;">
+                            <button type="button" onclick="setCoverValign('top')" id="valign-top" class="valign-btn"><i class="fa-solid fa-arrow-up"></i> 상단</button>
+                            <button type="button" onclick="setCoverValign('center')" id="valign-center" class="valign-btn active"><i class="fa-solid fa-minus"></i> 중앙</button>
+                            <button type="button" onclick="setCoverValign('bottom')" id="valign-bottom" class="valign-btn"><i class="fa-solid fa-arrow-down"></i> 하단</button>
+                        </div>
+                        <input type="hidden" id="in-cover-valign" value="center">
+                    </div>
+
+                    <div class="form-group">
+                        <label>장식 요소</label>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button type="button" onclick="setCoverDeco('none')" id="deco-none" class="deco-btn active">없음</button>
+                            <button type="button" onclick="setCoverDeco('line')" id="deco-line" class="deco-btn">── </button>
+                            <button type="button" onclick="setCoverDeco('heart')" id="deco-heart" class="deco-btn">♥</button>
+                            <button type="button" onclick="setCoverDeco('flower')" id="deco-flower" class="deco-btn">✿</button>
+                            <button type="button" onclick="setCoverDeco('star')" id="deco-star" class="deco-btn">✦</button>
+                            <button type="button" onclick="setCoverDeco('ring')" id="deco-ring" class="deco-btn">◇</button>
+                        </div>
+                        <input type="hidden" id="in-cover-deco" value="none">
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>오버레이 어둡기 (%)</label>
+                            <input type="number" id="in-cover-overlay" value="20" min="0" max="80" oninput="up()">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>글씨 자간 (px)</label>
+                            <input type="number" id="in-cover-spacing" value="2" min="0" max="20" oninput="up()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label>배경 사진 업로드</label>
                         <div class="file-upload-wrapper">
                             <input type="file" id="in-cover-file" class="file-upload-input" accept="image/*" onchange="handleCoverUpload(this)">
@@ -248,6 +340,22 @@
                     </div>
                 </div>
                 <!-- Effects -->
+                <div id="edit-design" class="edit-section">
+                    <div class="section-title">디자인 테마</div>
+                    <p style="font-size:12px;color:#999;margin-bottom:14px;">포인트 컬러가 버튼·태그·아이콘 등 전체에 적용됩니다.</p>
+                    <label style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;display:block;margin-bottom:10px;">PRESET</label>
+                    <div class="theme-swatches" id="theme-swatches"></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>포인트 컬러</label>
+                            <input type="color" id="in-theme-accent" value="#e91e63" oninput="onThemeColorChange()">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>배경 컬러</label>
+                            <input type="color" id="in-theme-primary" value="#f8bbd0" oninput="onThemeColorChange()">
+                        </div>
+                    </div>
+                </div>
                 <div id="edit-effect" class="edit-section">
                     <div class="section-title">효과 설정</div>
                     <div class="form-group">
@@ -256,10 +364,11 @@
                     </div>
                     <div class="form-group">
                         <label>꽃잎 효과 사용 여부</label>
-                        <select id="in-petal-use" onchange="up()">
-                            <option value="y">사용함</option>
-                            <option value="n">사용 안 함</option>
-                        </select>
+                        <input type="hidden" id="in-petal-use" value="y">
+                        <div class="toggle-wrap" onclick="toggleUse('in-petal-use')">
+                            <div class="toggle-track on" id="in-petal-use-track"><div class="toggle-thumb"></div></div>
+                            <span class="toggle-text" id="in-petal-use-text">사용함</span>
+                        </div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
                         <div class="form-group" style="margin-bottom:0;"><label>꽃잎 색상</label><input type="color" id="in-petal-color" value="#ff9ebb" oninput="up()"></div>
@@ -332,7 +441,14 @@
                 <div id="edit-location" class="edit-section">
                     <div class="section-title">오시는 길</div>
                     <div class="form-group"><label>예식장 이름</label><input type="text" id="in-venue" value="시그니엘 서울" oninput="up()"></div>
-                    <div class="form-group"><label>주소</label><input type="text" id="in-addr" value="서울특별시 송파구 올림픽로 300" oninput="up()"></div>
+                    <div class="form-group">
+                        <label>주소</label>
+                        <div style="display:flex;gap:6px;">
+                            <input type="text" id="in-addr" value="서울특별시 송파구 올림픽로 300" oninput="up()" style="flex:1;">
+                            <button type="button" id="transit-suggest-btn" onclick="suggestTransit()" style="white-space:nowrap;padding:0 12px;border:1px solid #e91e63;border-radius:10px;background:#fff;color:#e91e63;font-size:12px;font-weight:700;cursor:pointer;">자동 검색</button>
+                        </div>
+                    </div>
+                    <div id="transit-suggest-msg" style="display:none;font-size:11px;padding:8px 10px;border-radius:8px;margin-bottom:8px;"></div>
                     <div class="form-group"><label>지하철 안내</label><input type="text" id="in-subway" value="2, 8호선 잠실역 1, 2번 출구 연결" oninput="up()"></div>
                     <div class="form-group"><label>버스 안내</label><input type="text" id="in-bus" value="잠실역.롯데월드몰 정류장 하차 (간선 301, 341, 360 등)" oninput="up()"></div>
                 </div>
@@ -397,10 +513,11 @@
                     <div class="section-title">방명록 설정</div>
                     <div class="form-group">
                         <label>방명록 사용 여부</label>
-                        <select id="in-gb-use" onchange="up()">
-                            <option value="y">사용함</option>
-                            <option value="n">사용 안 함</option>
-                        </select>
+                        <input type="hidden" id="in-gb-use" value="y">
+                        <div class="toggle-wrap" onclick="toggleUse('in-gb-use')">
+                            <div class="toggle-track on" id="in-gb-use-track"><div class="toggle-thumb"></div></div>
+                            <span class="toggle-text" id="in-gb-use-text">사용함</span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>방명록 안내 문구</label>
@@ -412,10 +529,11 @@
                     <div class="section-title">참석의사 전달 설정</div>
                     <div class="form-group">
                         <label>참석의사 전달 사용 여부</label>
-                        <select id="in-rsvp-use" onchange="up()">
-                            <option value="y">사용함</option>
-                            <option value="n">사용 안 함</option>
-                        </select>
+                        <input type="hidden" id="in-rsvp-use" value="y">
+                        <div class="toggle-wrap" onclick="toggleUse('in-rsvp-use')">
+                            <div class="toggle-track on" id="in-rsvp-use-track"><div class="toggle-thumb"></div></div>
+                            <span class="toggle-text" id="in-rsvp-use-text">사용함</span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>안내 문구</label>
@@ -457,12 +575,19 @@
                         <div class="form-group" style="margin-bottom:0;"><label>본문 크기(px)</label><input type="number" id="in-thanks-body-size" value="13" min="10" max="100" oninput="up()"></div>
                     </div>
                 </div>
+                <div id="edit-order" class="edit-section">
+                    <div class="section-title">섹션 순서</div>
+                    <p style="font-size:12px;color:#999;margin-bottom:14px;">▲▼ 버튼으로 순서를 바꾸면 청첩장에 바로 반영됩니다.</p>
+                    <input type="hidden" id="in-section-order" value="">
+                    <div id="section-order-list"></div>
+                </div>
             </div>
             <div class="actions"><button class="btn-save" onclick="openSaveModal()">저장</button></div>
         </div>
     </div>
 
-    <div class="preview-area">
+    <div class="preview-area mobile-hide">
+        <button class="preview-close-btn" onclick="toggleMobileView()"><i class="fa-solid fa-pen"></i> 편집으로 돌아가기</button>
         <div class="mobile-frame">
             <button id="bgm-toggle-btn" onclick="toggleBgm()"><i class="fa-solid fa-music"></i></button>
             <audio id="bgm-audio" loop></audio>
@@ -472,21 +597,22 @@
                     <div id="p-cover-media-box" style="width:100%;height:100%;"></div>
                     <div class="p-cover-overlay"></div>
                     <div class="p-petals-layer" id="p-petals"></div>
-                    <div class="p-cover-content">
+                    <div class="p-cover-content" id="p-cover-content">
                         <div class="p-cover-title" id="p-cover-title-label">HAPPY WEDDING</div>
+                        <div class="p-cover-deco" id="p-cover-deco"></div>
                         <div class="p-cover-names" id="p-cover-names-label">김신랑 & 이신부</div>
                         <div class="p-cover-date" id="p-date-top">2026. 06. 12</div>
                     </div>
                 </div>
 
                 <!-- Greeting -->
-                <div class="p-section">
+                <div class="p-section" data-section="greeting">
                     <div class="p-title-small">Greeting</div>
                     <div id="p-greet-body" class="ql-editor" style="font-size:14px;padding:0;text-align:center;"></div>
                 </div>
 
                 <!-- Contact -->
-                <div class="p-section">
+                <div class="p-section" data-section="contact">
                     <div class="p-title-small">Contact</div>
                     <div style="display:flex; flex-direction:column; gap:8px; align-items:center; font-size:15px; color:#333;">
                         <div><span id="p-groom-father-val"></span> · <span id="p-groom-mother-val"></span> <span style="font-size:12px; color:#888;">의 아들</span> <b id="p-groom-name-val"></b></div>
@@ -496,14 +622,14 @@
                 </div>
 
                 <!-- Gallery -->
-                <div class="p-section">
+                <div class="p-section" data-section="gallery">
                     <div class="p-title-small">GALLERY</div>
                     <div class="p-gallery-grid" id="p-gallery-grid"></div>
                     <button id="p-gallery-more-btn" class="p-gallery-more-btn" onclick="showAllGallery()">더보기</button>
                 </div>
 
                 <!-- D-Day & Calendar -->
-                <div class="p-section">
+                <div class="p-section" data-section="calendar">
                     <div class="p-calendar-card">
                         <div class="p-calendar-date-heading" id="p-calendar-month"></div>
                         <table class="p-calendar-table">
@@ -518,7 +644,7 @@
                 </div>
 
                 <!-- Location -->
-                <div class="p-section">
+                <div class="p-section" data-section="location">
                     <div class="p-title-small">LOCATION</div>
                     <div id="p-venue-name" style="font-weight:bold;font-size:18px;margin-bottom:10px;"></div>
                     <div id="p-addr-text" style="font-size:13px;color:#666;margin:10px 0;"></div>
@@ -545,7 +671,7 @@
                 </div>
 
                 <!-- Account -->
-                <div class="p-section" style="background:#fdfdfd;">
+                <div class="p-section" data-section="account" style="background:#fdfdfd;">
                     <div class="p-title-small">ACCOUNT</div>
                     <div style="text-align:left; padding:0 10px;">
                         <div class="p-acc-row"><span id="p-acc-groom-val" style="font-size:13px;"></span><button onclick="copyText(gE('p-acc-groom-val').innerText)" class="p-acc-copy-btn">복사</button></div>
@@ -558,7 +684,7 @@
                 </div>
 
                 <!-- Guestbook -->
-                <div id="p-guestbook-section" class="p-section">
+                <div id="p-guestbook-section" class="p-section" data-section="guestbook">
                     <div class="p-title-small">GUESTBOOK</div>
                     <div id="p-gb-title-val" style="font-size:14px; margin-bottom:20px; color:#666;"></div>
                     
@@ -578,14 +704,14 @@
                 </div>
 
                 <!-- RSVP -->
-                <div id="p-rsvp-section" class="p-section">
+                <div id="p-rsvp-section" class="p-section" data-section="rsvp">
                     <div class="p-title-small">R.S.V.P.</div>
                     <div class="p-rsvp-heading">참석 의사 전달</div>
                     <div id="p-rsvp-title-val" class="p-rsvp-desc">신랑, 신부에게 참석의사를 미리 전달할 수 있어요.</div>
                     <button onclick="openRsvpModal()" class="p-rsvp-btn"><i class="fa-solid fa-clipboard-check"></i>참석의사 전달하기</button>
                 </div>
 
-                <div class="p-section" style="padding:100px 20px 60px; border:none;">
+                <div class="p-section" data-section="thanks" style="padding:100px 20px 60px; border:none;">
                     <div id="p-thanks-title" style="font-size:18px; font-family:serif; font-weight:700;">Thank You</div>
                     <div id="p-thanks-body" style="font-size:13px; color:#999; margin-top:10px; white-space: pre-wrap;">저희의 앞날을 축복해 주셔서 감사합니다.</div>
                     <button onclick="shareKakao()" class="kakao-share-btn"><i class="fa-solid fa-comment"></i>카카오톡으로 공유하기</button>
@@ -644,7 +770,7 @@
                     </div>
                 </div>
             </div>
-            <button onclick="closeContactModal()" style="width:100%; margin-top:15px; padding:10px; border:none; background:#eee; border-radius:8px; cursor:pointer;">닫기</button>
+            <button onclick="closeContactModal()" style="width:100%; margin-top:15px; padding:11px; border:none; background:var(--primary-color); color:var(--accent-color); border-radius:10px; cursor:pointer; font-weight:600; font-size:14px;">닫기</button>
         </div>
     </div>
 
@@ -742,11 +868,6 @@
         <button onclick="event.stopPropagation(); changeImg(1)" class="p-img-nav p-img-nav-next"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
-    <button class="view-toggle-btn" onclick="toggleMobileView()">
-        <span id="toggle-icon"><i class="fa-solid fa-eye"></i></span>
-        <span id="toggle-text">미리보기</span>
-    </button>
-
     <script th:inline="javascript">
         var INITIAL_CARD_ID = /*[[${cardId}]]*/ '';
         var INITIAL_CARD_DATA = /*[(${cardDataJson})]*/ null;
@@ -756,6 +877,7 @@
         let quill, coverFile=null, cropper=null, mapTimeout=null, galleryImages=[], ddayInterval=null;
         let cardId = INITIAL_CARD_ID || '';
         let adminKey = INITIAL_ADMIN_KEY || '';
+        let isDirty = false;
         const CSRF_TOKEN = document.querySelector('meta[name="_csrf"]')?.content || '';
         const CSRF_HEADER = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
         const gE = (id) => document.getElementById(id);
@@ -764,7 +886,9 @@
         const sH = (id, v) => { if(gE(id)) gE(id).innerHTML = v; };
 
         const FIELD_IDS = [
-            'in-cover-title','in-cover-names','in-cover-date-text','in-cover-font','in-cover-color','in-cover-size','in-bgm-url',
+            'in-theme-accent','in-theme-primary',
+            'in-cover-title','in-cover-names','in-cover-date-text','in-cover-font','in-cover-color','in-cover-size',
+            'in-cover-valign','in-cover-deco','in-cover-overlay','in-cover-spacing','in-bgm-url',
             'in-petal-use','in-petal-color','in-petal-count','in-petal-speed',
             'in-names-color','in-names-size','in-date-color','in-date-size','in-date',
             'in-groom','in-groom-tel','in-groom-father','in-groom-father-tel','in-groom-mother','in-groom-mother-tel',
@@ -776,7 +900,8 @@
             'in-gb-use','in-gb-title',
             'in-rsvp-use','in-rsvp-title',
             'in-thanks-title','in-thanks-title-font','in-thanks-title-color','in-thanks-title-size',
-            'in-thanks-body','in-thanks-body-font','in-thanks-body-color','in-thanks-body-size'
+            'in-thanks-body','in-thanks-body-font','in-thanks-body-color','in-thanks-body-size',
+            'in-section-order'
         ];
 
         const DEFAULT_GREETING_HTML = "평생을 함께하고 싶은 단 한 사람을 만났습니다.<br>서로를 아끼고 이해하며 사랑으로 하나 되어<br>새로운 가정을 이루려 합니다.<br>저희 두 사람이 함께하는 첫 발걸음에<br>귀한 걸음 하시어 축복해 주시면 감사하겠습니다.";
@@ -838,6 +963,10 @@
         function applyCardData(data){
             const setV = (id, val) => { const el = gE(id); if(el && val !== undefined) el.value = val; };
             FIELD_IDS.forEach(id => setV(id, data[id]));
+            syncToggles();
+            syncCoverButtons();
+            renderThemeSwatches();
+            renderOrderList();
 
             if(quill) quill.root.innerHTML = data.greetingHtml || DEFAULT_GREETING_HTML;
 
@@ -868,6 +997,7 @@
             } catch(e) { console.error("Init error:", e); }
             up();
             initScrollReveal();
+            isDirty = false;
         };
 
         let lastBgmUrl = null;
@@ -973,6 +1103,27 @@
             document.querySelectorAll('.edit-section').forEach(s=>s.classList.remove('active'));
             const n=document.querySelector(`.nav-item[onclick="switchSection('${id}')"]`); if(n) n.classList.add('active');
             const s=document.getElementById('edit-'+id); if(s) s.classList.add('active');
+            if(id==='order') renderOrderList();
+            if(id==='design') renderThemeSwatches();
+        }
+
+        function toggleNavExpand(){
+            const row = document.querySelector('.nav-items-row');
+            const btn = gE('nav-more-btn');
+            const label = gE('nav-more-label');
+            if(!row) return;
+            const expanded = row.classList.toggle('expanded');
+            if(btn) btn.classList.toggle('open', expanded);
+            if(label) label.innerText = expanded ? '접기' : '더보기';
+        }
+
+        function collapseNavRow(){
+            const row = document.querySelector('.nav-items-row');
+            const btn = gE('nav-more-btn');
+            const label = gE('nav-more-label');
+            if(row) row.classList.remove('expanded');
+            if(btn) btn.classList.remove('open');
+            if(label) label.innerText = '더보기';
         }
 
         function handleCoverUpload(input){
@@ -999,22 +1150,28 @@
         }
         function closeSaveModal(){ const m=gE('save-modal'); if(m) m.style.display='none'; }
 
+        async function saveCardData(){
+            const res = await fetch(cardId ? `/api/cards/${cardId}` : '/api/cards', {
+                method: cardId ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN },
+                body: JSON.stringify(collectCardData())
+            });
+            if(!res.ok) throw new Error('save failed');
+            const body = await res.json();
+            if(!cardId){
+                cardId = body.id;
+                history.replaceState(null, '', `/editor/${cardId}`);
+            }
+            adminKey = body.adminKey || adminKey;
+            isDirty = false;
+            return body;
+        }
+
         async function confirmSave(){
             const btn = gE('save-confirm-btn');
             try {
                 if(btn){ btn.disabled = true; btn.innerText = '저장 중...'; }
-                const res = await fetch(cardId ? `/api/cards/${cardId}` : '/api/cards', {
-                    method: cardId ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN },
-                    body: JSON.stringify(collectCardData())
-                });
-                if(!res.ok) throw new Error('save failed');
-                const body = await res.json();
-                if(!cardId){
-                    cardId = body.id;
-                    history.replaceState(null, '', `/editor/${cardId}`);
-                }
-                adminKey = body.adminKey || adminKey;
+                await saveCardData();
                 gE('save-share-link').value = `${location.origin}/c/${cardId}`;
                 const manageLink = `${location.origin}/manage/${cardId}?key=${adminKey}`;
                 gE('save-manage-link').value = manageLink;
@@ -1027,6 +1184,22 @@
             } finally {
                 if(btn){ btn.disabled = false; btn.innerText = '저장'; }
             }
+        }
+
+        async function goToDashboard(){
+            if(isDirty){
+                const wantsSave = confirm('저장하지 않은 변경사항이 있습니다. 저장하고 이동할까요?\n(취소를 누르면 저장하지 않고 이동합니다)');
+                if(wantsSave){
+                    try {
+                        await saveCardData();
+                    } catch(e) {
+                        console.error(e);
+                        alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                        return;
+                    }
+                }
+            }
+            location.href = '/dashboard';
         }
 
         function copyShareLink(){
@@ -1051,32 +1224,54 @@
         }
 
         function up(){
+            isDirty = true;
             try {
                 // Cover Text & Styles
                 const selectedFont = gV('in-cover-font');
                 
                 const titleLabel = gE('p-cover-title-label');
                 if(titleLabel) {
-                    titleLabel.innerText = gV('in-cover-title').toUpperCase() || 'HAPPY WEDDING';
+                    titleLabel.innerText = (gV('in-cover-title') || '').toUpperCase();
                     titleLabel.style.color = gV('in-cover-color');
                     titleLabel.style.fontSize = gV('in-cover-size') + 'px';
                     titleLabel.style.fontFamily = selectedFont;
                 }
 
+                const decoEl = gE('p-cover-deco');
+                if(decoEl) {
+                    const decoType = gV('in-cover-deco') || 'none';
+                    decoEl.style.color = gV('in-names-color') || '#ffffff';
+                    const decos = { line:'<span class="p-cover-deco-line"></span>', heart:'♥', flower:'✿', star:'✦', ring:'◇' };
+                    decoEl.innerHTML = decos[decoType] || '';
+                }
+
                 const namesLabel = gE('p-cover-names-label');
                 if(namesLabel) {
-                    namesLabel.innerText = gV('in-cover-names') || '김신랑 & 이신부';
+                    namesLabel.innerText = gV('in-cover-names') || '';
                     namesLabel.style.color = gV('in-names-color');
                     namesLabel.style.fontSize = gV('in-names-size') + 'px';
                     namesLabel.style.fontFamily = selectedFont;
+                    namesLabel.style.letterSpacing = (gV('in-cover-spacing') || '0') + 'px';
                 }
 
                 const dateTop = gE('p-date-top');
                 if(dateTop) {
-                    dateTop.innerText = gV('in-cover-date-text') || '2026. 06. 12';
+                    dateTop.innerText = gV('in-cover-date-text') || '';
                     dateTop.style.color = gV('in-date-color');
                     dateTop.style.fontSize = gV('in-date-size') + 'px';
                     dateTop.style.fontFamily = selectedFont;
+                    dateTop.style.letterSpacing = (gV('in-cover-spacing') || '2') + 'px';
+                }
+
+                const overlayEl = document.querySelector('.p-cover-overlay');
+                if(overlayEl) { const op = parseFloat(gV('in-cover-overlay') || '20') / 100; overlayEl.style.background = `rgba(0,0,0,${op})`; }
+
+                const coverContent = gE('p-cover-content');
+                if(coverContent) {
+                    const va = gV('in-cover-valign') || 'center';
+                    coverContent.style.justifyContent = va === 'top' ? 'flex-start' : va === 'bottom' ? 'flex-end' : 'center';
+                    coverContent.style.paddingTop = va === 'top' ? '60px' : '0';
+                    coverContent.style.paddingBottom = va === 'bottom' ? '60px' : '0';
                 }
 
                 if(coverFile) gE('p-cover-media-box').innerHTML=`<img src="${coverFile}" class="p-cover-media">`;
@@ -1177,6 +1372,8 @@
 
                 updatePetals();
                 updateBgm();
+                applyThemeColors();
+                applySectionOrder();
             } catch(e) { console.error(e); }
         }
 
@@ -1278,6 +1475,11 @@
             const isH = document.querySelector('.sidebar').classList.toggle('mobile-hide');
             document.querySelector('.preview-area').classList.toggle('mobile-hide', !isH);
             gE('toggle-text').innerText = isH ? '편집하기' : '미리보기';
+            if(isH){
+                // preview just became visible: the scroll-reveal IntersectionObserver was set up
+                // while this area was display:none, so it never marked sections visible. Force them visible now.
+                document.querySelectorAll('#p-container .p-section').forEach(el => el.classList.add('p-reveal-visible'));
+            }
         }
 
         function addComment() {
@@ -1288,7 +1490,7 @@
             item.innerHTML = `<div class="p-gb-header"><span class="p-gb-name">${name}</span><span class="p-gb-date">${new Date().toLocaleDateString()}</span></div><div class="p-gb-content">${content}</div>`;
             list.insertBefore(item, list.firstChild);
             gE('gb-name').value = ''; gE('gb-content').value = '';
-            alert('메시지가 등록되었습니다.');
+            alert('메시지가 등록되었습니다. (미리보기에서는 실제로 저장되지 않습니다)');
         }
 
         const rsvpState = { side: 'groom', attending: 'y', meal: 'y' };
@@ -1323,6 +1525,220 @@
 
         function shareKakao() {
             alert('카카오톡 공유는 저장 후 발급되는 실제 청첩장 링크에서 동작합니다.');
+        }
+
+        function toggleUse(id) {
+            const hidden = gE(id);
+            hidden.value = hidden.value === 'n' ? 'y' : 'n';
+            syncToggle(id);
+            up();
+        }
+
+        function syncToggle(id) {
+            const isOn = gV(id) !== 'n';
+            const track = gE(id + '-track');
+            const text = gE(id + '-text');
+            if(track) track.classList.toggle('on', isOn);
+            if(text) text.textContent = isOn ? '사용함' : '사용 안 함';
+        }
+
+        function syncToggles() {
+            ['in-petal-use', 'in-gb-use', 'in-rsvp-use'].forEach(syncToggle);
+        }
+
+        function setCoverValign(val) {
+            gE('in-cover-valign').value = val;
+            ['top','center','bottom'].forEach(v => gE('valign-'+v).classList.toggle('active', v === val));
+            up();
+        }
+        function setCoverDeco(val) {
+            gE('in-cover-deco').value = val;
+            ['none','line','heart','flower','star','ring'].forEach(v => gE('deco-'+v).classList.toggle('active', v === val));
+            up();
+        }
+        function syncCoverButtons() {
+            const va = gV('in-cover-valign') || 'center';
+            ['top','center','bottom'].forEach(v => { const el=gE('valign-'+v); if(el) el.classList.toggle('active', v===va); });
+            const dc = gV('in-cover-deco') || 'none';
+            ['none','line','heart','flower','star','ring'].forEach(v => { const el=gE('deco-'+v); if(el) el.classList.toggle('active', v===dc); });
+        }
+
+        const THEMES = [
+            { name: '로맨틱 핑크', accent: '#e91e63', primary: '#f8bbd0' },
+            { name: '로즈 골드',   accent: '#bf6b4a', primary: '#f4d8c8' },
+            { name: '라벤더',      accent: '#7c5cbf', primary: '#e8e0f8' },
+            { name: '민트',        accent: '#2a9d8f', primary: '#c8ede9' },
+            { name: '네이비',      accent: '#264653', primary: '#d4dde2' },
+            { name: '버건디',      accent: '#8b1a3a', primary: '#f0c4d0' },
+            { name: '골드',        accent: '#a07830', primary: '#f5ecd4' },
+            { name: '모노',        accent: '#333333', primary: '#eeeeee' },
+        ];
+
+        function renderThemeSwatches() {
+            const container = gE('theme-swatches');
+            if (!container) return;
+            container.innerHTML = '';
+            const currentAccent = (gV('in-theme-accent') || '#e91e63').toLowerCase();
+            THEMES.forEach((theme, i) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'theme-swatch' + (theme.accent.toLowerCase() === currentAccent ? ' active' : '');
+                btn.title = theme.name;
+                btn.style.background = theme.accent;
+                btn.innerHTML = theme.accent.toLowerCase() === currentAccent ? '<i class="fa-solid fa-check"></i>' : '';
+                btn.onclick = () => {
+                    gE('in-theme-accent').value = theme.accent;
+                    gE('in-theme-primary').value = theme.primary;
+                    renderThemeSwatches();
+                    up();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function onThemeColorChange() {
+            renderThemeSwatches();
+            up();
+        }
+
+        function applyThemeColors() {
+            const accent = gV('in-theme-accent') || '#e91e63';
+            const primary = gV('in-theme-primary') || '#f8bbd0';
+            const frame = document.querySelector('.mobile-frame');
+            if (frame) {
+                frame.style.setProperty('--accent-color', accent);
+                frame.style.setProperty('--primary-color', primary);
+            }
+            document.documentElement.style.setProperty('--accent-color', accent);
+            document.documentElement.style.setProperty('--primary-color', primary);
+        }
+
+        const SECTION_DEFS = [
+            { key: 'greeting',  label: '인사말',    icon: 'fa-comment-dots' },
+            { key: 'contact',   label: '신랑신부',   icon: 'fa-user-friends' },
+            { key: 'gallery',   label: '갤러리',    icon: 'fa-images' },
+            { key: 'calendar',  label: '예식 일시',  icon: 'fa-calendar-check' },
+            { key: 'location',  label: '오시는 길',  icon: 'fa-map-location-dot' },
+            { key: 'account',   label: '계좌번호',   icon: 'fa-credit-card' },
+            { key: 'guestbook', label: '방명록',    icon: 'fa-book-open' },
+            { key: 'rsvp',      label: '참석의사',   icon: 'fa-clipboard-check' },
+        ];
+        const DEFAULT_SECTION_ORDER = SECTION_DEFS.map(s => s.key).join(',');
+
+        function getSectionOrder() {
+            const raw = gV('in-section-order') || DEFAULT_SECTION_ORDER;
+            return raw.split(',').filter(k => SECTION_DEFS.some(d => d.key === k));
+        }
+
+        let dragSrcKey = null;
+
+        function renderOrderList() {
+            const order = getSectionOrder();
+            const list = gE('section-order-list');
+            if (!list) return;
+            list.innerHTML = '';
+            order.forEach((key, i) => {
+                const def = SECTION_DEFS.find(s => s.key === key);
+                if (!def) return;
+                const item = document.createElement('div');
+                item.className = 'order-item';
+                item.draggable = true;
+                item.dataset.key = key;
+                item.innerHTML = `<i class="fa-solid fa-grip-vertical order-drag-handle"></i><i class="fa-solid ${def.icon}" style="color:var(--accent-color);width:16px;flex-shrink:0;"></i><span class="order-item-label">${def.label}</span><div class="order-btns"><button onclick="event.stopPropagation();moveSection('${key}',-1)" ${i===0?'disabled':''}><i class="fa-solid fa-chevron-up"></i></button><button onclick="event.stopPropagation();moveSection('${key}',1)" ${i===order.length-1?'disabled':''}><i class="fa-solid fa-chevron-down"></i></button></div>`;
+                item.addEventListener('dragstart', e => {
+                    dragSrcKey = key;
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => item.classList.add('dragging'), 0);
+                });
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('dragging');
+                    list.querySelectorAll('.order-item').forEach(el => el.classList.remove('drag-over'));
+                });
+                item.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    list.querySelectorAll('.order-item').forEach(el => el.classList.remove('drag-over'));
+                    item.classList.add('drag-over');
+                });
+                item.addEventListener('drop', e => {
+                    e.preventDefault();
+                    if (!dragSrcKey || dragSrcKey === key) return;
+                    const order = getSectionOrder();
+                    const from = order.indexOf(dragSrcKey);
+                    const to = order.indexOf(key);
+                    order.splice(from, 1);
+                    order.splice(to, 0, dragSrcKey);
+                    gE('in-section-order').value = order.join(',');
+                    dragSrcKey = null;
+                    renderOrderList();
+                    up();
+                });
+                list.appendChild(item);
+            });
+        }
+
+        function moveSection(key, dir) {
+            const order = getSectionOrder();
+            const idx = order.indexOf(key);
+            if (idx < 0) return;
+            const newIdx = idx + dir;
+            if (newIdx < 0 || newIdx >= order.length) return;
+            [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
+            gE('in-section-order').value = order.join(',');
+            renderOrderList();
+            up();
+        }
+
+        function applySectionOrder() {
+            const order = getSectionOrder();
+            const container = gE('p-container');
+            if (!container) return;
+            const anchor = container.querySelector('[data-section="thanks"]');
+            if (!anchor) return;
+            order.forEach(key => {
+                const el = container.querySelector(`[data-section="${key}"]`);
+                if (el) container.insertBefore(el, anchor);
+            });
+        }
+
+        async function suggestTransit() {
+            const address = gV('in-addr').trim();
+            if (!address) { alert('주소를 먼저 입력해주세요.'); return; }
+
+            const btn = gE('transit-suggest-btn');
+            const msg = gE('transit-suggest-msg');
+            btn.disabled = true;
+            btn.textContent = '검색 중...';
+            msg.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/transit-suggest?address=' + encodeURIComponent(address), {
+                    headers: { [CSRF_HEADER]: CSRF_TOKEN }
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    msg.style.cssText = 'display:block;font-size:11px;padding:8px 10px;border-radius:8px;margin-bottom:8px;background:#fff0f4;color:#e91e63;';
+                    msg.textContent = data.error;
+                    return;
+                }
+
+                if (data.subway) {
+                    gE('in-subway').value = data.subway;
+                    up();
+                    msg.style.cssText = 'display:block;font-size:11px;padding:8px 10px;border-radius:8px;margin-bottom:8px;background:#f0fdf4;color:#16a34a;';
+                    msg.textContent = '지하철 정보를 자동으로 입력했어요. 출구 번호와 버스 안내는 직접 수정해 주세요.';
+                } else {
+                    msg.style.cssText = 'display:block;font-size:11px;padding:8px 10px;border-radius:8px;margin-bottom:8px;background:#fefce8;color:#a16207;';
+                    msg.textContent = '1km 이내 지하철역을 찾지 못했어요. 직접 입력해 주세요.';
+                }
+            } catch (e) {
+                msg.style.cssText = 'display:block;font-size:11px;padding:8px 10px;border-radius:8px;margin-bottom:8px;background:#fff0f4;color:#e91e63;';
+                msg.textContent = '검색 중 오류가 발생했습니다.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '자동 검색';
+            }
         }
     </script>
 </body>

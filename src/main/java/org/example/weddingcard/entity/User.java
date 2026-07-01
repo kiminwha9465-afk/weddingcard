@@ -28,8 +28,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Column(name = "email", unique = true, nullable = false)
+    private String username;
 
     @Column(nullable = false)
     private String passwordHash;
@@ -40,8 +40,8 @@ public class User {
 
     private LocalDateTime createdAt;
 
-    public User(String email, String passwordHash) {
-        this.email = email;
+    public User(String username, String passwordHash) {
+        this.username = username;
         this.passwordHash = passwordHash;
     }
 

@@ -16,8 +16,8 @@ public class WeddingcardApplication {
     }
 
     @Bean
-    public CommandLineRunner promoteAdmin(UserRepository userRepository, @Value("${app.admin-email}") String adminEmail) {
-        return args -> userRepository.findByEmail(adminEmail).ifPresent(user -> {
+    public CommandLineRunner promoteAdmin(UserRepository userRepository, @Value("${app.admin-username}") String adminUsername) {
+        return args -> userRepository.findByUsername(adminUsername).ifPresent(user -> {
             if (user.getRole() != User.Role.ADMIN) {
                 user.setRole(User.Role.ADMIN);
                 userRepository.save(user);
