@@ -25,6 +25,7 @@ public class GuestbookComment {
     private String name;
     private String content;
     private LocalDateTime createdAt;
+    private boolean hidden = false;
 
     public GuestbookComment(String cardId, String name, String content) {
         this.cardId = cardId;

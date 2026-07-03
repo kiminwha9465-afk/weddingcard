@@ -40,10 +40,15 @@
 
         .gb-item{padding:14px 20px;border-bottom:1px solid #f5f5f5;}
         .gb-item:last-child{border-bottom:none;}
-        .gb-header{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+        .gb-header{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px;}
         .gb-name{font-weight:700;}
         .gb-date{color:#999;font-size:11px;}
         .gb-content{font-size:13px;color:#555;line-height:1.5;white-space:pre-wrap;}
+        .gb-delete-btn{border:none;background:none;color:#ccc;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px;}
+        .gb-delete-btn:hover{background:#fee;color:#e00;}
+        .gb-hide-btn{border:none;background:none;color:#ccc;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px;}
+        .gb-hide-btn:hover{background:#f5f5f5;color:#666;}
+        .gb-item.hidden-item{opacity:0.4;}
 
         .empty{padding:30px 20px;text-align:center;color:#aaa;font-size:13px;}
         .center-msg{max-width:340px;margin:120px auto;text-align:center;color:#888;font-size:14px;line-height:1.6;padding:0 20px;}
@@ -216,13 +221,28 @@
             gE('gb-count').innerText = `총 ${list.length}건`;
             const wrap = gE('gb-list');
             wrap.innerHTML = '';
+            const key = new URLSearchParams(location.search).get('key') || '';
             list.forEach(c => {
                 const item = document.createElement('div');
-                item.className = 'gb-item';
+                item.className = 'gb-item' + (c.hidden ? ' hidden-item' : '');
                 const date = c.createdAt ? new Date(c.createdAt).toLocaleString() : '';
-                item.innerHTML = `<div class="gb-header"><span class="gb-name"></span><span class="gb-date">${date}</span></div><div class="gb-content"></div>`;
+                item.innerHTML = `<div class="gb-header"><span class="gb-name"></span><span style="display:flex;align-items:center;gap:4px;"><span class="gb-date">${date}</span><button class="gb-hide-btn">${c.hidden ? '표시' : '숨기기'}</button><button class="gb-delete-btn">삭제</button></span></div><div class="gb-content"></div>`;
                 item.querySelector('.gb-name').innerText = c.name;
                 item.querySelector('.gb-content').innerText = c.content;
+                item.querySelector('.gb-hide-btn').onclick = async () => {
+                    const res = await fetch(`/api/cards/${CARD_ID}/comments/${c.id}/toggle-hidden?key=${encodeURIComponent(key)}`, { method: 'POST' });
+                    if(res.ok){
+                        const updated = await res.json();
+                        c.hidden = updated.hidden;
+                        item.classList.toggle('hidden-item', updated.hidden);
+                        item.querySelector('.gb-hide-btn').innerText = updated.hidden ? '표시' : '숨기기';
+                    }
+                };
+                item.querySelector('.gb-delete-btn').onclick = async () => {
+                    if(!confirm('이 방명록을 삭제할까요?')) return;
+                    const res = await fetch(`/api/cards/${CARD_ID}/comments/${c.id}?key=${encodeURIComponent(key)}`, { method: 'DELETE' });
+                    if(res.ok) item.remove();
+                };
                 wrap.appendChild(item);
             });
             gE('gb-empty').style.display = list.length === 0 ? 'block' : 'none';

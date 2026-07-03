@@ -34,6 +34,9 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Column(unique = true)
+    private String kakaoId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "varchar(20) default 'USER'")
     private Role role = Role.USER;

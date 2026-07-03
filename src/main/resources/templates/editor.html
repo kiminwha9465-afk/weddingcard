@@ -13,7 +13,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script th:if="${not #strings.isEmpty(kakaoJsKey)}"
+            th:src="|https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=${kakaoJsKey}&libraries=services|"></script>
     <style>
         :root{--sidebar-width:450px;--preview-bg:#f0f2f5;--border-color:#e1e4e8;--primary-color:#f8bbd0;--accent-color:#e91e63;--header-height:60px;}
         *{box-sizing:border-box;}
@@ -82,6 +85,9 @@
         .section-title{font-size:16px;font-weight:bold;margin-bottom:15px;color:var(--accent-color);border-bottom:1px solid #eee;padding-bottom:8px;}
         label{display:block;margin-bottom:5px;font-weight:600;font-size:12px;color:#444;}
         input,select,textarea{width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;box-sizing:border-box;font-size:13px;}
+        input[type="color"]{width:36px;height:36px;padding:2px;border:1px solid #ddd;border-radius:8px;cursor:pointer;flex-shrink:0;}
+        .form-group:has(input[type="color"]){display:flex;align-items:center;justify-content:space-between;}
+        .form-group:has(input[type="color"]) label{margin-bottom:0;}
         #greet-editor{height:220px;margin-bottom:15px;background:white;}
 
         /* Preview Area */
@@ -97,6 +103,7 @@
 
         /* Classic Cover Layout (Rollback) */
         .p-cover-container { position: relative; width: 100%; height: 600px; background: #fff9fa; overflow: hidden; }
+        #p-cover-media-box { position: absolute !important; top: -15% !important; left: 0; width: 100% !important; height: 130% !important; will-change: transform; }
         .p-cover-media { width: 100%; height: 100%; object-fit: cover; }
         .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 2; }
         .p-cover-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none; }
@@ -171,7 +178,7 @@
         .rsvp-input:focus{outline:none;border-color:var(--accent-color);background:#fff;}
         .rsvp-pill-group{display:flex;gap:8px;}
         .rsvp-pill{flex:1;padding:10px;border:1px solid #e8e8e8;background:#fafafa;border-radius:12px;font-size:13px;font-weight:600;color:#bbb;cursor:pointer;transition:all 0.15s;text-align:center;}
-        .rsvp-pill.active{border-color:var(--accent-color);background:var(--primary-color);color:var(--accent-color);font-weight:700;}
+        .rsvp-pill.active{border:1.5px solid var(--accent-color);background:#fff;color:var(--accent-color);font-weight:700;}
         .rsvp-submit-btn{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:var(--accent-color);color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;}
 
         .kakao-share-btn{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:13px 28px;border:none;border-radius:30px;background:#FEE500;color:#3C1E1E;font-size:14px;font-weight:700;cursor:pointer;}
@@ -503,9 +510,9 @@
                     <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
                         <div style="font-size:12px; font-weight:bold; margin-bottom:10px; color:#666;">신랑측 혼주</div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                            <div class="form-group"><label>아버님 성함</label><input type="text" id="in-groom-father" value="김아빠" oninput="up()"></div>
+                            <div class="form-group"><label style="display:flex;justify-content:space-between;align-items:center;">아버님 성함<label style="font-size:11px;color:#999;font-weight:400;cursor:pointer;"><input type="checkbox" id="in-groom-father-deceased" onchange="up()" style="width:auto;margin-right:3px;">故</label></label><input type="text" id="in-groom-father" value="김아빠" oninput="up()"></div>
                             <div class="form-group"><label>아버님 연락처</label><input type="text" id="in-groom-father-tel" value="010-1111-2222" oninput="up()"></div>
-                            <div class="form-group"><label>어머님 성함</label><input type="text" id="in-groom-mother" value="박엄마" oninput="up()"></div>
+                            <div class="form-group"><label style="display:flex;justify-content:space-between;align-items:center;">어머님 성함<label style="font-size:11px;color:#999;font-weight:400;cursor:pointer;"><input type="checkbox" id="in-groom-mother-deceased" onchange="up()" style="width:auto;margin-right:3px;">故</label></label><input type="text" id="in-groom-mother" value="박엄마" oninput="up()"></div>
                             <div class="form-group"><label>어머님 연락처</label><input type="text" id="in-groom-mother-tel" value="010-3333-4444" oninput="up()"></div>
                         </div>
                     </div>
@@ -515,9 +522,9 @@
                     <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
                         <div style="font-size:12px; font-weight:bold; margin-bottom:10px; color:#666;">신부측 혼주</div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                            <div class="form-group"><label>아버님 성함</label><input type="text" id="in-bride-father" value="이아빠" oninput="up()"></div>
+                            <div class="form-group"><label style="display:flex;justify-content:space-between;align-items:center;">아버님 성함<label style="font-size:11px;color:#999;font-weight:400;cursor:pointer;"><input type="checkbox" id="in-bride-father-deceased" onchange="up()" style="width:auto;margin-right:3px;">故</label></label><input type="text" id="in-bride-father" value="이아빠" oninput="up()"></div>
                             <div class="form-group"><label>아버님 연락처</label><input type="text" id="in-bride-father-tel" value="010-5555-6666" oninput="up()"></div>
-                            <div class="form-group"><label>어머님 성함</label><input type="text" id="in-bride-mother" value="최엄마" oninput="up()"></div>
+                            <div class="form-group"><label style="display:flex;justify-content:space-between;align-items:center;">어머님 성함<label style="font-size:11px;color:#999;font-weight:400;cursor:pointer;"><input type="checkbox" id="in-bride-mother-deceased" onchange="up()" style="width:auto;margin-right:3px;">故</label></label><input type="text" id="in-bride-mother" value="최엄마" oninput="up()"></div>
                             <div class="form-group"><label>어머님 연락처</label><input type="text" id="in-bride-mother-tel" value="010-7777-8888" oninput="up()"></div>
                         </div>
                     </div>
@@ -541,12 +548,13 @@
                         <label>주소</label>
                         <div style="display:flex;gap:6px;">
                             <input type="text" id="in-addr" value="서울특별시 송파구 올림픽로 300" oninput="up()" style="flex:1;">
+                            <button type="button" onclick="openAddrSearch()" style="white-space:nowrap;padding:0 12px;border:1px solid #666;border-radius:10px;background:#fff;color:#666;font-size:12px;font-weight:700;cursor:pointer;">주소 검색</button>
                             <button type="button" id="transit-suggest-btn" onclick="suggestTransit()" style="white-space:nowrap;padding:0 12px;border:1px solid #e91e63;border-radius:10px;background:#fff;color:#e91e63;font-size:12px;font-weight:700;cursor:pointer;">자동 검색</button>
                         </div>
                     </div>
                     <div id="transit-suggest-msg" style="display:none;font-size:11px;padding:8px 10px;border-radius:8px;margin-bottom:8px;"></div>
-                    <div class="form-group"><label>지하철 안내</label><input type="text" id="in-subway" value="2, 8호선 잠실역 1, 2번 출구 연결" oninput="up()"></div>
-                    <div class="form-group"><label>버스 안내</label><input type="text" id="in-bus" value="잠실역.롯데월드몰 정류장 하차 (간선 301, 341, 360 등)" oninput="up()"></div>
+                    <div class="form-group"><label>지하철 안내</label><input type="text" id="in-subway" placeholder="자동 검색 버튼으로 채워주세요" oninput="up()"></div>
+                    <div class="form-group"><label>버스 안내 <span style="font-size:11px;color:#aaa;">(직접 입력)</span></label><input type="text" id="in-bus" placeholder="예) 잠실역 정류장 하차 (간선 301, 341 등)" oninput="up()"></div>
                 </div>
                 <!-- Account -->
                 <div id="edit-account" class="edit-section">
@@ -752,7 +760,7 @@
                         <button onclick="openNavi('tmap')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-car" style="margin-right:4px; color:#ff4500;"></i>티맵</button>
                     </div>
 
-                    <iframe id="p-map-iframe" width="100%" height="220" frameborder="0" style="border-radius:15px; background:#f0f0f0; margin-bottom:20px;"></iframe>
+                    <div id="p-map-iframe" style="width:100%;height:220px;border-radius:15px;background:#f0f0f0;margin-bottom:20px;overflow:hidden;"></div>
                     
                     <div id="p-transport-box" style="text-align:left; font-size:13px; line-height:1.6; padding:0 10px;">
                         <div id="p-subway-wrap" style="margin-bottom:12px;">
@@ -790,13 +798,7 @@
                         <button onclick="addComment()" class="p-gb-btn">메시지 남기기</button>
                     </div>
 
-                    <div id="p-gb-list" class="p-gb-list">
-                        <!-- Mock Comments -->
-                        <div class="p-gb-item">
-                            <div class="p-gb-header"><span class="p-gb-name">김친구</span><span class="p-gb-date">2026.06.10</span></div>
-                            <div class="p-gb-content">결혼 진심으로 축하해! 행복하게 잘 살아~</div>
-                        </div>
-                    </div>
+                    <div id="p-gb-list" class="p-gb-list"></div>
                 </div>
 
                 <!-- RSVP -->
@@ -968,6 +970,7 @@
         var INITIAL_CARD_ID = /*[[${cardId}]]*/ '';
         var INITIAL_CARD_DATA = /*[(${cardDataJson})]*/ null;
         var INITIAL_ADMIN_KEY = /*[[${cardAdminKey}]]*/ '';
+        var KAKAO_JS_KEY = /*[[${kakaoJsKey}]]*/ '';
     </script>
     <script th:inline="none">
         let quill, coverFile=null, cropper=null, mapTimeout=null, galleryImages=[], ddayInterval=null;
@@ -1015,8 +1018,8 @@
             'in-bride-mother': "최엄마", 'in-bride-mother-tel': "010-7777-8888",
             'in-venue': "시그니엘 서울",
             'in-addr': "서울특별시 송파구 올림픽로 300",
-            'in-subway': "2, 8호선 잠실역 1, 2번 출구 연결",
-            'in-bus': "잠실역.롯데월드몰 정류장 하차 (간선 301, 341, 360 등)",
+            'in-subway': "",
+            'in-bus': "",
             'in-acc-groom-bank': "국민", 'in-acc-groom-num': "123-456-789",
             'in-acc-bride-bank': "신한", 'in-acc-bride-num': "987-654-321",
             'in-thanks-title': "Thank You",
@@ -1047,9 +1050,12 @@
             if(moreBtn) moreBtn.style.display = images.length > 9 ? 'inline-block' : 'none';
         }
 
+        const DECEASED_IDS = ['in-groom-father-deceased','in-groom-mother-deceased','in-bride-father-deceased','in-bride-mother-deceased'];
+
         function collectCardData(){
             const data = {};
             FIELD_IDS.forEach(id => { data[id] = gV(id); });
+            DECEASED_IDS.forEach(id => { data[id] = gE(id)?.checked ? 'y' : ''; });
             data.greetingHtml = quill ? quill.root.innerHTML : DEFAULT_GREETING_HTML;
             data.coverImage = coverFile;
             data.galleryImages = galleryImages;
@@ -1059,6 +1065,7 @@
         function applyCardData(data){
             const setV = (id, val) => { const el = gE(id); if(el && val !== undefined) el.value = val; };
             FIELD_IDS.forEach(id => setV(id, data[id]));
+            DECEASED_IDS.forEach(id => { const el = gE(id); if(el) el.checked = data[id] === 'y'; });
             syncToggles();
             syncCoverButtons();
             renderThemeSwatches();
@@ -1080,6 +1087,7 @@
         }
 
         window.onload=()=>{
+            if (window.kakao && window.kakao.maps) kakao.maps.load(() => {});
             try {
                 const editorEl = gE('greet-editor');
                 if(editorEl) {
@@ -1094,6 +1102,7 @@
             } catch(e) { console.error("Init error:", e); }
             up();
             initScrollReveal();
+            initParallax();
             isDirty = false;
         };
 
@@ -1164,6 +1173,16 @@
                 petal.style.setProperty('--drift', (Math.random() * 80 - 40) + 'px');
                 layer.appendChild(petal);
             }
+        }
+
+        function initParallax(){
+            const scrollContainer = document.querySelector('.preview-scroll-container');
+            const mediaBox = document.getElementById('p-cover-media-box');
+            if(!scrollContainer || !mediaBox) return;
+            scrollContainer.addEventListener('scroll', () => {
+                const offset = scrollContainer.scrollTop * 0.3;
+                mediaBox.style.transform = `translateY(${offset}px)`;
+            }, { passive: true });
         }
 
         function initScrollReveal(){
@@ -1427,11 +1446,12 @@
                 setAccRow('p-acc-bride-mother-row','p-acc-bride-mother-val', gV('in-acc-bride-mother-bank'), gV('in-acc-bride-mother-num'), bMotherName);
 
                 // Parent Info
-                sT('p-groom-father-val', gV('in-groom-father'));
-                sT('p-groom-mother-val', gV('in-groom-mother'));
+                const d = (id) => gE(id)?.checked ? '故 ' : '';
+                sT('p-groom-father-val', d('in-groom-father-deceased') + gV('in-groom-father'));
+                sT('p-groom-mother-val', d('in-groom-mother-deceased') + gV('in-groom-mother'));
                 sT('p-groom-name-val', gV('in-groom'));
-                sT('p-bride-father-val', gV('in-bride-father'));
-                sT('p-bride-mother-val', gV('in-bride-mother'));
+                sT('p-bride-father-val', d('in-bride-father-deceased') + gV('in-bride-father'));
+                sT('p-bride-mother-val', d('in-bride-mother-deceased') + gV('in-bride-mother'));
                 sT('p-bride-name-val', gV('in-bride'));
 
                 sT('p-gb-title-val', gV('in-gb-title'));
@@ -1466,10 +1486,7 @@
                 const ad=gV('in-addr');
                 if(ad && gE('p-map-iframe')){
                     clearTimeout(mapTimeout);
-                    mapTimeout = setTimeout(() => {
-                        const newSrc = `https://maps.google.com/maps?q=${encodeURIComponent(ad)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-                        if(gE('p-map-iframe').src !== newSrc) gE('p-map-iframe').src = newSrc;
-                    }, 500);
+                    mapTimeout = setTimeout(() => renderKakaoMap(ad), 500);
                 }
 
                 updatePetals();
@@ -1561,6 +1578,16 @@
         }
 
         function copyAddr(){ copyText(gV('in-addr')); }
+
+        function openAddrSearch(){
+            new daum.Postcode({
+                oncomplete: function(data){
+                    const addr = data.roadAddress || data.jibunAddress;
+                    gE('in-addr').value = addr;
+                    up();
+                }
+            }).open();
+        }
         function copyText(v){ if(v)navigator.clipboard.writeText(v).then(()=>alert('복사되었습니다.')); }
         
         function openNavi(type){
@@ -1889,6 +1916,23 @@
             order.forEach(key => {
                 const el = container.querySelector(`[data-section="${key}"]`);
                 if (el) container.insertBefore(el, anchor);
+            });
+        }
+
+        let kakaoMapInstance = null;
+        function renderKakaoMap(address) {
+            const container = gE('p-map-iframe');
+            if (!container || !address) return;
+            if (!window.kakao || !window.kakao.maps) return;
+            kakao.maps.load(() => {
+                const geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(address, (result, status) => {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                        kakaoMapInstance = new kakao.maps.Map(container, { center: coords, level: 3 });
+                        new kakao.maps.Marker({ map: kakaoMapInstance, position: coords });
+                    }
+                });
             });
         }
 

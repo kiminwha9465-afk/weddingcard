@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nanum+Gothic:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;700&family=Noto+Serif+KR:wght@200;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Song+Myung&display=swap" rel="stylesheet">
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+    <script th:if="${not #strings.isEmpty(kakaoJsKey)}"
+            th:src="|https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=${kakaoJsKey}&libraries=services|"></script>
     <style>
         :root{--preview-bg:#f0f2f5;--border-color:#e1e4e8;--primary-color:#f8bbd0;--accent-color:#e91e63;}
         *{box-sizing:border-box;}
@@ -29,6 +31,7 @@
         .p-title-small{font-size:11px;color:var(--accent-color);letter-spacing:3px;margin-bottom:25px;text-transform:uppercase;font-weight:700;}
 
         .p-cover-container { position: relative; width: 100%; height: 600px; background: #fff9fa; overflow: hidden; }
+        #p-cover-media-box { position: absolute; top: -15%; left: 0; width: 100%; height: 130%; will-change: transform; }
         .p-cover-media { width: 100%; height: 100%; object-fit: cover; }
         .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 2; }
         .p-cover-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none; }
@@ -96,7 +99,7 @@
         .rsvp-input:focus{outline:none;border-color:var(--accent-color);background:#fff;}
         .rsvp-pill-group{display:flex;gap:8px;}
         .rsvp-pill{flex:1;padding:10px;border:1px solid #e8e8e8;background:#fafafa;border-radius:12px;font-size:13px;font-weight:600;color:#bbb;cursor:pointer;transition:all 0.15s;text-align:center;}
-        .rsvp-pill.active{border-color:var(--accent-color);background:var(--primary-color);color:var(--accent-color);font-weight:700;}
+        .rsvp-pill.active{border:1.5px solid var(--accent-color);background:#fff;color:var(--accent-color);font-weight:700;}
         .rsvp-submit-btn{width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:var(--accent-color);color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.02em;}
 
         .kakao-share-btn{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:13px 28px;border:none;border-radius:30px;background:#FEE500;color:#3C1E1E;font-size:14px;font-weight:700;cursor:pointer;}
@@ -194,7 +197,7 @@
                     <button onclick="openNavi('tmap')" style="padding:10px; font-size:12px; border:1px solid #eee; background:#fff; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-car" style="margin-right:4px; color:#ff4500;"></i>티맵</button>
                 </div>
 
-                <iframe id="p-map-iframe" width="100%" height="220" frameborder="0" style="border-radius:15px; background:#f0f0f0; margin-bottom:20px;"></iframe>
+                <div id="p-map-iframe" style="width:100%;height:220px;border-radius:15px;background:#f0f0f0;margin-bottom:20px;overflow:hidden;"></div>
 
                 <div id="p-transport-box" style="text-align:left; font-size:13px; line-height:1.6; padding:0 10px;">
                     <div id="p-subway-wrap" style="margin-bottom:12px;">
@@ -421,11 +424,11 @@
             setContactRow('bride-father', v('in-bride-father'), v('in-bride-father-tel'));
             setContactRow('bride-mother', v('in-bride-mother'), v('in-bride-mother-tel'));
 
-            sT('p-groom-father-val', v('in-groom-father'));
-            sT('p-groom-mother-val', v('in-groom-mother'));
+            sT('p-groom-father-val', (v('in-groom-father-deceased')==='y'?'故 ':'')+v('in-groom-father'));
+            sT('p-groom-mother-val', (v('in-groom-mother-deceased')==='y'?'故 ':'')+v('in-groom-mother'));
             sT('p-groom-name-val', v('in-groom'));
-            sT('p-bride-father-val', v('in-bride-father'));
-            sT('p-bride-mother-val', v('in-bride-mother'));
+            sT('p-bride-father-val', (v('in-bride-father-deceased')==='y'?'故 ':'')+v('in-bride-father'));
+            sT('p-bride-mother-val', (v('in-bride-mother-deceased')==='y'?'故 ':'')+v('in-bride-mother'));
             sT('p-bride-name-val', v('in-bride'));
 
             galleryImages = Array.isArray(data.galleryImages) ? data.galleryImages : [];
@@ -491,9 +494,7 @@
             }
 
             const ad = v('in-addr');
-            if(ad){
-                gE('p-map-iframe').src = `https://maps.google.com/maps?q=${encodeURIComponent(ad)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-            }
+            if(ad){ renderKakaoMap(ad); }
 
             setupBgm(v('in-bgm-url'));
             setupPetals(v('in-petal-use') || 'y', v('in-petal-color'), v('in-petal-count'), v('in-petal-speed'));
@@ -502,6 +503,23 @@
         }
 
         let shareInfo = { names: '', dateText: '', venue: '' };
+
+        let kakaoMapInstance = null;
+        function renderKakaoMap(address) {
+            const container = gE('p-map-iframe');
+            if (!container || !address) return;
+            if (!window.kakao || !window.kakao.maps) return;
+            kakao.maps.load(() => {
+                const geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(address, (result, status) => {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                        kakaoMapInstance = new kakao.maps.Map(container, { center: coords, level: 3 });
+                        new kakao.maps.Marker({ map: kakaoMapInstance, position: coords });
+                    }
+                });
+            });
+        }
 
         function shareKakao(){
             if(!window.Kakao){ alert('카카오톡 공유 기능을 사용할 수 없습니다.'); return; }
@@ -555,6 +573,7 @@
         function renderComments(comments){
             const list = gE('p-gb-list');
             list.innerHTML = '';
+            comments = (comments || []).filter(c => !c.hidden);
             if(!comments || comments.length === 0){
                 list.innerHTML = '<div class="p-gb-empty">아직 작성된 메시지가 없습니다.</div>';
                 return;
@@ -584,7 +603,7 @@
         function applySectionOrder(data) {
             const raw = (data['in-section-order'] || DEFAULT_SECTION_ORDER);
             const order = raw.split(',').filter(Boolean);
-            const container = document.querySelector('.mobile-frame');
+            const container = document.querySelector('#p-container');
             if (!container) return;
             const anchor = container.querySelector('[data-section="thanks"]');
             if (!anchor) return;
@@ -827,8 +846,23 @@
             window.open(url, '_blank');
         }
 
+        function initParallax(){
+            const container = document.querySelector('.p-cover-container');
+            const mediaBox = document.getElementById('p-cover-media-box');
+            if(!container || !mediaBox) return;
+            function update(){
+                const rect = container.getBoundingClientRect();
+                const offset = -rect.top * 0.3;
+                mediaBox.style.transform = `translateY(${offset}px)`;
+            }
+            window.addEventListener('scroll', update, { passive: true });
+            update();
+        }
+
+        if (window.kakao && window.kakao.maps) kakao.maps.load(() => {});
         loadCard();
         initScrollReveal();
+        initParallax();
     </script>
 </body>
 </html>

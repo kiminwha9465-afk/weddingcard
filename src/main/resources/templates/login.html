@@ -24,6 +24,10 @@
         .auth-msg.info{background:#f0f7ff;color:#3b82f6;}
         .auth-foot{text-align:center;font-size:12px;color:#999;margin-top:18px;}
         .auth-foot a{color:var(--accent-color);font-weight:700;text-decoration:none;}
+        .auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:#ddd;font-size:12px;}
+        .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:#eee;}
+        .kakao-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:10px;background:#FEE500;color:#3C1E1E;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;box-sizing:border-box;}
+        .kakao-btn:hover{background:#f5dc00;}
     </style>
 </head>
 <body>
@@ -42,6 +46,12 @@
             <div class="field"><input type="password" name="password" placeholder="비밀번호" required></div>
             <button type="submit" class="auth-submit">로그인</button>
         </form>
+
+        <div class="auth-divider">또는</div>
+        <a href="/kakao/auth" class="kakao-btn">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 1C4.582 1 1 3.896 1 7.455c0 2.267 1.488 4.26 3.747 5.38l-.956 3.57a.178.178 0 0 0 .272.194L8.2 14.1A9.87 9.87 0 0 0 9 14.91c4.418 0 8-2.895 8-6.455C17 3.896 13.418 1 9 1z" fill="#3C1E1E"/></svg>
+            카카오로 로그인
+        </a>
 
         <div class="auth-foot">계정이 없으신가요? <a href="/register">회원가입</a></div>
     </div>

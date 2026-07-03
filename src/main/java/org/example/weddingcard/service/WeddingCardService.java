@@ -160,6 +160,17 @@ public class WeddingCardService {
         return CommentResponse.from(saved);
     }
 
+    public void deleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
+    }
+
+    public CommentResponse toggleCommentHidden(Long commentId) {
+        GuestbookComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+        comment.setHidden(!comment.isHidden());
+        return CommentResponse.from(commentRepository.save(comment));
+    }
+
     public AttendanceResponse addAttendance(String id, AttendanceRequest request) {
         if (!cardRepository.existsById(id)) {
             throw new CardNotFoundException(id);

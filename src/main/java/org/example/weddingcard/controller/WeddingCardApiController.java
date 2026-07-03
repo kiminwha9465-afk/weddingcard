@@ -62,6 +62,21 @@ public class WeddingCardApiController {
         return cardService.addComment(id, request.name(), request.content());
     }
 
+    @DeleteMapping("/{id}/comments/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable String id, @PathVariable Long commentId,
+                              @RequestParam String key) {
+        cardService.getManageData(id, key);
+        cardService.deleteComment(commentId);
+    }
+
+    @PostMapping("/{id}/comments/{commentId}/toggle-hidden")
+    public CommentResponse toggleCommentHidden(@PathVariable String id, @PathVariable Long commentId,
+                                               @RequestParam String key) {
+        cardService.getManageData(id, key);
+        return cardService.toggleCommentHidden(commentId);
+    }
+
     @PostMapping("/{id}/attendances")
     @ResponseStatus(HttpStatus.CREATED)
     public AttendanceResponse addAttendance(@PathVariable String id, @RequestBody AttendanceRequest request) {

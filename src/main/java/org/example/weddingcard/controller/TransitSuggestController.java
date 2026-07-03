@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
 import java.util.*;
 
 @RestController
@@ -40,14 +40,12 @@ public class TransitSuggestController {
     }
 
     private double[] geocode(String address) {
-        String encoded = URLEncoder.encode(address, StandardCharsets.UTF_8);
-
         Map<String, Object> body = kakaoGet(
-                "https://dapi.kakao.com/v2/local/search/address.json?query=" + encoded);
+                buildUri("https://dapi.kakao.com/v2/local/search/address.json", "query", address));
         List<Map<String, Object>> docs = castList(body.get("documents"));
 
         if (docs == null || docs.isEmpty()) {
-            body = kakaoGet("https://dapi.kakao.com/v2/local/search/keyword.json?query=" + encoded);
+            body = kakaoGet(buildUri("https://dapi.kakao.com/v2/local/search/keyword.json", "query", address));
             docs = castList(body.get("documents"));
         }
         if (docs == null || docs.isEmpty()) return null;
@@ -59,11 +57,17 @@ public class TransitSuggestController {
     }
 
     private String searchNearbySubway(double x, double y) {
-        String url = "https://dapi.kakao.com/v2/local/search/category.json"
-                + "?category_group_code=SW8&x=" + x + "&y=" + y
-                + "&radius=1000&sort=distance&size=15";
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://dapi.kakao.com/v2/local/search/category.json")
+                .queryParam("category_group_code", "SW8")
+                .queryParam("x", x)
+                .queryParam("y", y)
+                .queryParam("radius", 1000)
+                .queryParam("sort", "distance")
+                .queryParam("size", 15)
+                .build().toUri();
 
-        Map<String, Object> body = kakaoGet(url);
+        Map<String, Object> body = kakaoGet(uri);
         List<Map<String, Object>> stations = castList(body.get("documents"));
         if (stations == null || stations.isEmpty()) return "";
 
@@ -97,12 +101,18 @@ public class TransitSuggestController {
         return parts[parts.length - 1].trim();
     }
 
-    private Map<String, Object> kakaoGet(String url) {
+    private URI buildUri(String baseUrl, String param, String value) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
+                .queryParam(param, value)
+                .build().encode().toUri();
+    }
+
+    private Map<String, Object> kakaoGet(URI uri) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + kakaoRestKey);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         ResponseEntity<Map<String, Object>> resp =
-                restTemplate.exchange(url, HttpMethod.GET, entity, MAP_TYPE);
+                restTemplate.exchange(uri, HttpMethod.GET, entity, MAP_TYPE);
         return resp.getBody() != null ? resp.getBody() : Map.of();
     }
 

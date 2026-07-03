@@ -4,6 +4,7 @@ import tools.jackson.databind.ObjectMapper;
 import org.example.weddingcard.dto.CardResponse;
 import org.example.weddingcard.exception.CardNotFoundException;
 import org.example.weddingcard.service.WeddingCardService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +17,9 @@ public class EditorController {
     private final WeddingCardService cardService;
     private final ObjectMapper objectMapper;
 
+    @Value("${kakao.js-key:}")
+    private String kakaoJsKey;
+
     public EditorController(WeddingCardService cardService, ObjectMapper objectMapper) {
         this.cardService = cardService;
         this.objectMapper = objectMapper;
@@ -26,6 +30,7 @@ public class EditorController {
         model.addAttribute("cardId", "");
         model.addAttribute("cardDataJson", "null");
         model.addAttribute("cardAdminKey", "");
+        model.addAttribute("kakaoJsKey", kakaoJsKey);
         return "editor";
     }
 
@@ -40,6 +45,7 @@ public class EditorController {
             model.addAttribute("cardId", card.id());
             model.addAttribute("cardDataJson", toJson(card.data()));
             model.addAttribute("cardAdminKey", cardService.getAdminKey(id));
+            model.addAttribute("kakaoJsKey", kakaoJsKey);
             return "editor";
         } catch (CardNotFoundException e) {
             return "redirect:/";
