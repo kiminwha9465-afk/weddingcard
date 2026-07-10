@@ -1256,10 +1256,10 @@
             guestbook:'guestbook', rsvp:'rsvp', thanks:'thanks'
         };
         function scrollPreviewTo(id){
-            const container = document.getElementById('p-container');
-            if(!container) return;
             const mapped = PREVIEW_SECTION_MAP[id];
             if(!mapped) return;
+            const container = document.getElementById('p-container');
+            if(!container) return;
             let target;
             if(mapped==='__cover__'){
                 target = container.querySelector('.p-cover-container');
@@ -1268,10 +1268,12 @@
             }
             if(!target) return;
             requestAnimationFrame(() => {
+                const scroller = document.querySelector('.preview-area');
+                if(!scroller) return;
                 const top = target.getBoundingClientRect().top
-                          - container.getBoundingClientRect().top
-                          + container.scrollTop;
-                container.scrollTo({top, behavior:'smooth'});
+                          - scroller.getBoundingClientRect().top
+                          + scroller.scrollTop;
+                scroller.scrollTo({top, behavior:'smooth'});
             });
         }
         function switchSection(id){
