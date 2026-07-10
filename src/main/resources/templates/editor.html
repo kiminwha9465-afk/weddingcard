@@ -216,6 +216,12 @@
         .view-toggle-btn i { font-size: 13px; }
         .preview-close-btn { display: none; }
 
+        /* Resize Handle */
+        .resize-handle{width:5px;flex-shrink:0;background:transparent;cursor:col-resize;position:relative;z-index:10;transition:background .15s;}
+        .resize-handle:hover,.resize-handle.dragging{background:var(--primary-color);}
+        .resize-handle::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:40px;border-radius:3px;background:#ccc;transition:background .15s;}
+        .resize-handle:hover::after,.resize-handle.dragging::after{background:var(--accent-color);}
+
         /* Responsive */
         @media (max-width: 1024px) {
             :root { --sidebar-width: 380px; }
@@ -234,6 +240,7 @@
             .preview-area { width: 100%; padding: 20px 10px; min-height: 100vh; }
             .mobile-frame { width: 100%; max-width: 375px; border: 2px solid #1a1a1a; border-radius: 20px; min-height: auto; height: auto; overflow: hidden; }
             .preview-scroll-container { flex: none; overflow-y: visible; }
+            .resize-handle { display: none !important; }
             
             /* Toggle logic */
             .view-toggle-btn { display: flex; }
@@ -685,7 +692,7 @@
             </div>
         </div>
     </div>
-
+    <div class="resize-handle" id="resize-handle"></div>
     <div class="preview-area mobile-hide">
         <button class="preview-close-btn" onclick="toggleMobileView()"><i class="fa-solid fa-pen"></i> 편집으로 돌아가기</button>
         <div class="mobile-frame">
@@ -968,6 +975,36 @@
         var INITIAL_ADMIN_KEY = /*[[${cardAdminKey}]]*/ '';
         var KAKAO_JS_KEY = /*[[${kakaoJsKey}]]*/ '';
     </script>
+    <script>
+    (function() {
+        const handle = document.getElementById('resize-handle');
+        const sidebar = document.querySelector('.sidebar');
+        if (!handle || !sidebar) return;
+        const MIN_W = 300, MAX_W = 780;
+        let dragging = false, startX = 0, startW = 0;
+        handle.addEventListener('mousedown', function(e) {
+            dragging = true;
+            startX = e.clientX;
+            startW = sidebar.getBoundingClientRect().width;
+            handle.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', function(e) {
+            if (!dragging) return;
+            const w = Math.min(MAX_W, Math.max(MIN_W, startW + (e.clientX - startX)));
+            document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+        });
+        document.addEventListener('mouseup', function() {
+            if (!dragging) return;
+            dragging = false;
+            handle.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        });
+    })();
+    </script>
     <script th:inline="none">
         let quill, coverFile=null, cropper=null, mapTimeout=null, galleryImages=[], ddayInterval=null;
         let cardId = INITIAL_CARD_ID || '';
@@ -1210,9 +1247,32 @@
             targets.forEach(t => { t.classList.add('p-reveal'); io.observe(t); });
         }
 
+        const PREVIEW_SECTION_MAP = {
+            cover:'__cover__', design:'__cover__', effect:'__cover__',
+            weddingday:'calendar', greeting:'greeting', intro:'contact',
+            gallery:'gallery', location:'location', account:'account',
+            guestbook:'guestbook', rsvp:'rsvp', thanks:'thanks'
+        };
+        function scrollPreviewTo(id){
+            const container = document.getElementById('p-container');
+            if(!container) return;
+            const mapped = PREVIEW_SECTION_MAP[id];
+            if(!mapped) return;
+            let target;
+            if(mapped==='__cover__'){
+                target = container.querySelector('.p-cover-container');
+            } else {
+                target = container.querySelector(`.p-section[data-section="${mapped}"]`);
+            }
+            if(!target) return;
+            const cRect = container.getBoundingClientRect();
+            const tRect = target.getBoundingClientRect();
+            container.scrollBy({top: tRect.top - cRect.top, behavior:'smooth'});
+        }
         function switchSection(id){
             const s=document.getElementById('edit-'+id);
             if(s){ s.scrollIntoView({behavior:'smooth',block:'start'}); }
+            scrollPreviewTo(id);
             if(id==='order') renderOrderList();
             if(id==='design') renderThemeSwatches();
         }
