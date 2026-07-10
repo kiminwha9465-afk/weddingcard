@@ -80,6 +80,13 @@
         .section-jump{flex:1;min-width:0;width:auto;padding:6px 26px 6px 10px;border:1px solid var(--border-color);border-radius:8px;font-size:12px;color:#555;background:#f8f9fa;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
         .sidebar-save-btn{padding:8px 16px;background:var(--accent-color);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
         .sidebar-save-btn:hover{opacity:0.88;}
+        .auto-scroll-toggle{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#f7f8fa;border-top:1px solid var(--border-color);font-size:11px;color:#888;cursor:pointer;user-select:none;flex-shrink:0;}
+        .auto-scroll-toggle input{display:none;}
+        .auto-scroll-track{width:32px;height:18px;border-radius:9px;background:#ddd;position:relative;transition:background .2s;flex-shrink:0;}
+        .auto-scroll-track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s;}
+        .auto-scroll-toggle.on .auto-scroll-track{background:var(--accent-color);}
+        .auto-scroll-toggle.on .auto-scroll-track::after{left:16px;}
+        .auto-scroll-toggle.on{color:var(--accent-color);font-weight:600;}
         .editor-content{padding:14px;flex:1;overflow-y:auto;background:#f7f8fa;}
         .edit-section{display:block;border:1px solid var(--border-color);border-radius:14px;margin-bottom:12px;overflow:hidden;background:#fff;padding:0 18px 18px;transition:border-color .25s;}
         .edit-section.active{}
@@ -291,6 +298,10 @@
                     <span id="toggle-text">미리보기</span>
                 </button>
             </div>
+            <label class="auto-scroll-toggle" id="auto-scroll-toggle" onclick="toggleAutoScroll()">
+                <div class="auto-scroll-track"></div>
+                <span>편집 시 해당 화면으로 이동</span>
+            </label>
             <div class="editor-content" id="editor-forms">
                 <!-- Cover -->
                 <div id="edit-cover" class="edit-section active">
@@ -1012,6 +1023,37 @@
         let cardId = INITIAL_CARD_ID || '';
         let adminKey = INITIAL_ADMIN_KEY || '';
         let isDirty = false;
+        let autoScrollEnabled = false;
+
+        function toggleAutoScroll(){
+            autoScrollEnabled = !autoScrollEnabled;
+            const el = document.getElementById('auto-scroll-toggle');
+            if(el) el.classList.toggle('on', autoScrollEnabled);
+        }
+
+        function initAutoScroll(){
+            const forms = document.getElementById('editor-forms');
+            if(!forms) return;
+            let lastScrolledSection = null;
+            forms.addEventListener('focusin', function(e){
+                if(!autoScrollEnabled) return;
+                const section = e.target.closest('.edit-section');
+                if(!section) return;
+                const sectionId = section.id.replace('edit-', '');
+                if(sectionId === lastScrolledSection) return;
+                lastScrolledSection = sectionId;
+                scrollPreviewTo(sectionId);
+            });
+            forms.addEventListener('click', function(e){
+                if(!autoScrollEnabled) return;
+                const section = e.target.closest('.edit-section');
+                if(!section) return;
+                const sectionId = section.id.replace('edit-', '');
+                if(sectionId === lastScrolledSection) return;
+                lastScrolledSection = sectionId;
+                scrollPreviewTo(sectionId);
+            });
+        }
         const CSRF_TOKEN = document.querySelector('meta[name="_csrf"]')?.content || '';
         const CSRF_HEADER = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
         const gE = (id) => document.getElementById(id);
@@ -1138,6 +1180,7 @@
             up();
             initScrollReveal();
             initParallax();
+            initAutoScroll();
             isDirty = false;
         };
 
