@@ -90,7 +90,7 @@ public class WeddingCardService {
                         names = String.valueOf(data.getOrDefault("in-cover-names", "(이름 미입력)"));
                     }
                     String dateText = String.valueOf(data.getOrDefault("in-cover-date-text", ""));
-                    return new CardSummaryResponse(card.getId(), names, dateText, card.getAdminKey(), card.getUpdatedAt());
+                    return new CardSummaryResponse(card.getId(), names, dateText, card.getAdminKey(), card.getUpdatedAt(), card.isPaid());
                 })
                 .toList();
     }
@@ -132,6 +132,14 @@ public class WeddingCardService {
                             card.getCreatedAt(), card.getUpdatedAt());
                 })
                 .toList();
+    }
+
+    public void markAsPaid(String cardId, java.time.LocalDateTime paidAt) {
+        WeddingCard card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardNotFoundException(cardId));
+        card.setPaid(true);
+        card.setPaidAt(paidAt);
+        cardRepository.save(card);
     }
 
     public void deleteCard(String id, String requesterEmail) {

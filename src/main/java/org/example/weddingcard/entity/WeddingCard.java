@@ -31,6 +31,10 @@ public class WeddingCard implements Persistable<String> {
 
     private String ownerEmail;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean paid = false;
+    private LocalDateTime paidAt;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

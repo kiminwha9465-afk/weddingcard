@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 - 모바일 청첩장 제작기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root{--primary:#f8bbd0;--accent:#e91e63;}
+        *{box-sizing:border-box;}
+        body{margin:0;font-family:'Pretendard',sans-serif;background:#f7f8fa;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+        .card{background:#fff;border-radius:20px;padding:36px 32px;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(0,0,0,0.07);}
+        .logo{display:flex;align-items:center;gap:8px;margin-bottom:28px;}
+        .logo-icon{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;}
+        .logo-text{font-size:15px;font-weight:700;color:#333;}
+        h2{font-size:20px;font-weight:800;margin:0 0 6px;}
+        .subtitle{font-size:13px;color:#aaa;margin-bottom:28px;}
+        .price-box{background:#fff5f8;border:1.5px solid var(--primary);border-radius:14px;padding:20px 24px;margin-bottom:28px;text-align:center;}
+        .price-label{font-size:12px;color:#e91e63;font-weight:600;margin-bottom:6px;}
+        .price-amount{font-size:32px;font-weight:900;color:#333;letter-spacing:-1px;}
+        .price-unit{font-size:16px;font-weight:600;color:#888;margin-left:2px;}
+        .notice{font-size:11px;color:#aaa;margin-top:8px;}
+        .btn-group{display:flex;flex-direction:column;gap:10px;}
+        .pay-btn{width:100%;padding:15px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;}
+        .pay-btn:hover{opacity:0.88;}
+        .pay-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .btn-card{background:var(--accent);color:#fff;}
+        .btn-transfer{background:#f5f5f5;color:#555;}
+        .back-link{display:block;text-align:center;margin-top:20px;font-size:12px;color:#bbb;text-decoration:none;}
+        .back-link:hover{color:#999;}
+        .loading{display:none;text-align:center;color:#aaa;font-size:13px;margin-top:12px;}
+        .loading.show{display:block;}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-heart"></i></div>
+            <div class="logo-text">모바일 청첩장 제작기</div>
+        </div>
+
+        <h2>청첩장 발행 결제</h2>
+        <p class="subtitle">결제 완료 후 청첩장이 활성화됩니다</p>
+
+        <div class="price-box">
+            <div class="price-label">결제 금액</div>
+            <div>
+                <span class="price-amount" th:text="${#numbers.formatInteger(amount, 1, 'COMMA')}">9,900</span>
+                <span class="price-unit">원</span>
+            </div>
+            <div class="notice">청첩장 1건 · 영구 사용</div>
+        </div>
+
+        <div class="btn-group">
+            <button class="pay-btn btn-card" onclick="pay('CARD')" id="btn-card">
+                <i class="fa-solid fa-credit-card"></i> 카드 결제
+            </button>
+            <button class="pay-btn btn-transfer" onclick="pay('계좌이체')" id="btn-transfer">
+                <i class="fa-solid fa-building-columns"></i> 계좌이체
+            </button>
+        </div>
+        <div class="loading" id="loading">결제창을 불러오는 중...</div>
+
+        <a href="/dashboard" class="back-link">← 대시보드로 돌아가기</a>
+    </div>
+
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+    <script th:inline="javascript">
+        const clientKey = /*[[${tossClientKey}]]*/ '';
+        const cardId = /*[[${cardId}]]*/ '';
+        const amount = /*[[${amount}]]*/ 9900;
+
+        function generateOrderId() {
+            const uuid = crypto.randomUUID().replace(/-/g, '');
+            return cardId + '_' + uuid;
+        }
+
+        async function pay(method) {
+            document.getElementById('btn-card').disabled = true;
+            document.getElementById('btn-transfer').disabled = true;
+            document.getElementById('loading').classList.add('show');
+
+            try {
+                const tossPayments = TossPayments(clientKey);
+                const payment = tossPayments.payment({ customerKey: crypto.randomUUID() });
+                await payment.requestPayment({
+                    method: method,
+                    amount: { currency: 'KRW', value: amount },
+                    orderId: generateOrderId(),
+                    orderName: '모바일 청첩장',
+                    successUrl: window.location.origin + '/pay/success',
+                    failUrl: window.location.origin + '/pay/fail',
+                });
+            } catch (e) {
+                document.getElementById('btn-card').disabled = false;
+                document.getElementById('btn-transfer').disabled = false;
+                document.getElementById('loading').classList.remove('show');
+                if (e.code !== 'USER_CANCEL') {
+                    alert('결제 오류: ' + (e.message || '알 수 없는 오류'));
+                }
+            }
+        }
+    </script>
+</body>
+</html>

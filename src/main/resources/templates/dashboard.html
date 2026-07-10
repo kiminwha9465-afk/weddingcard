@@ -33,6 +33,15 @@
         .card-links a.primary{background:#fff0f4;color:var(--accent-color);border-color:var(--primary-color);}
         .card-delete-btn{width:100%;margin-top:8px;padding:8px;border:1px solid #eee;background:#fafafa;color:#999;font-size:11px;font-weight:600;cursor:pointer;border-radius:8px;transition:all .15s;}
         .card-delete-btn:hover{background:#fff5f5;border-color:#ffcdd2;color:#e53935;}
+        .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px;}
+        .badge-paid{background:#e8f5e9;color:#2e7d32;}
+        .badge-unpaid{background:#fff3e0;color:#e65100;}
+        .pay-btn-card{width:100%;margin-top:4px;padding:9px;border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer;border-radius:8px;transition:opacity .15s;}
+        .pay-btn-card:hover{opacity:0.85;}
+        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;display:none;}
+        .toast.show{display:block;}
+        .toast.success{background:#2e7d32;}
+        .toast.error{background:#c62828;}
         .confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1000;align-items:center;justify-content:center;}
         .confirm-overlay.show{display:flex;}
         .confirm-box{background:#fff;border-radius:18px;padding:28px 24px 20px;width:280px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.15);}
@@ -81,7 +90,7 @@
     <div class="wrap">
         <div class="wrap-head">
             <div class="wrap-title">내 청첩장</div>
-            <a href="/" class="new-card-btn"><i class="fa-solid fa-plus"></i>새 청첩장 만들기</a>
+            <a href="/editor/new" class="new-card-btn"><i class="fa-solid fa-plus"></i>새 청첩장 만들기</a>
         </div>
 
         <div th:if="${#lists.isEmpty(cards)}" class="empty">
@@ -91,6 +100,8 @@
 
         <div class="card-grid" th:unless="${#lists.isEmpty(cards)}">
             <div class="card-item" th:each="card : ${cards}">
+                <span th:if="${card.paid}" class="badge badge-paid">결제완료</span>
+                <span th:unless="${card.paid}" class="badge badge-unpaid">미결제</span>
                 <div class="card-names" th:text="${card.names}"></div>
                 <div class="card-date" th:text="${card.dateText}"></div>
                 <div class="card-links">
@@ -98,10 +109,15 @@
                     <a th:href="@{'/c/' + ${card.id}}" target="_blank">보기</a>
                     <a class="primary" th:href="@{'/manage/' + ${card.id} + '?key=' + ${card.adminKey}}" target="_blank">참석/방명록</a>
                 </div>
+                <a th:unless="${card.paid}" th:href="@{'/pay/' + ${card.id}}" class="pay-btn-card" style="display:block;text-align:center;text-decoration:none;">결제하기 · 9,900원</a>
                 <button class="card-delete-btn" th:data-id="${card.id}" th:data-names="${card.names}" onclick="confirmDelete(this.dataset.id, this.dataset.names)">삭제</button>
             </div>
         </div>
     </div>
+    <!-- 결제 결과 토스트 -->
+    <div class="toast success" id="toast-success">결제가 완료되었습니다! 청첩장이 활성화되었습니다.</div>
+    <div class="toast error" id="toast-error" th:text="${payError}"></div>
+
     <!-- 삭제 확인 모달 -->
     <div class="confirm-overlay" id="confirm-overlay">
         <div class="confirm-box">
@@ -145,6 +161,22 @@
         document.getElementById('confirm-overlay').addEventListener('click', function(e) {
             if (e.target === this) closeConfirm();
         });
+
+        // 결제 결과 토스트
+        (function() {
+            const paySuccess = /*[[${paySuccess}]]*/ false;
+            const payError = /*[[${payError}]]*/ null;
+            if (paySuccess) {
+                const t = document.getElementById('toast-success');
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 4000);
+            }
+            if (payError) {
+                const t = document.getElementById('toast-error');
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 4000);
+            }
+        })();
     </script>
 </body>
 </html>

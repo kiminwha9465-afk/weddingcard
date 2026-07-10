@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>to our guest. — 모바일 청첩장 제작기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <style>
+    html { scroll-behavior: smooth; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #fffdfd; font-family: 'Pretendard', sans-serif; color: #3a2a31; }
+    @keyframes floaty { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+
+    /* NAV */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 7vw;
+      background: rgba(255,253,253,0.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid #f4ecef;
+    }
+    .nav-logo { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 20px; color: #3a2a31; letter-spacing: -0.01em; text-decoration: none; }
+    .nav-logo span { color: #e91e63; }
+    .nav-links { display: flex; align-items: center; gap: 34px; }
+    .nav-links a { font-size: 15px; font-weight: 500; color: #6b5560; text-decoration: none; }
+    .nav-cta { border: 1.5px solid #3a2a31; color: #3a2a31 !important; font-weight: 600 !important; font-size: 15px !important; padding: 9px 20px; border-radius: 999px; }
+    .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: #3a2a31; margin: 5px 0; border-radius: 2px; }
+
+    /* HERO */
+    .hero { max-width: 1200px; margin: 0 auto; padding: 96px 7vw 40px; display: flex; align-items: center; gap: 60px; }
+    .hero-text { flex: 1; }
+    .hero-kicker { font-size: 14px; font-weight: 600; color: #e91e63; letter-spacing: 0.16em; }
+    .hero-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 60px; line-height: 1.08; color: #3a2a31; margin: 20px 0 24px; letter-spacing: -0.03em; }
+    .hero-desc { font-size: 19px; line-height: 1.65; color: #6b5560; margin: 0 0 36px; max-width: 460px; }
+    .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .btn-primary { background: #e91e63; color: #fff; font-weight: 600; font-size: 17px; padding: 16px 32px; border-radius: 999px; text-decoration: none; box-shadow: rgba(233,30,99,0.6) 0 14px 30px -12px; display: inline-block; }
+    .btn-text { color: #3a2a31; font-weight: 600; font-size: 17px; padding: 16px 12px; text-decoration: underline #f8bbd0; text-underline-offset: 5px; }
+    .hero-phone { width: 300px; flex-shrink: 0; animation: floaty 7s ease-in-out infinite; }
+    .phone-shell { background: #1c1418; border-radius: 40px; padding: 12px; box-shadow: rgba(233,30,99,0.5) 0 40px 80px -30px; }
+    .phone-screen { border-radius: 30px; overflow: hidden; background: #fff; }
+    .phone-cover { position: relative; height: 420px; background: linear-gradient(160deg,#f8bbd0 0%,#e91e63 52%,#7a0f3d 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-shadow: rgba(0,0,0,0.3) 0 1px 6px; }
+    .phone-cover-sub { font-family: 'Playfair Display', serif; font-size: 13px; letter-spacing: 5px; margin-bottom: 12px; font-weight: 600; }
+    .phone-divider { width: 36px; height: 1px; background: #fff; opacity: 0.7; margin-bottom: 14px; }
+    .phone-cover-names { font-family: 'Playfair Display', serif; font-size: 27px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+    .phone-cover-date { font-family: 'Playfair Display', serif; font-size: 13px; letter-spacing: 2px; }
+    .phone-body { padding: 22px 20px; text-align: center; }
+    .phone-body-label { font-size: 9px; color: #e91e63; letter-spacing: 2px; font-weight: 700; margin-bottom: 10px; }
+    .phone-body-text { font-size: 11px; color: #8a7580; line-height: 1.7; }
+
+    /* STATS */
+    .stats { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-around; padding: 64px 7vw; flex-wrap: wrap; gap: 24px; }
+    .stat { text-align: center; }
+    .stat-num { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 42px; color: #3a2a31; }
+    .stat-num small { font-size: 26px; }
+    .stat-label { font-size: 14px; color: #6b5560; margin-top: 6px; }
+
+    /* FEATURES */
+    .features { max-width: 1200px; margin: 0 auto; padding: 56px 7vw 96px; }
+    .section-kicker { font-size: 13px; font-weight: 700; color: #e91e63; letter-spacing: 0.14em; }
+    .section-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 44px; color: #3a2a31; margin: 12px 0 0; letter-spacing: -0.02em; line-height: 1.12; }
+    .features-head { max-width: 580px; margin-bottom: 60px; }
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    .feature-cell { padding: 38px 40px; border-top: 1px solid #f0e2e8; }
+    .feature-cell:nth-child(even) { border-left: 1px solid #f0e2e8; }
+    .feature-icon { font-size: 22px; margin-bottom: 16px; }
+    .feature-en { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: #3a2a31; margin: 0 0 4px; }
+    .feature-ko { font-weight: 600; font-size: 16px; color: #e91e63; margin-bottom: 12px; }
+    .feature-desc { font-size: 15.5px; line-height: 1.65; color: #6b5560; margin: 0; }
+
+    /* TEMPLATES */
+    .templates-section { padding: 96px 7vw; background: #fff6f9; }
+    .templates-inner { max-width: 1100px; margin: 0 auto; }
+    .templates-head { text-align: center; margin-bottom: 56px; }
+    .templates-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .template-card { text-decoration: none; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: rgba(60,42,49,0.4) 0 14px 40px -24px; display: block; transition: transform .2s; }
+    .template-card:hover { transform: translateY(-4px); }
+    .template-thumb { height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-shadow: rgba(0,0,0,0.3) 0 1px 5px; }
+    .template-thumb-sub { font-family: 'Playfair Display', serif; font-size: 10px; letter-spacing: 4px; margin-bottom: 10px; }
+    .template-thumb-names { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; }
+    .template-thumb-date { font-family: 'Playfair Display', serif; font-size: 10px; letter-spacing: 2px; margin-top: 8px; }
+    .template-info { padding: 18px 20px; }
+    .template-name { font-weight: 700; font-size: 16px; color: #3a2a31; }
+    .template-desc { font-size: 13px; color: #8a7580; margin-top: 5px; line-height: 1.5; }
+
+    /* HOW */
+    .how { max-width: 1200px; margin: 0 auto; padding: 96px 7vw; }
+    .how-head { text-align: center; margin-bottom: 64px; }
+    .steps { display: flex; flex-direction: column; max-width: 880px; margin: 0 auto; }
+    .step { display: flex; align-items: center; gap: 40px; padding: 36px 0; border-bottom: 1px solid #f0e2e8; }
+    .step-num { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 56px; color: #f8bbd0; flex-shrink: 0; width: 88px; }
+    .step-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 24px; color: #3a2a31; margin: 0 0 6px; }
+    .step-title-en { font-size: 15px; color: #b39aa5; font-weight: 500; }
+    .step-desc { font-size: 16px; line-height: 1.6; color: #6b5560; margin: 0; }
+
+    /* CTA */
+    .cta { padding: 110px 7vw; background: #fff2f7; text-align: center; }
+    .cta h2 { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 48px; color: #3a2a31; margin: 0 0 16px; letter-spacing: -0.02em; }
+    .cta p { font-size: 17px; color: #6b5560; margin: 0 0 34px; }
+
+    /* FOOTER */
+    .footer { padding: 34px 7vw; background: #fffdfd; border-top: 1px solid #f4ecef; color: #a58c97; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Poppins', sans-serif; font-weight: 700; color: #3a2a31; font-size: 16px; }
+    .footer-logo span { color: #e91e63; }
+
+    /* REVEAL */
+    [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+    [data-reveal].visible { opacity: 1; transform: translateY(0); }
+
+    /* MOBILE */
+    @media (max-width: 900px) {
+      .hero { flex-direction: column; padding: 60px 7vw 32px; gap: 40px; }
+      .hero-title { font-size: 40px; }
+      .hero-phone { width: 220px; }
+      .phone-cover { height: 300px; }
+      .templates-grid { grid-template-columns: 1fr 1fr; }
+      .section-title { font-size: 32px; }
+      .cta h2 { font-size: 32px; }
+    }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: block; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: #fffdfd; padding: 16px 7vw 24px; border-bottom: 1px solid #f4ecef; gap: 16px; }
+      .hero-title { font-size: 32px; }
+      .hero-desc { font-size: 16px; }
+      .btn-primary { font-size: 15px; padding: 14px 24px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-cell:nth-child(even) { border-left: none; }
+      .templates-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+      .step { gap: 24px; }
+      .step-num { font-size: 40px; width: 60px; }
+      .footer { flex-direction: column; gap: 8px; text-align: center; }
+      .stats { gap: 16px; }
+      .stat-num { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">to our guest<span>.</span></a>
+    <div class="nav-links" id="nav-links">
+      <a href="#features">기능</a>
+      <a href="#templates">템플릿</a>
+      <a href="#how">만드는 법</a>
+      <a href="/editor/new" class="nav-cta">만들기 시작</a>
+    </div>
+    <button class="nav-hamburger" onclick="document.getElementById('nav-links').classList.toggle('open')" aria-label="메뉴">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text" data-reveal>
+      <div class="hero-kicker">MOBILE WEDDING INVITATION</div>
+      <h1 class="hero-title">5분이면 완성되는<br>우리 둘의 모바일 청첩장</h1>
+      <p class="hero-desc">감성적인 템플릿에 사진과 인사말을 더하면, 링크 하나로 소중한 분들께 초대장을 전할 수 있어요.</p>
+      <div class="hero-actions">
+        <a href="/editor/new" class="btn-primary">무료로 만들기 시작</a>
+        <a href="#templates" class="btn-text">템플릿 미리보기 →</a>
+      </div>
+    </div>
+    <div class="hero-phone" data-reveal>
+      <div class="phone-shell">
+        <div class="phone-screen">
+          <div class="phone-cover">
+            <div class="phone-cover-sub">WEDDING</div>
+            <div class="phone-divider"></div>
+            <div class="phone-cover-names">준영 <span style="font-size:19px;">&amp;</span> 서연</div>
+            <div class="phone-cover-date">2026 . 06 . 12</div>
+          </div>
+          <div class="phone-body">
+            <div class="phone-body-label">GREETING</div>
+            <div class="phone-body-text">두 사람이 사랑으로 만나<br>하나의 짝이 되려 합니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats" data-reveal>
+    <div class="stat"><div class="stat-num">5분</div><div class="stat-label">평균 제작 시간</div></div>
+    <div class="stat"><div class="stat-num">무료</div><div class="stat-label">지금 바로 시작</div></div>
+    <div class="stat"><div class="stat-num">4<small>종</small></div><div class="stat-label">감성 템플릿</div></div>
+    <div class="stat"><div class="stat-num">RSVP</div><div class="stat-label">하객 응답 수집</div></div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="features-head" data-reveal>
+      <div class="section-kicker">FEATURES</div>
+      <h2 class="section-title">청첩장에 필요한<br>모든 기능을 담았어요</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-cell" data-reveal>
+        <div class="feature-icon">🌸</div>
+        <h3 class="feature-en">Beautiful Templates</h3>
+        <div class="feature-ko">감성 템플릿</div>
+        <p class="feature-desc">로즈·미니멀·가든·블루 등 원하는 분위기의 디자인을 골라 시작하세요.</p>
+      </div>
+      <div class="feature-cell" data-reveal>
+        <div class="feature-icon">📝</div>
+        <h3 class="feature-en">RSVP</h3>
+        <div class="feature-ko">참석의사 전달</div>
+        <p class="feature-desc">하객의 참석 여부와 인원, 식사 여부를 미리 확인할 수 있어요.</p>
+      </div>
+      <div class="feature-cell" data-reveal>
+        <div class="feature-icon">💬</div>
+        <h3 class="feature-en">Guestbook</h3>
+        <div class="feature-ko">방명록</div>
+        <p class="feature-desc">축하 메시지를 실시간으로 받아 소중하게 간직하세요.</p>
+      </div>
+      <div class="feature-cell" data-reveal>
+        <div class="feature-icon">📍</div>
+        <h3 class="feature-en">Location</h3>
+        <div class="feature-ko">오시는 길</div>
+        <p class="feature-desc">지도와 지하철·버스 안내, 네이버·카카오·티맵 길찾기까지.</p>
+      </div>
+      <div class="feature-cell" data-reveal>
+        <div class="feature-icon">💌</div>
+        <h3 class="feature-en">Accounts</h3>
+        <div class="feature-ko">마음 전하실 곳</div>
+        <p class="feature-desc">계좌 정보를 안내하고 복사 버튼으로 편하게 전달해요.</p>
+      </div>
+      <div class="feature-cell" data-reveal>
+        <div class="feature-icon">⏳</div>
+        <h3 class="feature-en">D-day &amp; Calendar</h3>
+        <div class="feature-ko">디데이 · 캘린더</div>
+        <p class="feature-desc">결혼식까지 남은 시간을 실시간 카운트다운으로 보여줘요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEMPLATES -->
+  <section class="templates-section" id="templates">
+    <div class="templates-inner">
+      <div class="templates-head" data-reveal>
+        <div class="section-kicker">TEMPLATES</div>
+        <h2 class="section-title">마음에 드는 템플릿을 골라보세요</h2>
+      </div>
+      <div class="templates-grid">
+        <a href="/editor/new?theme=rose" class="template-card" data-reveal>
+          <div class="template-thumb" style="background:linear-gradient(160deg,#f48fb1 0%,#e91e63 50%,#880e4f 100%)">
+            <div class="template-thumb-sub">WEDDING</div>
+            <div class="template-thumb-names">준영 &amp; 서연</div>
+            <div class="template-thumb-date">2026 . 06 . 12</div>
+          </div>
+          <div class="template-info">
+            <div class="template-name">클래식 로즈</div>
+            <div class="template-desc">우아한 세리프와 로즈 컬러</div>
+          </div>
+        </a>
+        <a href="/editor/new?theme=black" class="template-card" data-reveal>
+          <div class="template-thumb" style="background:linear-gradient(160deg,#9e9e9e 0%,#424242 60%,#212121 100%)">
+            <div class="template-thumb-sub">WE ARE GETTING MARRIED</div>
+            <div class="template-thumb-names">준영 &amp; 서연</div>
+            <div class="template-thumb-date">2026 . 06 . 12</div>
+          </div>
+          <div class="template-info">
+            <div class="template-name">미니멀 블랙</div>
+            <div class="template-desc">군더더기 없는 모노톤</div>
+          </div>
+        </a>
+        <a href="/editor/new?theme=green" class="template-card" data-reveal>
+          <div class="template-thumb" style="background:linear-gradient(160deg,#a5d6a7 0%,#388e3c 50%,#1b5e20 100%)">
+            <div class="template-thumb-sub">WEDDING</div>
+            <div class="template-thumb-names">준영 &amp; 서연</div>
+            <div class="template-thumb-date">2026 . 06 . 12</div>
+          </div>
+          <div class="template-info">
+            <div class="template-name">가든 그린</div>
+            <div class="template-desc">싱그러운 정원 웨딩 분위기</div>
+          </div>
+        </a>
+        <a href="/editor/new?theme=blue" class="template-card" data-reveal>
+          <div class="template-thumb" style="background:linear-gradient(160deg,#90caf9 0%,#1565c0 50%,#0d47a1 100%)">
+            <div class="template-thumb-sub">WEDDING DAY</div>
+            <div class="template-thumb-names">준영 &amp; 서연</div>
+            <div class="template-thumb-date">2026 . 06 . 12</div>
+          </div>
+          <div class="template-info">
+            <div class="template-name">미드나잇 블루</div>
+            <div class="template-desc">깊고 고요한 블루 톤</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section class="how" id="how">
+    <div class="how-head" data-reveal>
+      <div class="section-kicker">HOW IT WORKS</div>
+      <h2 class="section-title">세 단계면 충분해요</h2>
+    </div>
+    <div class="steps">
+      <div class="step" data-reveal>
+        <div class="step-num">1</div>
+        <div>
+          <h3 class="step-title">템플릿을 고르고 <span class="step-title-en">Pick a template</span></h3>
+          <p class="step-desc">마음에 드는 분위기의 청첩장 템플릿을 선택합니다.</p>
+        </div>
+      </div>
+      <div class="step" data-reveal>
+        <div class="step-num">2</div>
+        <div>
+          <h3 class="step-title">정보를 입력하고 꾸미고 <span class="step-title-en">Design your card</span></h3>
+          <p class="step-desc">사진·인사말·오시는 길·계좌 등을 에디터에서 자유롭게 채워요.</p>
+        </div>
+      </div>
+      <div class="step" data-reveal>
+        <div class="step-num">3</div>
+        <div>
+          <h3 class="step-title">링크로 공유하세요 <span class="step-title-en">Share the link</span></h3>
+          <p class="step-desc">완성된 청첩장을 링크와 카카오톡으로 소중한 분들께 전합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="cta" data-reveal>
+    <h2>우리의 시작을, 예쁘게 알리세요</h2>
+    <p>무료로 시작하고, 첫 번째 모바일 청첩장을 만들어보세요.</p>
+    <a href="/editor/new" class="btn-primary">무료로 청첩장 만들기 →</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="footer-logo">to our guest<span>.</span></span>
+    <span>© 2026 To Our Guest · 모바일 청첩장</span>
+  </footer>
+
+  <script>
+    (function() {
+      const els = Array.from(document.querySelectorAll('[data-reveal]'));
+      const inView = el => {
+        const r = el.getBoundingClientRect();
+        return r.top < (window.innerHeight || document.documentElement.clientHeight) * 0.92 && r.bottom > 0;
+      };
+      const reveal = el => el.classList.add('visible');
+      requestAnimationFrame(() => els.forEach(el => { if (inView(el)) reveal(el); }));
+      const onScroll = () => els.forEach(el => { if (inView(el)) reveal(el); });
+      window.addEventListener('scroll', onScroll, { passive: true });
+      setTimeout(() => els.forEach(reveal), 1800);
+    })();
+  </script>
+</body>
+</html>

@@ -25,7 +25,7 @@ public class EditorController {
         this.objectMapper = objectMapper;
     }
 
-    @GetMapping("/")
+    @GetMapping("/editor/new")
     public String index(Model model) {
         model.addAttribute("cardId", "");
         model.addAttribute("cardDataJson", "null");

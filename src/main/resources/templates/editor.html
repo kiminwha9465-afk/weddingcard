@@ -18,7 +18,7 @@
     <script th:if="${not #strings.isEmpty(kakaoJsKey)}"
             th:src="|https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=${kakaoJsKey}&libraries=services|"></script>
     <style>
-        :root{--sidebar-width:450px;--preview-bg:#f0f2f5;--border-color:#e1e4e8;--primary-color:#f8bbd0;--accent-color:#e91e63;--header-height:60px;}
+        :root{--sidebar-width:450px;--preview-bg:#f0f2f5;--border-color:#e1e4e8;--primary-color:#f8bbd0;--accent-color:#e91e63;--cover-grad-from:#f8bbd0;--cover-grad-to:#e91e63;--header-height:60px;}
         *{box-sizing:border-box;}
         body{margin:0;font-family:'Pretendard',sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden;background:#fff;-webkit-font-smoothing:antialiased;}
 
@@ -31,11 +31,10 @@
 
         /* Sidebar */
         .sidebar{width:var(--sidebar-width);border-right:1px solid var(--border-color);display:flex;flex-shrink:0;}
-        .sidebar-nav{width:80px;background:#f8f9fa;border-right:1px solid var(--border-color);overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:10px 0;scrollbar-width:none;}
+        .sidebar-nav{display:none;}
         .nav-items-row{display:contents;}
-        .nav-item{width:60px;height:60px;margin-bottom:8px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;border-radius:8px;color:#888;font-size:9px;text-align:center;transition:0.2s;}
-        .nav-item i{font-size:18px;margin-bottom:4px;}
-        .nav-item.active{background:var(--primary-color);color:white;}
+        .nav-item{display:none;}
+        .nav-item i{}
         .valign-btn,.deco-btn{flex:1;padding:7px 4px;border:1px solid #e8e8e8;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#aaa;transition:all .15s;min-width:0;}
         .valign-btn:hover,.deco-btn:hover{border-color:#ccc;color:#666;}
         .valign-btn.active,.deco-btn.active{border:1.5px solid var(--accent-color);background:#fff;color:var(--accent-color);font-weight:600;}
@@ -77,12 +76,18 @@
         .nav-dropdown{display:none;}
 
         .editor-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-        .sidebar-header{padding:15px 20px;border-bottom:1px solid var(--border-color);font-weight:bold;font-size:14px;display:flex;align-items:center;justify-content:space-between;}
-        .editor-content{padding:20px;flex:1;overflow-y:auto;}
-        .edit-section{display:none;}
-        .edit-section.active{display:block;}
+        .sidebar-header{padding:12px 16px;border-bottom:1px solid var(--border-color);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;}
+        .section-jump{flex:1;min-width:0;width:auto;padding:6px 26px 6px 10px;border:1px solid var(--border-color);border-radius:8px;font-size:12px;color:#555;background:#f8f9fa;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+        .sidebar-save-btn{padding:8px 16px;background:var(--accent-color);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+        .sidebar-save-btn:hover{opacity:0.88;}
+        .editor-content{padding:14px;flex:1;overflow-y:auto;background:#f7f8fa;}
+        .edit-section{display:block;border:1px solid var(--border-color);border-radius:14px;margin-bottom:12px;overflow:hidden;background:#fff;padding:0 18px 18px;transition:border-color .25s;}
+        .edit-section.active{}
+        @keyframes section-flash{0%{box-shadow:0 0 0 0 rgba(233,30,99,.5);}40%{box-shadow:0 0 0 6px rgba(233,30,99,.18);}100%{box-shadow:0 0 0 0 rgba(233,30,99,0);}}
+        .edit-section.section-highlight{animation:section-flash .75s ease-out;border-color:var(--accent-color)!important;}
         .form-group{margin-bottom:15px;}
-        .section-title{font-size:16px;font-weight:bold;margin-bottom:15px;color:var(--accent-color);border-bottom:1px solid #eee;padding-bottom:8px;}
+        .section-title{font-size:12px;font-weight:700;margin:0 -18px 18px;color:#444;background:#f8f9fa;border-bottom:1px solid var(--border-color);padding:11px 18px;display:flex;align-items:center;gap:7px;letter-spacing:0.02em;}
+        .section-title i{color:var(--accent-color);font-size:13px;width:16px;text-align:center;}
         label{display:block;margin-bottom:5px;font-weight:600;font-size:12px;color:#444;}
         input,select,textarea{width:100%;padding:8px;border:1px solid var(--border-color);border-radius:6px;box-sizing:border-box;font-size:13px;}
         input[type="color"]{width:36px;height:36px;padding:2px;border:1px solid #ddd;border-radius:8px;cursor:pointer;flex-shrink:0;}
@@ -94,7 +99,10 @@
         .preview-area{flex:1;background:var(--preview-bg);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:40px 20px;}
         .mobile-frame{width:375px;min-height:812px;background:white;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;border:10px solid #1a1a1a;position:relative;}
         .preview-scroll-container{flex:1;overflow-y:auto;scrollbar-width:none;}
-        .p-section{padding:60px 20px;text-align:center;border-bottom:1px solid #f5f5f5;position:relative;}
+        .p-section{padding:60px 20px;text-align:center;border-bottom:1px solid #f5f5f5;position:relative;cursor:pointer;}
+        .p-section:hover{outline:2px solid rgba(233,30,99,0.25);outline-offset:-1px;}
+        .p-section::before{content:'편집';position:absolute;top:6px;right:10px;font-size:9px;font-weight:700;color:var(--accent-color);background:var(--primary-color);padding:2px 8px;border-radius:10px;opacity:0;transition:opacity .15s;pointer-events:none;z-index:5;}
+        .p-section:hover::before{opacity:1;}
         .p-title-small{font-size:11px;color:var(--accent-color);letter-spacing:3px;margin-bottom:25px;text-transform:uppercase;font-weight:700;}
 
         .p-reveal{opacity:0;transform:translateY(44px);transition:opacity 1.1s cubic-bezier(0.16,1,0.3,1),transform 1.1s cubic-bezier(0.16,1,0.3,1);}
@@ -102,7 +110,10 @@
         .p-reveal.p-reveal-no-transition{transition:none !important;}
 
         /* Classic Cover Layout (Rollback) */
-        .p-cover-container { position: relative; width: 100%; height: 600px; background: #fff9fa; overflow: hidden; }
+        .p-cover-container{cursor:pointer;}
+        .p-cover-container::after{content:'커버 편집';position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,0.4);padding:2px 9px;border-radius:10px;opacity:0;transition:opacity .15s;pointer-events:none;z-index:20;}
+        .p-cover-container:hover::after{opacity:1;}
+        .p-cover-container { position: relative; width: 100%; height: 600px; background: linear-gradient(160deg, var(--cover-grad-from, #f8bbd0), var(--cover-grad-to, #e91e63)); overflow: hidden; }
         #p-cover-media-box { position: absolute !important; top: -15% !important; left: 0; width: 100% !important; height: 130% !important; will-change: transform; }
         .p-cover-media { width: 100%; height: 100%; object-fit: cover; }
         .p-cover-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 2; }
@@ -218,16 +229,7 @@
             .app-header-nav a, .app-header-nav button { font-size: 11px !important; }
             .app-body { flex-direction: column; }
             .sidebar { width: 100%; border-right: none; flex-direction: column; }
-            .sidebar-nav { width: 100%; height: auto; display: flex; flex-direction: column; align-items: stretch; padding: 8px 12px; border-right: none; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; background: #f8f9fa; }
-
-            .nav-items-row { display: flex; flex-direction: row; flex-wrap: wrap; overflow: hidden; gap: 6px; max-height: 50px; transition: max-height 0.25s ease; }
-            .nav-items-row.expanded { max-height: 600px; }
-            .nav-item { width: auto; height: auto; min-width: 64px; flex: 0 0 auto; padding: 8px 4px; margin-bottom: 0; border-radius: 6px; }
-            .nav-item i { font-size: 16px; margin-bottom: 2px; }
-
-            .nav-more-btn-small { display: flex; align-items: center; justify-content: center; gap: 5px; width: fit-content; margin: 6px auto 0; padding: 5px 16px; border-radius: 20px; background: #fff; border: 1px solid var(--border-color); font-size: 11px; font-weight: 600; color: var(--accent-color); cursor: pointer; }
-            .nav-more-btn-small .nav-trigger-chevron { transition: transform 0.2s; font-size: 9px; }
-            .nav-more-btn-small.open .nav-trigger-chevron { transform: rotate(180deg); }
+            .sidebar-nav { display: none; }
             .editor-pane { width: 100%; height: auto; }
             .preview-area { width: 100%; padding: 20px 10px; min-height: 100vh; }
             .mobile-frame { width: 100%; max-width: 375px; border: 2px solid #1a1a1a; border-radius: 20px; min-height: auto; height: auto; overflow: hidden; }
@@ -258,30 +260,25 @@
     </header>
     <div class="app-body">
     <div class="sidebar">
-        <div class="sidebar-nav">
-            <div class="nav-items-row">
-                <div class="nav-item active" onclick="switchSection('cover')"><i class="fa-solid fa-image"></i>커버</div>
-                <div class="nav-item" onclick="switchSection('design')"><i class="fa-solid fa-palette"></i>디자인</div>
-                <div class="nav-item" onclick="switchSection('effect')"><i class="fa-solid fa-wand-magic-sparkles"></i>효과</div>
-                <div class="nav-item" onclick="switchSection('weddingday')"><i class="fa-solid fa-calendar-check"></i>예식 일시</div>
-                <div class="nav-item" onclick="switchSection('greeting')"><i class="fa-solid fa-comment-dots"></i>인사말</div>
-                <div class="nav-item" onclick="switchSection('intro')"><i class="fa-solid fa-user-friends"></i>신랑신부</div>
-                <div class="nav-item" onclick="switchSection('gallery')"><i class="fa-solid fa-images"></i>갤러리</div>
-                <div class="nav-item" onclick="switchSection('location')"><i class="fa-solid fa-map-location-dot"></i>오시는 길</div>
-                <div class="nav-item" onclick="switchSection('account')"><i class="fa-solid fa-credit-card"></i>계좌번호</div>
-                <div class="nav-item" onclick="switchSection('guestbook')"><i class="fa-solid fa-book-open"></i>방명록</div>
-                <div class="nav-item" onclick="switchSection('rsvp')"><i class="fa-solid fa-clipboard-check"></i>참석의사</div>
-                <div class="nav-item" onclick="switchSection('thanks')"><i class="fa-solid fa-heart"></i>감사 인사</div>
-                <div class="nav-item" onclick="switchSection('order')"><i class="fa-solid fa-sort"></i>순서</div>
-            </div>
-
-            <div class="nav-more-btn-small" id="nav-more-btn" onclick="toggleNavExpand()">
-                <span id="nav-more-label">더보기</span><i class="fa-solid fa-chevron-down nav-trigger-chevron"></i>
-            </div>
-        </div>
         <div class="editor-pane">
             <div class="sidebar-header">
-                <span>청첩장 편집</span>
+                <select class="section-jump" onchange="jumpToSection(this.value)">
+                    <option value="">— 섹션 이동 —</option>
+                    <option value="cover">커버</option>
+                    <option value="design">디자인 테마</option>
+                    <option value="effect">효과</option>
+                    <option value="weddingday">예식 일시</option>
+                    <option value="greeting">인사말</option>
+                    <option value="intro">신랑·신부</option>
+                    <option value="gallery">갤러리</option>
+                    <option value="location">오시는 길</option>
+                    <option value="account">계좌번호</option>
+                    <option value="guestbook">방명록</option>
+                    <option value="rsvp">참석의사</option>
+                    <option value="thanks">감사 인사</option>
+                    <option value="order">섹션 순서</option>
+                </select>
+                <button class="sidebar-save-btn" onclick="openSaveModal()"><i class="fa-solid fa-floppy-disk"></i> 저장</button>
                 <button class="view-toggle-btn" onclick="toggleMobileView()">
                     <span id="toggle-icon"><i class="fa-solid fa-eye"></i></span>
                     <span id="toggle-text">미리보기</span>
@@ -290,7 +287,7 @@
             <div class="editor-content" id="editor-forms">
                 <!-- Cover -->
                 <div id="edit-cover" class="edit-section active">
-                    <div class="section-title">커버 설정</div>
+                    <div class="section-title"><i class="fa-solid fa-image"></i>커버 설정</div>
                     <div class="form-group"><label>메인 타이틀</label><input type="text" id="in-cover-title" value="Happy Wedding" oninput="up()"></div>
                     <div class="form-group"><label>이름 표시 텍스트</label><input type="text" id="in-cover-names" value="김신랑 & 이신부" oninput="up()"></div>
                     <div class="form-group"><label>날짜 표시 텍스트</label><input type="text" id="in-cover-date-text" value="2026. 06. 12" oninput="up()"></div>
@@ -363,7 +360,7 @@
                 </div>
                 <!-- Effects -->
                 <div id="edit-design" class="edit-section">
-                    <div class="section-title">디자인 테마</div>
+                    <div class="section-title"><i class="fa-solid fa-palette"></i>디자인 테마</div>
                     <label style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;display:block;margin-bottom:10px;">MOOD</label>
                     <p style="font-size:11px;color:#bbb;margin-bottom:12px;">커버 폰트·레이아웃·효과를 한 번에 설정합니다. (컬러 제외)</p>
                     <div class="mood-grid">
@@ -460,7 +457,7 @@
                     </div>
                 </div>
                 <div id="edit-effect" class="edit-section">
-                    <div class="section-title">효과 설정</div>
+                    <div class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i>효과 설정</div>
                     <div class="form-group">
                         <label>배경음악 URL (mp3)</label>
                         <input type="text" id="in-bgm-url" placeholder="https://example.com/song.mp3" oninput="up()">
@@ -494,17 +491,17 @@
                 </div>
                 <!-- Date -->
                 <div id="edit-weddingday" class="edit-section">
-                    <div class="section-title">예식 일시</div>
+                    <div class="section-title"><i class="fa-solid fa-calendar-check"></i>예식 일시</div>
                     <div class="form-group"><label>날짜 및 시간</label><input type="datetime-local" id="in-date" value="2026-06-12T12:00" oninput="up()"></div>
                 </div>
                 <!-- Greeting -->
                 <div id="edit-greeting" class="edit-section">
-                    <div class="section-title">인사말 편집</div>
+                    <div class="section-title"><i class="fa-solid fa-comment-dots"></i>인사말</div>
                     <div id="greet-editor"></div>
                 </div>
                 <!-- People -->
                 <div id="edit-intro" class="edit-section">
-                    <div class="section-title">신랑·신부 정보</div>
+                    <div class="section-title"><i class="fa-solid fa-user-friends"></i>신랑·신부 정보</div>
                     <div class="form-group"><label>신랑 성함</label><input type="text" id="in-groom" value="김신랑" oninput="up()"></div>
                     <div class="form-group"><label>신랑 연락처</label><input type="text" id="in-groom-tel" value="010-1234-5678" oninput="up()"></div>
                     <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:15px;">
@@ -531,7 +528,7 @@
                 </div>
                 <!-- Gallery -->
                 <div id="edit-gallery" class="edit-section">
-                    <div class="section-title">갤러리</div>
+                    <div class="section-title"><i class="fa-solid fa-images"></i>갤러리</div>
                     <div class="form-group">
                         <label>사진 추가 (여러 장 가능)</label>
                         <div class="file-upload-wrapper">
@@ -542,7 +539,7 @@
                 </div>
                 <!-- Location -->
                 <div id="edit-location" class="edit-section">
-                    <div class="section-title">오시는 길</div>
+                    <div class="section-title"><i class="fa-solid fa-map-location-dot"></i>오시는 길</div>
                     <div class="form-group"><label>예식장 이름</label><input type="text" id="in-venue" value="시그니엘 서울" oninput="up()"></div>
                     <div class="form-group">
                         <label>주소</label>
@@ -558,7 +555,7 @@
                 </div>
                 <!-- Account -->
                 <div id="edit-account" class="edit-section">
-                    <div class="section-title">계좌번호</div>
+                    <div class="section-title"><i class="fa-solid fa-credit-card"></i>계좌번호</div>
                     <div class="form-group">
                         <label>신랑 계좌</label>
                         <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:8px;">
@@ -614,7 +611,7 @@
                 </div>
                 <!-- Guestbook Settings -->
                 <div id="edit-guestbook" class="edit-section">
-                    <div class="section-title">방명록 설정</div>
+                    <div class="section-title"><i class="fa-solid fa-book-open"></i>방명록</div>
                     <div class="form-group">
                         <label>방명록 사용 여부</label>
                         <input type="hidden" id="in-gb-use" value="y">
@@ -630,7 +627,7 @@
                 </div>
                 <!-- RSVP Settings -->
                 <div id="edit-rsvp" class="edit-section">
-                    <div class="section-title">참석의사 전달 설정</div>
+                    <div class="section-title"><i class="fa-solid fa-clipboard-check"></i>참석의사</div>
                     <div class="form-group">
                         <label>참석의사 전달 사용 여부</label>
                         <input type="hidden" id="in-rsvp-use" value="y">
@@ -646,7 +643,7 @@
                 </div>
                 <!-- Thanks -->
                 <div id="edit-thanks" class="edit-section">
-                    <div class="section-title">감사 인사 설정</div>
+                    <div class="section-title"><i class="fa-solid fa-heart"></i>감사 인사</div>
                     <div class="form-group"><label>감사 타이틀</label><input type="text" id="in-thanks-title" value="Thank You" oninput="up()"></div>
                     <div class="form-group"><label>타이틀 폰트</label>
                         <select id="in-thanks-title-font" onchange="up()">
@@ -680,13 +677,12 @@
                     </div>
                 </div>
                 <div id="edit-order" class="edit-section">
-                    <div class="section-title">섹션 순서</div>
+                    <div class="section-title"><i class="fa-solid fa-sort"></i>섹션 순서</div>
                     <p style="font-size:12px;color:#999;margin-bottom:14px;">▲▼ 버튼으로 순서를 바꾸면 청첩장에 바로 반영됩니다.</p>
                     <input type="hidden" id="in-section-order" value="">
                     <div id="section-order-list"></div>
                 </div>
             </div>
-            <div class="actions"><button class="btn-save" onclick="openSaveModal()">저장</button></div>
         </div>
     </div>
 
@@ -1215,12 +1211,16 @@
         }
 
         function switchSection(id){
-            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-            document.querySelectorAll('.edit-section').forEach(s=>s.classList.remove('active'));
-            const n=document.querySelector(`.nav-item[onclick="switchSection('${id}')"]`); if(n) n.classList.add('active');
-            const s=document.getElementById('edit-'+id); if(s) s.classList.add('active');
+            const s=document.getElementById('edit-'+id);
+            if(s){ s.scrollIntoView({behavior:'smooth',block:'start'}); }
             if(id==='order') renderOrderList();
             if(id==='design') renderThemeSwatches();
+        }
+        function jumpToSection(id){
+            if(!id) return;
+            switchSection(id);
+            const sel = document.querySelector('.section-jump');
+            if(sel) setTimeout(()=>{ sel.value=''; }, 600);
         }
 
         function toggleNavExpand(){
@@ -1826,9 +1826,13 @@
             if (frame) {
                 frame.style.setProperty('--accent-color', accent);
                 frame.style.setProperty('--primary-color', primary);
+                frame.style.setProperty('--cover-grad-from', primary);
+                frame.style.setProperty('--cover-grad-to', accent);
             }
             document.documentElement.style.setProperty('--accent-color', accent);
             document.documentElement.style.setProperty('--primary-color', primary);
+            document.documentElement.style.setProperty('--cover-grad-from', primary);
+            document.documentElement.style.setProperty('--cover-grad-to', accent);
         }
 
         const SECTION_DEFS = [
@@ -1935,6 +1939,53 @@
                 });
             });
         }
+
+        // Preview section → Edit section navigation
+        const PREVIEW_TO_EDIT = {
+            greeting: 'greeting',
+            contact:  'intro',
+            gallery:  'gallery',
+            calendar: 'weddingday',
+            location: 'location',
+            account:  'account',
+            guestbook:'guestbook',
+            rsvp:     'rsvp',
+            thanks:   'thanks'
+        };
+
+        function jumpToEditSection(editKey) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && sidebar.classList.contains('mobile-hide')) toggleMobileView();
+            const el = document.getElementById('edit-' + editKey);
+            if (!el) return;
+            const editorContent = document.getElementById('editor-forms');
+            if (editorContent) {
+                const cRect = editorContent.getBoundingClientRect();
+                const eRect = el.getBoundingClientRect();
+                editorContent.scrollTo({ top: eRect.top - cRect.top + editorContent.scrollTop - 12, behavior: 'smooth' });
+            }
+            if (editKey === 'order') renderOrderList();
+            if (editKey === 'design') renderThemeSwatches();
+            el.classList.remove('section-highlight');
+            void el.offsetWidth;
+            el.classList.add('section-highlight');
+            setTimeout(() => el.classList.remove('section-highlight'), 900);
+        }
+
+        (function initPreviewClickHandlers() {
+            document.querySelectorAll('#p-container .p-section[data-section]').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (e.target.closest('button,input,textarea,select,a,label')) return;
+                    const editKey = PREVIEW_TO_EDIT[this.dataset.section];
+                    if (editKey) jumpToEditSection(editKey);
+                });
+            });
+            const cover = document.querySelector('.p-cover-container');
+            if (cover) cover.addEventListener('click', function(e) {
+                if (e.target.closest('button,input,textarea,select,a,label')) return;
+                jumpToEditSection('cover');
+            });
+        })();
 
         async function suggestTransit() {
             const address = gV('in-addr').trim();
