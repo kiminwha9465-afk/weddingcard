@@ -109,7 +109,7 @@
                     <a th:href="@{'/c/' + ${card.id}}" target="_blank">보기</a>
                     <a class="primary" th:href="@{'/manage/' + ${card.id} + '?key=' + ${card.adminKey}}" target="_blank">참석/방명록</a>
                 </div>
-                <a th:unless="${card.paid}" th:href="@{'/pay/' + ${card.id}}" class="pay-btn-card" style="display:block;text-align:center;text-decoration:none;">결제하기 · 9,900원</a>
+                <a th:unless="${card.paid}" th:href="@{'/pay/' + ${card.id}}" class="pay-btn-card" style="display:block;text-align:center;text-decoration:none;">결제하기</a>
                 <button class="card-delete-btn" th:data-id="${card.id}" th:data-names="${card.names}" onclick="confirmDelete(this.dataset.id, this.dataset.names)">삭제</button>
             </div>
         </div>

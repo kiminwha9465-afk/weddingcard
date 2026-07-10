@@ -117,7 +117,7 @@ public class WeddingCardService {
         List<CommentResponse> comments = commentRepository.findByCardIdOrderByCreatedAtDesc(id).stream()
                 .map(CommentResponse::from)
                 .toList();
-        return new CardResponse(card.getId(), readJson(card.getDataJson()), comments);
+        return new CardResponse(card.getId(), readJson(card.getDataJson()), comments, card.isPaid());
     }
 
     @Transactional(readOnly = true)

@@ -30,6 +30,7 @@ public class EditorController {
         model.addAttribute("cardId", "");
         model.addAttribute("cardDataJson", "null");
         model.addAttribute("cardAdminKey", "");
+        model.addAttribute("cardPaid", false);
         model.addAttribute("kakaoJsKey", kakaoJsKey);
         return "editor";
     }
@@ -45,6 +46,7 @@ public class EditorController {
             model.addAttribute("cardId", card.id());
             model.addAttribute("cardDataJson", toJson(card.data()));
             model.addAttribute("cardAdminKey", cardService.getAdminKey(id));
+            model.addAttribute("cardPaid", card.paid());
             model.addAttribute("kakaoJsKey", kakaoJsKey);
             return "editor";
         } catch (CardNotFoundException e) {
