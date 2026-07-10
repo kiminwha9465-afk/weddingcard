@@ -2049,6 +2049,7 @@
         }
 
         let kakaoMapInstance = null;
+
         function showMapFallback(address) {
             const container = gE('p-map-iframe');
             if (!container) return;
@@ -2061,11 +2062,56 @@
                 <span style="font-size:10px;color:#aaa;">${address}</span>
             </a>`;
         }
+
+        function loadLeaflet() {
+            return new Promise((resolve) => {
+                if (window.L) { resolve(); return; }
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                document.head.appendChild(link);
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                script.onload = resolve;
+                script.onerror = resolve;
+                document.head.appendChild(script);
+            });
+        }
+
+        async function renderLeafletMap(address) {
+            const container = gE('p-map-iframe');
+            if (!container) return;
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=kr`,
+                    { headers: { 'Accept-Language': 'ko' } }
+                );
+                const data = await res.json();
+                if (!data || !data.length) { showMapFallback(address); return; }
+                const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+                await loadLeaflet();
+                if (!window.L) { showMapFallback(address); return; }
+                container.innerHTML = '';
+                const map = L.map(container).setView([lat, lng], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    maxZoom: 19
+                }).addTo(map);
+                const icon = L.divIcon({
+                    html: '<div style="width:28px;height:28px;background:#e91e63;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
+                    iconSize: [28, 28], iconAnchor: [14, 28], className: ''
+                });
+                L.marker([lat, lng], { icon }).addTo(map);
+            } catch(e) {
+                showMapFallback(address);
+            }
+        }
+
         function renderKakaoMap(address) {
             const container = gE('p-map-iframe');
             if (!container || !address) return;
             if (!window.kakao || !window.kakao.maps) {
-                showMapFallback(address);
+                renderLeafletMap(address);
                 return;
             }
             kakao.maps.load(() => {
@@ -2077,11 +2123,11 @@
                             kakaoMapInstance = new kakao.maps.Map(container, { center: coords, level: 3 });
                             new kakao.maps.Marker({ map: kakaoMapInstance, position: coords });
                         } else {
-                            showMapFallback(address);
+                            renderLeafletMap(address);
                         }
                     });
                 } catch(e) {
-                    showMapFallback(address);
+                    renderLeafletMap(address);
                 }
             });
         }
