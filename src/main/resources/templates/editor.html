@@ -2049,19 +2049,40 @@
         }
 
         let kakaoMapInstance = null;
+        function showMapFallback(address) {
+            const container = gE('p-map-iframe');
+            if (!container) return;
+            const encoded = encodeURIComponent(address);
+            container.innerHTML = `<a href="https://map.kakao.com/?q=${encoded}" target="_blank"
+                style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                       height:100%;color:#555;text-decoration:none;gap:8px;background:#f8f8f8;">
+                <i class="fa-solid fa-map-location-dot" style="font-size:24px;color:#e91e63;"></i>
+                <span style="font-size:12px;font-weight:600;">카카오맵에서 보기</span>
+                <span style="font-size:10px;color:#aaa;">${address}</span>
+            </a>`;
+        }
         function renderKakaoMap(address) {
             const container = gE('p-map-iframe');
             if (!container || !address) return;
-            if (!window.kakao || !window.kakao.maps) return;
+            if (!window.kakao || !window.kakao.maps) {
+                showMapFallback(address);
+                return;
+            }
             kakao.maps.load(() => {
-                const geocoder = new kakao.maps.services.Geocoder();
-                geocoder.addressSearch(address, (result, status) => {
-                    if (status === kakao.maps.services.Status.OK) {
-                        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                        kakaoMapInstance = new kakao.maps.Map(container, { center: coords, level: 3 });
-                        new kakao.maps.Marker({ map: kakaoMapInstance, position: coords });
-                    }
-                });
+                try {
+                    const geocoder = new kakao.maps.services.Geocoder();
+                    geocoder.addressSearch(address, (result, status) => {
+                        if (status === kakao.maps.services.Status.OK) {
+                            const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                            kakaoMapInstance = new kakao.maps.Map(container, { center: coords, level: 3 });
+                            new kakao.maps.Marker({ map: kakaoMapInstance, position: coords });
+                        } else {
+                            showMapFallback(address);
+                        }
+                    });
+                } catch(e) {
+                    showMapFallback(address);
+                }
             });
         }
 
