@@ -1267,9 +1267,12 @@
                 target = container.querySelector(`.p-section[data-section="${mapped}"]`);
             }
             if(!target) return;
-            const cRect = container.getBoundingClientRect();
-            const tRect = target.getBoundingClientRect();
-            container.scrollBy({top: tRect.top - cRect.top, behavior:'smooth'});
+            requestAnimationFrame(() => {
+                const top = target.getBoundingClientRect().top
+                          - container.getBoundingClientRect().top
+                          + container.scrollTop;
+                container.scrollTo({top, behavior:'smooth'});
+            });
         }
         function switchSection(id){
             const s=document.getElementById('edit-'+id);
